@@ -7,24 +7,25 @@
 using namespace Rcpp;
 
 // fill_cell_gene
-List fill_cell_gene(const char* fn, List genes, std::vector<std::string> whitelist, int est_ncells, int est_ngenes, bool display_progress);
-RcppExport SEXP _BUStoolsR_fill_cell_gene(SEXP fnSEXP, SEXP genesSEXP, SEXP whitelistSEXP, SEXP est_ncellsSEXP, SEXP est_ngenesSEXP, SEXP display_progressSEXP) {
+List fill_cell_gene(const char* fn, List genes, int est_ncells, int est_ngenes, std::vector<std::string> whitelist, bool display_progress, int progress_unit);
+RcppExport SEXP _BUStoolsR_fill_cell_gene(SEXP fnSEXP, SEXP genesSEXP, SEXP est_ncellsSEXP, SEXP est_ngenesSEXP, SEXP whitelistSEXP, SEXP display_progressSEXP, SEXP progress_unitSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const char* >::type fn(fnSEXP);
     Rcpp::traits::input_parameter< List >::type genes(genesSEXP);
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type whitelist(whitelistSEXP);
     Rcpp::traits::input_parameter< int >::type est_ncells(est_ncellsSEXP);
     Rcpp::traits::input_parameter< int >::type est_ngenes(est_ngenesSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type whitelist(whitelistSEXP);
     Rcpp::traits::input_parameter< bool >::type display_progress(display_progressSEXP);
-    rcpp_result_gen = Rcpp::wrap(fill_cell_gene(fn, genes, whitelist, est_ncells, est_ngenes, display_progress));
+    Rcpp::traits::input_parameter< int >::type progress_unit(progress_unitSEXP);
+    rcpp_result_gen = Rcpp::wrap(fill_cell_gene(fn, genes, est_ncells, est_ngenes, whitelist, display_progress, progress_unit));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_BUStoolsR_fill_cell_gene", (DL_FUNC) &_BUStoolsR_fill_cell_gene, 6},
+    {"_BUStoolsR_fill_cell_gene", (DL_FUNC) &_BUStoolsR_fill_cell_gene, 7},
     {NULL, NULL, 0}
 };
 

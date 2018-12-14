@@ -1,11 +1,22 @@
 Package: BUStoolsR
 Type: Package
 Title: Process kallisto-bus outputs in R
-Version: 1.0
+Version: 0.99.0
 Date: 2018-12-13
-Author@R: person("Lambda", "Moses", email = "dlu2@caltech.edu")
+Author@R: person("Lambda", "Moses", email = "dlu2@caltech.edu", role = c("aut", "cre"))
 Description: More about what it does (maybe more than one line)
 License: What license is it under?
 Imports: Rcpp (>= 1.0.0)
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 6.1.1
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr
+Collate: 
+    'RcppExports.R'
+    'sparse_matrix.R'
+    'tr2g.R'
+    'utils.R'
+Encoding: UTF-8

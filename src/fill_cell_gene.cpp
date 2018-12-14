@@ -23,30 +23,12 @@ vector<string> gene_intersect(vector<string> a, vector<string> b) {
   return out;
 }
 
-//' Convert the Output of \code{kallisto} into Gene by Gell Matrix
-//' 
-//' This function takes the output file, usually \code{output.sort.txt}, from kallisto,
-//' which has 4 columns: barcode, UMI, equivalence class, and counts, and generates
-//' the row indices, column pointers, gene UMI count values, accepted barcodes, 
-//' and genes (for dim names) to be used in R to construct a sparse matrix.
-//' 
-//' @param fn File name of the kallisto main output file.
-//' @param genes A list with each element a string vector of genes that an equivalence
-//' class maps to, generated earlier in R.
-//' @param whitelist A string vector showing whiteliisted barcodes from 10x.
-//' @param est_ncells Estimated number of cells; providing this argument will
-//' speed up computation as it minimizes memory reallocation as vectors grow.
-//' @param est_ngenes Estimated number of genes.
-//' @param display_progress Whether to display progress.
-//' 
-//' @return A list with row indices, column pointers, gene UMI count values, 
-//' barcodes (for column names), and gene IDs (for row names). You should construct
-//' the sparse matrix in R.
-//' @export
 //[[Rcpp::export]]
-List fill_cell_gene(const char* fn, List genes, std::vector<std::string> whitelist,
+List fill_cell_gene(const char* fn, List genes, 
                     int est_ncells, int est_ngenes,
-                    bool display_progress = true) {
+                    std::vector<std::string> whitelist,
+                    bool display_progress = true,
+                    int progress_unit = 5e6) {
   ifstream infile(fn);
   string bc, umi, ec_str, cts;
   string pbar = "", pumi = "";
@@ -54,6 +36,7 @@ List fill_cell_gene(const char* fn, List genes, std::vector<std::string> whiteli
   vector<string> gs, gl;
   unordered_map<string, unordered_map<string, double>> cell_gene;
   cell_gene.reserve(est_ncells);
+  int wl_size = whitelist.size();
   // Convert whitelist into unordered_set to speed up lookup
   unordered_set<string> wl(whitelist.begin(), whitelist.end());
   Rcout << "Reading data" << endl;
@@ -62,7 +45,8 @@ List fill_cell_gene(const char* fn, List genes, std::vector<std::string> whiteli
       checkUserInterrupt();
     }
     // If barcode is not in whitelist, skip to the next barcode
-    if (wl.find(bc) == wl.end()) {
+    // Won't skip if whitelist has length 1, a place holder for NA
+    if (wl_size > 1 && wl.find(bc) == wl.end()) {
       continue;
     }
     ec = stoi(ec_str);
@@ -92,7 +76,7 @@ List fill_cell_gene(const char* fn, List genes, std::vector<std::string> whiteli
     }
     // Some sense of progress
     if (display_progress) {
-      if (i % 5000000 == 0 && i > 0) {
+      if (i % progress_unit == 0 && i > 0) {
         Rcout << "Read " << i/1e6 << " million lines" << endl;
       }
     }
@@ -109,7 +93,7 @@ List fill_cell_gene(const char* fn, List genes, std::vector<std::string> whiteli
   vector<string> barcodes, geneIDs;
   barcodes.reserve(est_ncells); geneIDs.reserve(est_ngenes);
   vector<double> values;
-  values.reserve(i);
+  values.reserve(i); // Now i is the number of line in the output file
   vector<int> rowind, colptr;
   rowind.reserve(i); colptr.reserve(est_ncells + 1);
   unordered_map<string, int> rowind_map;
