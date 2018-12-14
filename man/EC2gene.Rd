@@ -4,11 +4,13 @@
 \alias{EC2gene}
 \title{Map EC Index to Genes Compatible with the EC}
 \usage{
-EC2gene(tr2g, ncores = 1, verbose = TRUE)
+EC2gene(tr2g, kallisto_out_path, ncores = 1, verbose = TRUE)
 }
 \arguments{
 \item{tr2g}{A Data frame with columns \code{gene} and \code{transcript}, in
 the same order as in the transcriptome index for \code{kallisto}.}
+
+\item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
 \item{ncores}{Number of cores to use, defaults to 1.}
 
