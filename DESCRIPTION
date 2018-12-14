@@ -1,0 +1,11 @@
+Package: BUStoolsR
+Type: Package
+Title: Process kallisto-bus outputs in R
+Version: 1.0
+Date: 2018-12-13
+Author@R: person("Lambda", "Moses", email = "dlu2@caltech.edu")
+Description: More about what it does (maybe more than one line)
+License: What license is it under?
+Imports: Rcpp (>= 1.0.0)
+LinkingTo: Rcpp, RcppArmadillo, RcppProgress
+RoxygenNote: 6.1.1
