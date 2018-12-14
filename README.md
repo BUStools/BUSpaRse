@@ -16,4 +16,4 @@ devtools::install_github("lambdamoses/BUStoolsR")
 This is work in progress. I'm trying to get this package to Bioconductor.
 
 ## Example
-See [the vignettes](https://github.com/lambdamoses/BUStoolsR_notebooks) for examples of using `BUStoolsR`. The vignettes will walk you through the complete workflow going from downloading the fastq files to the sparse matrix, with 10x v2 (10x v3, Drop-seq, inDrops, and CEL-seq2 coming soon) datasets. 
+See [the vignettes](https://lambdamoses.github.io/BUStoolsR_notebooks/index.html) for examples of using `BUStoolsR`. The vignettes will walk you through the complete workflow going from downloading the fastq files to the sparse matrix, with 10x v2 (10x v3, Drop-seq, inDrops, and CEL-seq2 coming soon) datasets. 
