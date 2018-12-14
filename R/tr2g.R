@@ -69,7 +69,7 @@ EC2gene <- function(tr2g, kallisto_out_path, ncores = 1, verbose = TRUE) {
   # Read in matrix.ec
   if (verbose) cat("Reading matrix.ec\n")
   path_use <- normalizePath(kallisto_out_path, mustWork = TRUE)
-  ECs <- fread(paste(path_use, "matrix.ec", "/"), col.names = c("EC_index", "EC"),
+  ECs <- fread(paste(path_use, "matrix.ec", sep = "/"), col.names = c("EC_index", "EC"),
                data.table = TRUE, showProgress = verbose)
   if (verbose) cat("Processing genes\n")
   ECs[, c("EC_index", "EC") := list(EC_index, 
