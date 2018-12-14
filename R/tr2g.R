@@ -51,6 +51,7 @@ transcript2gene <- function(species, kallisto_out_path) {
 #' \code{make_sparse_matrix} in the next step in the workflow, which will 
 #' produce the sparse matrix that can be used in \code{Seurat}.
 #' 
+#' @inheritParams transcript2gene
 #' @param tr2g A Data frame with columns \code{gene} and \code{transcript}, in
 #' the same order as in the transcriptome index for \code{kallisto}.
 #' @param ncores Number of cores to use, defaults to 1.
@@ -63,11 +64,12 @@ transcript2gene <- function(species, kallisto_out_path) {
 #' @importFrom parallel mclapply
 #' @export
 #' 
-EC2gene <- function(tr2g, ncores = 1, verbose = TRUE) {
+EC2gene <- function(tr2g, kallisto_out_path, ncores = 1, verbose = TRUE) {
   genes <- tr2g$gene
   # Read in matrix.ec
   if (verbose) cat("Reading matrix.ec\n")
-  ECs <- fread("./out_hgmm1k/matrix.ec", col.names = c("EC_index", "EC"),
+  path_use <- normalizePath(kallisto_out_path, mustWork = TRUE)
+  ECs <- fread(paste(path_use, "matrix.ec", "/"), col.names = c("EC_index", "EC"),
                data.table = TRUE, showProgress = verbose)
   if (verbose) cat("Processing genes\n")
   ECs[, c("EC_index", "EC") := list(EC_index, 
