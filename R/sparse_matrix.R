@@ -1,4 +1,4 @@
-#' @useDynLib BUStoolsR
+#' @useDynLib BUSpaRse
 #' @importFrom Rcpp sourceCpp
 NULL
 

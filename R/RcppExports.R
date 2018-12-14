@@ -2,6 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 fill_cell_gene <- function(fn, genes, est_ncells, est_ngenes, whitelist, display_progress = TRUE, progress_unit = 5e6L) {
-    .Call('_BUStoolsR_fill_cell_gene', PACKAGE = 'BUStoolsR', fn, genes, est_ncells, est_ngenes, whitelist, display_progress, progress_unit)
+    .Call('_BUSpaRse_fill_cell_gene', PACKAGE = 'BUSpaRse', fn, genes, est_ncells, est_ngenes, whitelist, display_progress, progress_unit)
 }
 

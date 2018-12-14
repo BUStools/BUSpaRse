@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // fill_cell_gene
 List fill_cell_gene(const char* fn, List genes, int est_ncells, int est_ngenes, std::vector<std::string> whitelist, bool display_progress, int progress_unit);
-RcppExport SEXP _BUStoolsR_fill_cell_gene(SEXP fnSEXP, SEXP genesSEXP, SEXP est_ncellsSEXP, SEXP est_ngenesSEXP, SEXP whitelistSEXP, SEXP display_progressSEXP, SEXP progress_unitSEXP) {
+RcppExport SEXP _BUSpaRse_fill_cell_gene(SEXP fnSEXP, SEXP genesSEXP, SEXP est_ncellsSEXP, SEXP est_ngenesSEXP, SEXP whitelistSEXP, SEXP display_progressSEXP, SEXP progress_unitSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -25,11 +25,11 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_BUStoolsR_fill_cell_gene", (DL_FUNC) &_BUStoolsR_fill_cell_gene, 7},
+    {"_BUSpaRse_fill_cell_gene", (DL_FUNC) &_BUSpaRse_fill_cell_gene, 7},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_BUStoolsR(DllInfo *dll) {
+RcppExport void R_init_BUSpaRse(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

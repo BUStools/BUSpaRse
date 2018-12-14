@@ -1,4 +1,4 @@
-Package: BUStoolsR
+Package: BUSpaRse
 Type: Package
 Title: Process BUS format in R
 Version: 0.99.0
