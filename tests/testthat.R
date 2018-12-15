@@ -1,4 +1,4 @@
 library(testthat)
-library(BUStoolsR)
+library(BUSpaRse)
 
-test_check("BUStoolsR")
+test_check("BUSpaRse")
