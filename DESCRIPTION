@@ -3,10 +3,14 @@ Type: Package
 Title: Process BUS format in R
 Version: 0.99.0
 Date: 2018-12-13
-Authors@R: person("Lambda", "Moses", email = "dlu2@caltech.edu", role = c("aut", "cre"))
-Description: This package converts kallisto bus outputs (after processing by bustools), into a sparse matrix that can be used in downstream analysis.
-BugReports: https://github.com/lambdamoses/BUStoolsR/issues
-URL: https://github.com/lambdamoses/BUStoolsR
+Authors@R: 
+    person("Lambda", "Moses", email = "dlu2@caltech.edu", 
+    role = c("aut", "cre"))
+Description: 
+    This package converts kallisto bus outputs (after processing by bustools), 
+    into a sparse matrix that can be used in downstream analysis.
+BugReports: https://github.com/BUStools/BUSpaRse/issues
+URL: https://github.com/BUStools/BUSpaRse
 Imports: 
     Rcpp (>= 1.0.0),
     Matrix (>= 1.2.15),
@@ -27,3 +31,6 @@ Collate:
     'utils.R'
 Encoding: UTF-8
 License: MIT + file LICENSE
+biocViews:
+    SingleCell,
+    RNASeq
