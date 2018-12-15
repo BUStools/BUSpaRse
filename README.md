@@ -16,4 +16,4 @@ devtools::install_github("BUStools/BUSpaRse")
 This is work in progress. The package will be available on Bioconductor shortly.
 
 ## Example
-See [the vignettes](https://bustools.github.io/BUS_notebooks_R/index.html) for examples of using `BUSpaRse`. The vignettes contain a complete walk-through, starting with downloading of the FASTQ files for an experiment and ending with an analysis. There are currently vignettes for 10x v2 technology datasets (10x v3, Drop-seq, inDrops, and CEL-seq2 coming soon). 
+See [the vignettes](https://bustools.github.io/BUS_notebooks_R/index.html) for examples of using `BUSpaRse`. The vignettes contain a complete walk-through, starting with downloading of the FASTQ files for an experiment and ending with an analysis. There are currently vignettes for 10x v2 and 10x v3 technology datasets (Drop-seq, inDrops, and CEL-seq2 coming soon). 
