@@ -1,4 +1,4 @@
-[![Travis build status](https://travis-ci.org/BUStools/BUSpaRse.svg?branch=master)](https://travis-ci.org/BUStools/BUSpaRse)
+[![Travis build status](https://travis-ci.com/BUStools/BUSpaRse.svg?branch=master)](https://travis-ci.com/BUStools/BUSpaRse)
 
 # BUSpaRse
 
