@@ -10,10 +10,10 @@ You can install the released version of BUSpaRse with:
 
 ``` r
 if (!require(devtools)) install.packages("devtools")
-devtools::install_github("lambdamoses/BUSpaRse")
+devtools::install_github("BUStools/BUSpaRse")
 ```
 
 This is work in progress. I'm trying to get this package to Bioconductor.
 
 ## Example
-See [the vignettes](https://lambdamoses.github.io/BUSpaRse_notebooks/index.html) for examples of using `BUSpaRse`. The vignettes will walk you through the complete workflow going from downloading the fastq files to the sparse matrix, with 10x v2 (10x v3, Drop-seq, inDrops, and CEL-seq2 coming soon) datasets. 
+See [the vignettes](https://bustools.github.io/BUS_notebooks_R/index.html) for examples of using `BUSpaRse`. The vignettes will walk you through the complete workflow going from downloading the fastq files to the sparse matrix, with 10x v2 (10x v3, Drop-seq, inDrops, and CEL-seq2 coming soon) datasets. 
