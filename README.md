@@ -6,7 +6,7 @@ This package processes files of the `bus` format generated from raw sequencing d
 
 ## Installation
 
-You can install the released version of BUSpaRse with:
+You can install BUSpaRse with:
 
 ``` r
 if (!require(devtools)) install.packages("devtools")
