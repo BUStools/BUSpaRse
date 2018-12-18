@@ -20,8 +20,11 @@ NULL
 #' from \code{kallisto bus} after sorted and converted to text by
 #'  \code{bustools}.
 #' @param genes A list with each element a string vector of genes that an 
-#' equivalence class maps to, generated earlier in R.
-#' @param whitelist A character vector with valid cell barcodes.
+#' equivalence class maps to, generated earlier in \code{EC2gene}.
+#' @param whitelist A character vector with valid cell barcodes. This is an
+#' optional argument, that defaults to \code{NULL}. When it is \code{NULL},
+#' all cell barcodes present will be included in the sparse matrix, not only
+#' the barcodes known to be valid.
 #' @param est_ncells Estimated number of cells; providing this argument will
 #' speed up computation as it minimizes memory reallocation as vectors grow.
 #' @param est_ngenes Estimated number of genes.
@@ -29,6 +32,7 @@ NULL
 #' @param progress_unit How many iteration to print one progress update when
 #' reading in the \code{kallisto bus} file.
 #' @return A sparse matrix with genes in rows and cells in columns.
+#' @seealso \code{\link{EC2gene}}
 #' @importFrom zeallot %<-%
 #' @importClassesFrom Matrix dgCMatrix
 #' @export
@@ -40,12 +44,14 @@ make_sparse_matrix <- function(fn, genes, est_ncells, est_ngenes,
   if (is.null(whitelist)) {
     whitelist <- ""
   }
-  c(res_mat, barcodes, genes) %<-% fill_cell_gene(fn, genes, 
+  # Prevent the no visible binding of global variable note in R CMD check
+  barcodes <- geneIDs <- NULL
+  c(res_mat, barcodes, geneIDs) %<-% fill_cell_gene(fn, genes, 
                                                   est_ncells, est_ngenes, 
                                                   whitelist, 
                                                   display_progress,
                                                   progress_unit)
-  rownames(res_mat) <- genes
+  rownames(res_mat) <- geneIDs
   colnames(res_mat) <- barcodes
   res_mat
 }

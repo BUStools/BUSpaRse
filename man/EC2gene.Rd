@@ -37,3 +37,6 @@ transcript ID on Ensembl. The output of this function should be passed to
 \code{make_sparse_matrix} in the next step in the workflow, which will 
 produce the sparse matrix that can be used in \code{Seurat}.
 }
+\seealso{
+\code{\link{transcript2gene}}
+}

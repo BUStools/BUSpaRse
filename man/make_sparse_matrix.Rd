@@ -13,14 +13,17 @@ from \code{kallisto bus} after sorted and converted to text by
  \code{bustools}.}
 
 \item{genes}{A list with each element a string vector of genes that an 
-equivalence class maps to, generated earlier in R.}
+equivalence class maps to, generated earlier in \code{EC2gene}.}
 
 \item{est_ncells}{Estimated number of cells; providing this argument will
 speed up computation as it minimizes memory reallocation as vectors grow.}
 
 \item{est_ngenes}{Estimated number of genes.}
 
-\item{whitelist}{A character vector with valid cell barcodes.}
+\item{whitelist}{A character vector with valid cell barcodes. This is an
+optional argument, that defaults to \code{NULL}. When it is \code{NULL},
+all cell barcodes present will be included in the sparse matrix, not only
+the barcodes known to be valid.}
 
 \item{display_progress}{Whether to display progress.}
 
@@ -43,4 +46,7 @@ CellRanger installation. You don't need to run CellRanger to get that. An
 example path to get the whitelist file is
 \code{cellranger-2.1.0/cellranger-cs/2.1.0/lib/python/cellranger/barcodes/737K-august-2016.txt}
 for v2 chemistry.
+}
+\seealso{
+\code{\link{EC2gene}}
 }

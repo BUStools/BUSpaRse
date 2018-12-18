@@ -61,6 +61,7 @@ transcript2gene <- function(species, kallisto_out_path) {
 #' is compatible to. The genes are in Ensembl ID with version number. The 
 #' elements of this list are in the same order as the ECs listed in the
 #' \code{kallisto bus} output file \code{matrix.ec}. 
+#' @seealso \code{\link{transcript2gene}}
 #' @importFrom parallel mclapply
 #' @export
 #' 
@@ -69,9 +70,12 @@ EC2gene <- function(tr2g, kallisto_out_path, ncores = 1, verbose = TRUE) {
   # Read in matrix.ec
   if (verbose) cat("Reading matrix.ec\n")
   path_use <- normalizePath(kallisto_out_path, mustWork = TRUE)
-  ECs <- fread(paste(path_use, "matrix.ec", sep = "/"), col.names = c("EC_index", "EC"),
+  ECs <- fread(paste(path_use, "matrix.ec", sep = "/"), 
+               col.names = c("EC_index", "EC"),
                data.table = TRUE, showProgress = verbose)
   if (verbose) cat("Processing genes\n")
+  # Prevent R CMD check note no visible binding for global variable
+  EC_index <- EC <- NULL
   ECs[, c("EC_index", "EC") := list(EC_index, 
                                  strsplit(EC, ","))]
   ECs[, genes := mclapply(EC, 
