@@ -39,7 +39,9 @@ List fill_cell_gene(const char* fn, List genes,
   int wl_size = whitelist.size();
   // Convert whitelist into unordered_set to speed up lookup
   unordered_set<string> wl(whitelist.begin(), whitelist.end());
-  Rcout << "Reading data" << endl;
+  if (display_progress) {
+    Rcout << "Reading data" << endl;
+  }
   while (infile >> bc >> umi >> ec_str >> cts) {
     if (i % 1000 == 0) {
       checkUserInterrupt();
@@ -94,14 +96,16 @@ List fill_cell_gene(const char* fn, List genes,
   barcodes.reserve(est_ncells); geneIDs.reserve(est_ngenes);
   vector<double> values;
   values.reserve(i); // Now i is the number of line in the output file
-  vector<int> rowind, colptr;
-  rowind.reserve(i); colptr.reserve(est_ncells + 1);
+  vector<int> rowind, colind;
+  rowind.reserve(i); colind.reserve(i);
   unordered_map<string, int> rowind_map;
   unordered_map<string, double> g; // for individual genes
   i = 0; // Here keep track of number of iteration in case there's interruption
-  int entry = 0, gene_row = 0; // keep track of how many entries
+  int gene_row = 0; // keep track of how many entries
   string gn; // gene name
-  Rcout << "Constructing sparse matrix" << endl;
+  if (display_progress) {
+    Rcout << "Constructing sparse matrix" << endl;
+  }
   Progress p(cell_gene.size(), display_progress);
   // Consider parallelizing
   for (auto el : cell_gene) {
@@ -109,7 +113,6 @@ List fill_cell_gene(const char* fn, List genes,
       checkUserInterrupt();
     }
     barcodes.push_back(el.first);
-    colptr.push_back(entry);
     // Construct the row index, iterate through each gene for this barcode
     g = el.second;
     for (auto k: g) {
@@ -121,21 +124,21 @@ List fill_cell_gene(const char* fn, List genes,
         gene_row++;
       }
       rowind.push_back(rowind_map[gn]);
+      colind.push_back(i);
       values.push_back(k.second); // The UMI count
-      entry++;
     }
     p.increment();
     i++;
   }
-  // Remember the last entry of colptr
-  colptr.push_back(entry);
   
   // Convert to sparse matrix
   // Convert to arma types
   vec val_use(values);
   uvec rind_use = conv_to<uvec>::from(rowind);
-  uvec colptr_use = conv_to<uvec>::from(colptr);
-  sp_mat res_mat(rind_use, colptr_use, val_use, geneIDs.size(), barcodes.size());
+  uvec colind_use = conv_to<uvec>::from(colind);
+  umat locations = join_rows(rind_use, colind_use);
+  locations = locations.t();
+  sp_mat res_mat(locations, val_use, geneIDs.size(), barcodes.size());
   
   return List::create(_["matrix"] = res_mat,
                       _["barcodes"] = barcodes,
