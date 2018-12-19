@@ -4,13 +4,15 @@
 \alias{transcript2gene}
 \title{Map Transcript ID to Gene ID}
 \usage{
-transcript2gene(species, kallisto_out_path)
+transcript2gene(species, kallisto_out_path, verbose = TRUE)
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
 scRNA-seq dataset.}
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
+
+\item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 }
 \value{
 A data frame with two columns: \code{gene} and \code{transcript},

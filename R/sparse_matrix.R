@@ -41,6 +41,9 @@ make_sparse_matrix <- function(fn, genes, est_ncells, est_ngenes,
                                display_progress = TRUE,
                                progress_unit = 5e6) {
   fn <- normalizePath(fn, mustWork = TRUE)
+  if (!grepl(".txt$", fn)) {
+    stop("Argument fn must point to a text file. Please run bustools text.")
+  }
   if (is.null(whitelist)) {
     whitelist <- ""
   }

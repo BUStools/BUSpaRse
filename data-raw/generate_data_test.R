@@ -1,0 +1,61 @@
+# Generate fake data for unit testing
+# Cases to be tested for:
+# 1. Multiple UMIs for one EC, which has only one transcript
+# 2. One UMI for one EC, which has one transcript
+# 3. One UMI for one EC, which has multiple transcripts of the same gene
+# 4. Multiple UMIs for one EC, which has multiple transcripts of the same gene
+# 5. One UMI for one EC, which has transcripts of different genes
+# 6. Multiple UMIs for one EC, which has transcripts of different genes
+# 7. Some UMIs exclusively for one transcript, and some other UMIs exclusively
+# for another transcript of the same gene
+# 8. Same UMI maps to different ECs that don't have intersecting genes
+# 9. Same UMI maps to different ECs with intersection that has multiple genes
+# 10. Same UMI maps to different ECs with intersection with 1 gene
+
+tr2g_toy <- data.frame(
+  gene = c("meow", "kitty", "kitty", "kitty", "purr"),
+  transcript = c("meow", "kitty", "kedi", "qitah", "purr"),
+  stringsAsFactors = FALSE
+)
+
+ECs_toy <- data.frame(
+  EC_index = 0:9,
+  EC = c(as.character(0:4), "1,2", "2,3", "0,1", "0,4", "0,2,4"),
+  stringsAsFactors = FALSE
+)
+
+genes_toy <- list("meow", "kitty", "kitty", "kitty", "purr",
+                  "kitty", "kitty", c("meow", "kitty"), c("meow", "purr"),
+                  c("meow", "kitty", "purr"))
+
+output_sorted_toy <- data.frame(
+  barcode = c("A", "A", "B", "C", "D", "D", "E", "F", "F", "G", "G", "H", "H", 
+              "I", "I", "J", "J", "K"),
+  UMI = c("a1", "a2", "b", "c", "d1", "d2", "e", "f1", "f2", "g1", "g2", "h", "h", 
+          "i", "i", "j", "j", "k"),
+  EC_index = c("0", "0", "0", "5", "5", "6", "7", "7", "7", "2", "3", "1", "8",
+               "9", "8", "4", "8", "1"),
+  counts = 1,
+  stringsAsFactors = FALSE
+)
+whitelist <- LETTERS[1:10]
+
+# The expected matrix
+rowinds <- c(1, 1, 2, 2, 1, 2, 1, 2, 2, 1, 3, 3)
+colinds <- c(1, 2, 3, 4, 5, 5, 6, 6, 7, 8, 8, 9)
+values <- c(2, 1, 1, 2, 0.5, 0.5, 1, 1, 2, 0.5, 0.5, 1)
+expected_mat <- Matrix::sparseMatrix(i = rowinds, j = colinds, x = values,
+                                     dimnames = list(c("meow", "kitty", "purr"),
+                                                     LETTERS[c(1:7, 9:10)]))
+expected_mat_full <- Matrix::sparseMatrix(i = c(rowinds, 2), j = c(colinds, 10),
+                                          x = c(values, 1),
+                                          dimnames = list(c("meow", "kitty", "purr"),
+                                                          LETTERS[c(1:7, 9:11)]))
+
+# Save data
+write.table(ECs_toy, file = "./inst/testdata/matrix.ec", quote = FALSE, 
+            row.names = FALSE, col.names = FALSE, sep = "\t")
+write.table(output_sorted_toy, file = "./inst/testdata/output.sorted.txt", 
+            quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
+save(tr2g_toy, genes_toy, whitelist, expected_mat, expected_mat_full,
+     file = "./inst/testdata/toy_example.RData")

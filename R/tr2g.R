@@ -11,13 +11,15 @@
 #' @param species A character vector of Latin names of species present in this
 #' scRNA-seq dataset.
 #' @param kallisto_out_path Path to the \code{kallisto bus} output directory.
+#' @param verbose Whether to display progress. Defaults to \code{TRUE}.
 #' @return A data frame with two columns: \code{gene} and \code{transcript},
 #' with Ensembl gene and transcript IDs (with version number), in the same order
 #' as in the transcriptome index used in \code{kallisto}.
 #' @importFrom biomaRt useMart getBM
 #' @importFrom data.table fread :=
 #' @export
-transcript2gene <- function(species, kallisto_out_path) {
+transcript2gene <- function(species, kallisto_out_path, verbose = TRUE) {
+  if (verbose) cat("Retrieving data from biomart\n")
   marts <- lapply(species, function(x) {
     mart_name <- species2dataset(x)
     useMart("ensembl", mart_name)
@@ -30,6 +32,7 @@ transcript2gene <- function(species, kallisto_out_path) {
   tr2g <- Reduce(rbind, tr2g_list)
   names(tr2g) <- c("gene", "transcript")
   # Get transcripts used in kallisto
+  if (verbose) cat("Sorting\n")
   path_use <- normalizePath(kallisto_out_path)
   trs <- fread(paste(path_use, "transcripts.txt", sep = "/"),
                col.names = "transcript")
@@ -55,8 +58,6 @@ transcript2gene <- function(species, kallisto_out_path) {
 #' @param tr2g A Data frame with columns \code{gene} and \code{transcript}, in
 #' the same order as in the transcriptome index for \code{kallisto}.
 #' @param ncores Number of cores to use, defaults to 1.
-#' @param verbose Whether to display progress, though this function usually
-#' does not take very long. Defaults to \code{TRUE}.
 #' @return A list each element of whom is the set of genes the corresponding EC
 #' is compatible to. The genes are in Ensembl ID with version number. The 
 #' elements of this list are in the same order as the ECs listed in the

@@ -14,8 +14,7 @@ the same order as in the transcriptome index for \code{kallisto}.}
 
 \item{ncores}{Number of cores to use, defaults to 1.}
 
-\item{verbose}{Whether to display progress, though this function usually
-does not take very long. Defaults to \code{TRUE}.}
+\item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 }
 \value{
 A list each element of whom is the set of genes the corresponding EC
