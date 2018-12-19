@@ -4,3 +4,6 @@ language: R
 r: bioc-devel
 sudo: false
 cache: packages
+os:
+  - linux
+  - osx
