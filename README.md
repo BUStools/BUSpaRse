@@ -1,4 +1,5 @@
 [![Travis build status](https://travis-ci.com/BUStools/BUSpaRse.svg?branch=master)](https://travis-ci.com/BUStools/BUSpaRse)
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/BUStools/BUSpaRse?branch=master&svg=true)](https://ci.appveyor.com/project/BUStools/BUSpaRse)
 
 # BUSpaRse
 
