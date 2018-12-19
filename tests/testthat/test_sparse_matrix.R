@@ -11,7 +11,7 @@ test_that("Check file name input", {
             "Argument fn must point to a text file. Please run bustools text.")
   expect_error(make_sparse_matrix("foo.txt", genes_toy, 11, 3, 
                                   display_progress = FALSE),
-               "No such file or directory")
+               "(No such file or directory)|(cannot find)")
 })
 
 test_that("Check for correct matrix", {
