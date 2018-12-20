@@ -31,7 +31,7 @@ List fill_cell_gene(const char* fn, List genes,
                     int progress_unit = 5e6) {
   ifstream infile(fn);
   string bc, umi, ec_str, cts;
-  string pbar = "", pumi = "";
+  string pbar = "", pumi = "", pbf = "";
   int ec, n, i = 0; // i to keep track of # of iterations
   vector<string> gs, gl;
   unordered_map<string, unordered_map<string, double>> cell_gene;
@@ -45,11 +45,6 @@ List fill_cell_gene(const char* fn, List genes,
   while (infile >> bc >> umi >> ec_str >> cts) {
     if (i % 1000 == 0) {
       checkUserInterrupt();
-    }
-    // If barcode is not in whitelist, skip to the next barcode
-    // Won't skip if whitelist has length 1, a place holder for NA
-    if (wl_size > 1 && wl.find(bc) == wl.end()) {
-      continue;
     }
     ec = stoi(ec_str);
     if (bc == pbar) {
@@ -68,6 +63,12 @@ List fill_cell_gene(const char* fn, List genes,
         gs = as<vector<string>>(genes[ec]);
       }
     } else {
+      // If barcode is not in whitelist, skip to the next barcode
+      // Won't skip if whitelist has length 1, a place holder for NA
+      if ((pbf == bc) || (wl_size > 1 && wl.find(bc) == wl.end())) {
+        pbf = bc; // Avoid checking whitelist again if the invalid barcode does
+        continue; // reappear
+      }
       // Previous gene list
       n = gs.size();
       for (int j = 0; j < n; j++) {
