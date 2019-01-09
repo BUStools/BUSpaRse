@@ -36,6 +36,15 @@ transcript ID on Ensembl. The output of this function should be passed to
 \code{make_sparse_matrix} in the next step in the workflow, which will 
 produce the sparse matrix that can be used in \code{Seurat}.
 }
+\examples{
+# Download dataset already in BUS format
+library(TENxhgmmBUS)
+download_hgmm(".", "hgmm100")
+tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
+                        kallisto_out_path = "./out_hgmm100")
+genes <- EC2gene(tr2g, "./out_hgmm100", ncores = 1, verbose = FALSE)
+
+}
 \seealso{
 \code{\link{transcript2gene}}
 }

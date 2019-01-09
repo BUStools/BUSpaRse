@@ -47,6 +47,21 @@ example path to get the whitelist file is
 \code{cellranger-2.1.0/cellranger-cs/2.1.0/lib/python/cellranger/barcodes/737K-august-2016.txt}
 for v2 chemistry.
 }
+\examples{
+# Download dataset already in BUS format
+library(TENxhgmmBUS)
+library(Matrix)
+download_hgmm(".", "hgmm100")
+tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
+                        kallisto_out_path = "./out_hgmm100")
+genes <- EC2gene(tr2g, "./out_hgmm100", ncores = 1, verbose = FALSE)
+res_mat <- make_sparse_matrix("./out_hgmm100/output.sorted.txt",
+                              genes = genes, est_ncells = 3e5, 
+                              est_ngenes = nrow(tr2g))
+# Remove empty droplets
+tot_counts <- colSums(res_mat)
+res_mat <- res_mat[,tot_counts > 500]
+}
 \seealso{
 \code{\link{EC2gene}}
 }

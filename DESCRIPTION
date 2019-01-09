@@ -2,7 +2,7 @@ Package: BUSpaRse
 Type: Package
 Title: Process BUS format in R
 Version: 0.99.0
-Date: 2018-12-13
+Date: 2019-01-08
 Authors@R: 
     person("Lambda", "Moses", email = "dlu2@caltech.edu", 
     role = c("aut", "cre"))
@@ -12,17 +12,20 @@ Description:
 BugReports: https://github.com/BUStools/BUSpaRse/issues
 URL: https://github.com/BUStools/BUSpaRse
 Imports: 
-    Rcpp (>= 1.0.0),
+    Rcpp,
     Matrix (>= 1.2.15),
     biomaRt,
     data.table (>= 1.11.8),
-    zeallot (>= 0.1.0)
+    zeallot,
+    TENxhgmmBUS,
+    parallel
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 6.1.1
 Suggests: 
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    BiocStyle
 VignetteBuilder: knitr
 Collate: 
     'RcppExports.R'
@@ -33,4 +36,5 @@ Encoding: UTF-8
 License: MIT + file LICENSE
 biocViews:
     SingleCell,
-    RNASeq
+    RNASeq,
+    WorkflowStep

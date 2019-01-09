@@ -1,3 +1,6 @@
+#' @include sparse_matrix.R
+NULL
+
 #' Map Transcript ID to Gene ID
 #' 
 #' In \code{kallisto bus}, the Ensembl transcript ID (with version number) is
@@ -18,6 +21,13 @@
 #' @importFrom biomaRt useMart getBM
 #' @importFrom data.table fread :=
 #' @export
+#' @examples
+#' # Download dataset already in BUS format
+#' library(TENxhgmmBUS)
+#' download_hgmm(".", "hgmm100")
+#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
+#'                         kallisto_out_path = "./out_hgmm100")
+#' 
 transcript2gene <- function(species, kallisto_out_path, verbose = TRUE) {
   if (verbose) cat("Retrieving data from biomart\n")
   marts <- lapply(species, function(x) {
@@ -65,6 +75,13 @@ transcript2gene <- function(species, kallisto_out_path, verbose = TRUE) {
 #' @seealso \code{\link{transcript2gene}}
 #' @importFrom parallel mclapply
 #' @export
+#' @examples
+#' # Download dataset already in BUS format
+#' library(TENxhgmmBUS)
+#' download_hgmm(".", "hgmm100")
+#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
+#'                         kallisto_out_path = "./out_hgmm100")
+#' genes <- EC2gene(tr2g, "./out_hgmm100", ncores = 1, verbose = FALSE)
 #' 
 EC2gene <- function(tr2g, kallisto_out_path, ncores = 1, verbose = TRUE) {
   genes <- tr2g$gene

@@ -3,6 +3,7 @@
 export(EC2gene)
 export(make_sparse_matrix)
 export(transcript2gene)
+import(TENxhgmmBUS)
 importClassesFrom(Matrix,dgCMatrix)
 importFrom(Rcpp,sourceCpp)
 importFrom(biomaRt,getBM)

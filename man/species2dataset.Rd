@@ -10,6 +10,9 @@ species2dataset(species)
 \item{species}{A character vector of Latin names of species present in this
 scRNA-seq dataset.}
 }
+\value{
+The appropriate dataset name for biomart.
+}
 \description{
 This function converts Latin species name to a dataset name in biomart to
 query gene and transcript ID.

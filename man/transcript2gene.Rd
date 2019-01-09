@@ -29,3 +29,11 @@ number) corresponding to the transcripts in the transcriptome assembly.
 This function applies only to species that have gene and transcript IDs on
 Ensembl.
 }
+\examples{
+# Download dataset already in BUS format
+library(TENxhgmmBUS)
+download_hgmm(".", "hgmm100")
+tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
+                        kallisto_out_path = "./out_hgmm100")
+
+}
