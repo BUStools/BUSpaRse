@@ -35,7 +35,6 @@ NULL
 #' @seealso \code{\link{EC2gene}}
 #' @importFrom zeallot %<-%
 #' @importClassesFrom Matrix dgCMatrix
-#' @import TENxhgmmBUS
 #' @export
 #' @examples
 #' # Download dataset already in BUS format

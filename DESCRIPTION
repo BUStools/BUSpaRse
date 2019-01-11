@@ -1,7 +1,7 @@
 Package: BUSpaRse
 Type: Package
 Title: Process BUS format in R
-Version: 0.99.0
+Version: 0.99.1
 Date: 2019-01-08
 Authors@R: 
     person("Lambda", "Moses", email = "dlu2@caltech.edu", 
@@ -17,7 +17,6 @@ Imports:
     biomaRt,
     data.table (>= 1.11.8),
     zeallot,
-    TENxhgmmBUS,
     parallel
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 6.1.1
@@ -25,7 +24,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
-    BiocStyle
+    BiocStyle,
+    TENxhgmmBUS
 VignetteBuilder: knitr
 Collate: 
     'RcppExports.R'
