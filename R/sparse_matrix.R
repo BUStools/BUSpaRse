@@ -37,6 +37,7 @@ NULL
 #' @importClassesFrom Matrix dgCMatrix
 #' @export
 #' @examples
+#' \dontrun{
 #' # Download dataset already in BUS format
 #' library(TENxhgmmBUS)
 #' library(Matrix)
@@ -50,6 +51,7 @@ NULL
 #' # Remove empty droplets
 #' tot_counts <- colSums(res_mat)
 #' res_mat <- res_mat[,tot_counts > 500]
+#' }
 
 make_sparse_matrix <- function(fn, genes, est_ncells, est_ngenes, 
                                whitelist = NULL, 
