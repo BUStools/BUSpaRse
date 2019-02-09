@@ -17,9 +17,16 @@ Imports:
     biomaRt,
     data.table (>= 1.11.8),
     zeallot,
-    parallel
+    parallel,
+    dplyr,
+    plyranges,
+    R.cache,
+    Biostrings,
+    stringr,
+    magrittr
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 6.1.1
+Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,
     rmarkdown,

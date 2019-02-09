@@ -4,15 +4,34 @@
 \alias{transcript2gene}
 \title{Map Transcript ID to Gene ID}
 \usage{
-transcript2gene(species, kallisto_out_path, verbose = TRUE)
+transcript2gene(species, files, kallisto_out_path, other_attrs = NULL,
+  ensembl_version = NULL, verbose = TRUE, cache = TRUE, ...)
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
-scRNA-seq dataset.}
+scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.}
+
+\item{files}{A character vector of paths to GTF/GFF/FASTA files. The files
+can remain gzipped.}
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
+\item{other_attrs}{Character vector. Other attributes to get from Ensembl,
+such as gene symbol and position on the genome.}
+
+\item{ensembl_version}{Integer version number of Ensembl (e.g. 94 for the
+October 2018 release). This argument defaults to \code{NULL}, which will use
+the current release of Ensembl. Use
+\code{\link[biomaRt]{listEnsemblArchives}} to see the version number corresponding
+to the Ensembl release of a particular date.}
+
 \item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
+
+\item{cache}{Logical, whether to cache results, defaults to \code{TRUE}.}
+
+\item{...}{Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
+such as host and mirror.
+Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.}
 }
 \value{
 A data frame with two columns: \code{gene} and \code{transcript},
@@ -20,20 +39,33 @@ with Ensembl gene and transcript IDs (with version number), in the same order
 as in the transcriptome index used in \code{kallisto}.
 }
 \description{
-In \code{kallisto bus}, the Ensembl transcript ID (with version number) is
-used, but usually users are interested in number of UMI per gene rather than
-transcript. This function queries biomart to get the gene IDs (with version
-number) corresponding to the transcripts in the transcriptome assembly.
+This function first retrieves gene and transcript ID information with the
+\code{tr2g_*} family of functions, and then sorts the transcripts so they are
+in the same order as in the \code{kallisto} index.
 }
 \details{
-This function applies only to species that have gene and transcript IDs on
-Ensembl.
+You can supply both species names and file paths. Eventually, all the
+transcript and gene information will be combined regardless of source and
+sorted.
+
+The \code{tr2g_*} family of functions called by this function
+have the option to cache results, determined by the \code{cache} argument
+of this function. To clear cache, see \code{\link[R.cache]{clearCache}}.
 }
 \examples{
+\dontrun{
 # Download dataset already in BUS format
 library(TENxhgmmBUS)
 download_hgmm(".", "hgmm100")
 tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
                         kallisto_out_path = "./out_hgmm100")
+}
 
 }
+\seealso{
+\code{\link{tr2g_ensembl}} \code{\link{tr2g_gtf}} \code{\link{tr2g_fasta}}
+
+Other functions to retrieve transcript and gene info: \code{\link{tr2g_ensembl}},
+  \code{\link{tr2g_fasta}}, \code{\link{tr2g_gtf}}
+}
+\concept{functions to retrieve transcript and gene info}
