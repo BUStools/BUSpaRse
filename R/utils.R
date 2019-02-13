@@ -27,6 +27,8 @@ species2dataset <- function(species) {
 #' 
 #' @param tags_use The tags to be checked.
 #' @param tags The tags present in attribute field.
+#' @param error Whether to throw an error for absent tags. If \code{FALSE}, then
+#' a warning will be given.
 #' @return Error or warning if tag is absent.
 check_tag_present <- function(tags_use, tags, error = TRUE) {
   present <- tags_use %in% tags
@@ -95,6 +97,7 @@ check_gff <- function(format, file, transcript_id, gene_id, gene_name,
 #' @param compression_level Compression level for gzip.
 #' @return Nothing is returned into the R session; the files are written on disk.
 #' @importFrom Matrix writeMM
+#' @importFrom methods is
 #' @export
 #' 
 save_cellranger <- function(mat, out_path, compress = TRUE, 

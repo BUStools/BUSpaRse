@@ -23,6 +23,8 @@ for the outputs of kallisto bus.}
 \item{file_save}{File name of the file to be saved. If the directory in which
 the file is to be saved does not exist, then the directory will be created.}
 
+\item{verbose}{Whether to display progress.}
+
 \item{\dots}{Other arguments passed to \code{\link[data.table]{fwrite}}, such
 as \code{sep}, \code{quote}, and \code{col.names}.}
 }

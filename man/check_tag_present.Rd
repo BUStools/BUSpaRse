@@ -10,6 +10,9 @@ check_tag_present(tags_use, tags, error = TRUE)
 \item{tags_use}{The tags to be checked.}
 
 \item{tags}{The tags present in attribute field.}
+
+\item{error}{Whether to throw an error for absent tags. If \code{FALSE}, then
+a warning will be given.}
 }
 \value{
 Error or warning if tag is absent.
