@@ -85,9 +85,10 @@ make_sparse_matrix <- function(bus_fn, genes, est_ncells, est_ngenes,
 #' the Ensembl database. This function condenses a multi-step workflow 
 #' implemented in this package into one step. For non-model organisms absent 
 #' from Ensembl, please run the individual steps separately, as this function
-#' queries Ensembl through biomart for transcript and gene information required
-#' to aggregate read counts mapped to transcripts into counts for genes. The
-#' vignette has a tutorial of running the individual steps in this workflow.
+#' either queries Ensembl through biomart or parses Ensembl FASTA sequence names
+#' for transcript and gene information required to aggregate read counts mapped 
+#' to transcripts into counts for genes. The vignette has a tutorial of running 
+#' the individual steps in this workflow.
 #' 
 #' For 10x data sets, you can find a barcode whitelist file that comes with
 #' CellRanger installation. You don't need to run CellRanger to get that. An 
@@ -95,9 +96,18 @@ make_sparse_matrix <- function(bus_fn, genes, est_ncells, est_ngenes,
 #' \code{cellranger-2.1.0/cellranger-cs/2.1.0/lib/python/cellranger/barcodes/737K-august-2016.txt}
 #' for v2 chemistry.
 #' 
+#' Passing FASTA files to \code{fasta_file} is faster than passing \code{species}
+#' since with the latter, this function will query the Ensembl biomart database,
+#' which is really slow.
+#' 
 #' @inheritParams make_sparse_matrix
 #' @inheritParams transcript2gene
 #' @inheritParams EC2gene
+#' @param fasta_file Character vector of paths to the transcriptome FASTA files
+#' used to build the kallisto index. If multiple FASTA files were used for the
+#' kallisto index, then the order of paths here must match that of the FASTA
+#' files when building the kallisto index. Exactly one of \code{species} and
+#' \code{fasta_file} can be missing.
 #' @param save_tr2g Logical, whether to save the data frame that maps transcripts
 #' to genes to disk.
 #' @note By default, this function does not save the data frame that maps
@@ -110,19 +120,27 @@ make_sparse_matrix <- function(bus_fn, genes, est_ncells, est_ngenes,
 #' @family functions to generate sparse matrix in one step
 #' @export
 
-busparse_gene_count <- function(species, kallisto_out_path, bus_fn,
+busparse_gene_count <- function(species, fasta_file, kallisto_out_path, bus_fn,
                                 est_ncells, est_ngenes, whitelist = NULL, 
                                 ensembl_version = NULL, other_attrs = NULL,
                                 save_tr2g = FALSE, 
                                 file_save = "./tr2g_sorted.csv",
                                 verbose = TRUE, ncores = 1,
                                 progress_unit = 5e6, ...) {
+  if (!xor(missing(species), missing(fasta_files))) {
+    stop("Exactly one of species and fasta_file can be missing.\n")
+  }
   # Get transcript and gene information
-  tr2g <- transcript2gene(species, kallisto_out_path,
-                          other_attrs = other_attrs,
-                          ensembl_version = ensembl_version,
-                          save = save_tr2g, file_save = file_save, 
-                          verbose = verbose, ...)
+  if (missing(fasta_file)) {
+    tr2g <- transcript2gene(species, kallisto_out_path,
+                            other_attrs = other_attrs,
+                            ensembl_version = ensembl_version,
+                            save = save_tr2g, file_save = file_save, 
+                            verbose = verbose, ...)
+  } else {
+    fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose)
+    tr2g <- rbindlist(fls)
+  }
   genes <- EC2gene(tr2g, kallisto_out_path, ncores = ncores, verbose = verbose)
   make_sparse_matrix(bus_fn, genes, est_ncells = est_ncells, 
                      est_ngenes = est_ngenes, whitelist = whitelist,
@@ -130,5 +148,6 @@ busparse_gene_count <- function(species, kallisto_out_path, bus_fn,
 }
 
 # To do: Make TCC matrix, parallelize read count processing
-# Support fasta files in one step functions for getting transcript and gene info
-# Unit test one step functions
+# Unit test one step functions, write examples for all exported functions.
+# Unit test tr2g_ensembl related functions.
+# Unit test file saving
