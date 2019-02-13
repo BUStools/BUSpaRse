@@ -2,17 +2,15 @@
 % Please edit documentation in R/tr2g.R
 \name{transcript2gene}
 \alias{transcript2gene}
-\title{Map Transcript ID to Gene ID}
+\title{Map Ensembl transcript ID to gene ID}
 \usage{
-transcript2gene(species, files, kallisto_out_path, other_attrs = NULL,
-  ensembl_version = NULL, verbose = TRUE, cache = TRUE, ...)
+transcript2gene(species, kallisto_out_path, other_attrs = NULL,
+  ensembl_version = NULL, save = FALSE,
+  file_save = "./tr2g_sorted.csv", verbose = TRUE, ...)
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
 scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.}
-
-\item{files}{A character vector of paths to GTF/GFF/FASTA files. The files
-can remain gzipped.}
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
@@ -25,9 +23,12 @@ the current release of Ensembl. Use
 \code{\link[biomaRt]{listEnsemblArchives}} to see the version number corresponding
 to the Ensembl release of a particular date.}
 
-\item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
+\item{save}{Whether to save the output.}
 
-\item{cache}{Logical, whether to cache results, defaults to \code{TRUE}.}
+\item{file_save}{File name of the file to be saved. If the directory in which
+the file is to be saved does not exist, then the directory will be created.}
+
+\item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 
 \item{...}{Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
 such as host and mirror.
@@ -39,18 +40,18 @@ with Ensembl gene and transcript IDs (with version number), in the same order
 as in the transcriptome index used in \code{kallisto}.
 }
 \description{
-This function first retrieves gene and transcript ID information with the
-\code{tr2g_*} family of functions, and then sorts the transcripts so they are
-in the same order as in the \code{kallisto} index.
+This function is a shortcut to get the correctly sorted data frame with
+transcript IDs and the corresponding gene IDs from Ensembl biomart. It calls
+\code{\link{tr2g_ensembl}} and then \code{\link{sort_tr2g}}. Unlike in
+\code{\link{tr2g_ensembl}}, multiple species can be supplied if cells from
+different species were sequenced together.
 }
 \details{
-You can supply both species names and file paths. Eventually, all the
-transcript and gene information will be combined regardless of source and
-sorted.
-
-The \code{tr2g_*} family of functions called by this function
-have the option to cache results, determined by the \code{cache} argument
-of this function. To clear cache, see \code{\link[R.cache]{clearCache}}.
+Note that here, the arguments passed to \dots will be passed to
+\code{\link[biomaRt]{useEnsembl}} rather than \code{\link[data.table]{fwrite}},
+so default settings of \code{\link[data.table]{fwrite}} will be used if
+\code{save = TRUE}, which will save a csv file that includes the column names
+to \code{file_save}.
 }
 \examples{
 \dontrun{
@@ -63,9 +64,8 @@ tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
 
 }
 \seealso{
-\code{\link{tr2g_ensembl}} \code{\link{tr2g_gtf}} \code{\link{tr2g_fasta}}
-
-Other functions to retrieve transcript and gene info: \code{\link{tr2g_ensembl}},
-  \code{\link{tr2g_fasta}}, \code{\link{tr2g_gtf}}
+Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
+  \code{\link{tr2g_ensembl}}, \code{\link{tr2g_fasta}},
+  \code{\link{tr2g_gff3}}, \code{\link{tr2g_gtf}}
 }
 \concept{functions to retrieve transcript and gene info}

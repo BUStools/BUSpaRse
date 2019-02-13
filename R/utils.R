@@ -41,18 +41,6 @@ check_tag_present <- function(tags_use, tags, error = TRUE) {
   }
 }
 
-#' Get values passed to arguments in a function
-#' 
-#' This function is for giving informative error messages about which argument
-#' is wrong. This is from the StackOverflow question
-#' \url{https://stackoverflow.com/questions/17256834/getting-the-arguments-of-a-parent-function-in-r-with-names}
-#' @return A named list mapping arguments to values passed to them.
-get_args <- function() {
-  as.list(match.call(
-    definition = sys.function(-1),
-    call = sys.call(-1)))[-1]
-}
-
 #' Check that an object is a character vector of length 1
 #' 
 #' Just in case the user passes something with length more than 1 and messes up
@@ -66,5 +54,24 @@ check_char1 <- function(x) {
   if (any(inds)) {
     stop(paste(paste(arg_names[inds], sep = ", "), 
                "must be a character vector with length 1.\n"))
+  }
+}
+
+#' Check inputs to tr2g_gtf and tr2g_gff3
+#' 
+#' This function validates inputs to tr2g_gtf and tr2g_gff3 and throws error
+#' early if some inputs are wrong.
+#' 
+#' @inheritParams tr2g_gtf
+#' @param format Whether it's gtf or gff3.
+#' @return Nothing, will throw error if there's a problem.
+
+check_gff <- function(format, file, transcript_id, gene_id, gene_name,
+                      transcript_version, gene_version, version_sep) {
+  if (is.null(transcript_id)) stop("transcript_id cannot be NULL.\n")
+  if (is.null(gene_id)) stop("gene_id cannot be NULL.\n")
+  
+  if (!str_detect(file, paste0("\\.", format))) {
+    stop(paste("file must be a", toupper(format), "file.\n"))
   }
 }

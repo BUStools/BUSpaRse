@@ -3,8 +3,7 @@ NULL
 
 #' Get transcript and gene info from Ensembl
 #' 
-#' The memoised version of this function is exported, since biomart queries are
-#' really slow.
+#' This function queries Ensembl biomart to convert transcript IDs to gene IDs.
 #' 
 #' @param species Character vector of length 1, Latin name of the species of
 #' interest.
@@ -19,15 +18,16 @@ NULL
 #' @param \dots Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
 #' such as host and mirror.
 #' Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.
-#' @importFrom biomaRt useMart getBM
+#' @importFrom biomaRt useEnsembl getBM
 #' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
 #' for transcript ID, and \code{gene_name} for gene names. If \code{other_attrs}
 #' has been specified, then those will also be columns in the data frame returned.
-#' @seealso \code{\link{tr2g_ensembl}}
-#' 
-.tr2g_ensembl <- function(species, other_attrs = NULL, ensembl_version = NULL, 
+#' @family functions to retrieve transcript and gene info
+#' @export
+tr2g_ensembl <- function(species, other_attrs = NULL, ensembl_version = NULL, 
                           verbose = TRUE, ...) {
   # Validate arguments
+  check_char1(setNames(species, "species"))
   if (!is.null(ensembl_version) && !is.numeric(ensembl_version)) {
     stop("ensembl_version must be integer.\n")
   }
@@ -37,7 +37,8 @@ NULL
   }
   mart_name <- species2dataset(species)
   if (verbose) {
-    message("Querying biomart\n")
+    message(paste("Querying biomart for transcript and gene IDs of",
+                  species))
   }
   mart <- useEnsembl(biomart = "ensembl", dataset = mart_name, 
                      version = ensembl_version, ...)
@@ -49,40 +50,16 @@ NULL
   out
 }
 
-#' Get transcript and gene info from Ensembl
-#' 
-#' This function queries Ensembl biomart to convert transcript IDs to gene IDs.
-#' 
-#' The output from this function can be cached, so subsequent calls with exactly
-#' the same parameters will retrieve result from the cache, unless the cache is 
-#' cleared. To clear cache, see \code{\link[R.cache]{clearCache}}.
-#' 
-#' @inheritParams .tr2g_ensembl
-#' @param cache Logical, whether to cache results, defaults to \code{TRUE}.
-#' @importFrom biomaRt useMart getBM
-#' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
-#' for transcript ID, and \code{gene_name} for gene names. The gene and transcript
-#' IDs will have the version number. If \code{other_attrs} has been specified, 
-#' then those will also be columns in the data frame returned.
-#' @importFrom R.cache addMemoization
-#' @family functions to retrieve transcript and gene info
-#' @seealso \code{\link{tr2g_gtf}} \code{\link{tr2g_fasta}} \code{\link{transcript2gene}}
-#' @export
-tr2g_ensembl <- function(species, other_attrs = NULL, ensembl_version = NULL, 
-                         verbose = TRUE, cache = TRUE, ...) {
-  if (cache) {
-    f <- addMemoization(.tr2g_ensembl)
-  } else {
-    f <- .tr2g_ensembl
-  }
-  f(species, other_attrs, ensembl_version, verbose, ...)
-}
-
 #' Get transcript and gene info from GTF file
 #' 
 #' This function reads a GTF file and extracts the transcript ID and
-#' corresponding gene ID. The memoised version of this function is exported 
-#' since reading large gtf files can take a while.
+#' corresponding gene ID. This function assumes that the GTF file is properly
+#' formatted. See \url{http://mblab.wustl.edu/GTF2.html} for a detailed
+#' description of proper GTF format. Note that GFF3 files have a somewhat
+#' different and more complicated format in the attribute field, which this
+#' function does not support. See \url{http://gmod.org/wiki/GFF3} for a detailed
+#' description of proper GFF3 format. To extract transcript and gene information
+#' from GFF3 files, see the function \code{\link{tr2g_gff3}} in this package. 
 #' 
 #' Transcript and gene versions may not be present in all GTF files, so these
 #' arguments are optional. This function has arguments for transcript and gene 
@@ -91,6 +68,14 @@ tr2g_ensembl <- function(species, other_attrs = NULL, ensembl_version = NULL,
 #' signals a change in the entity referred to by the ID after reannotation. If a
 #' version is used, then it will be appended to the ID, separated by 
 #' \code{version_sep}.
+#' 
+#' The transcript and gene IDs are The \code{attribute} field (the last 
+#' field) of GTF files can be complicated and inconsistent across different 
+#' sources. Please check the \code{attribute} tags in your GTF file and consider
+#' the arguments of this function carefully. The defaults are set according to 
+#' Ensembl GTF files; defaults may not work for files from other sources. Due to
+#' the general lack of standards for the \code{attribute} field, you may need to
+#' further clean up the output of this function.
 #' 
 #' @param file Path to a GTF file to be read. The file can remain gzipped.
 #' @param type_use Character vector, the values taken by the \code{type} field 
@@ -120,118 +105,159 @@ tr2g_ensembl <- function(species, other_attrs = NULL, ensembl_version = NULL,
 #' version number, then use \code{NULL} for this argument. 
 #' @param version_sep Character to separate bewteen the main ID and the version
 #' number. Defaults to ".", as in Ensembl.
-#' @inheritParams .tr2g_ensembl
-#' @note The transcript and gene IDs are The \code{attribute} field (the last 
-#' field) of GTF files can be complicated and inconsistent across different 
-#' sources. Please check the \code{attribute} tags in your GTF file and consider
-#' the arguments of this function carefully. The defaults are set according to 
-#' Ensembl GTF files; defaults may not work for files from other sources. Due to
-#' the general lack of standards for the \code{attribute} field, you may need to
-#' further clean up the output of this function.
+#' @inheritParams tr2g_ensembl
 #' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
 #' for transcript ID, and \code{gene_name} for gene names. 
-#' @importFrom plyranges read_gff filter
+#' @importFrom plyranges read_gff
 #' @importFrom magrittr %>% 
 #' @importFrom stringr str_detect
 #' @importFrom dplyr distinct
 #' @importFrom purrr walk2
 #' @importFrom S4Vectors mcols
-#' @seealso \code{\link{tr2g_gtf}}
-#' 
-.tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
+#' @family functions to retrieve transcript and gene info
+#' @export
+tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
                       gene_id = "gene_id", gene_name = "gene_name",
                       transcript_version = "transcript_version",
                       gene_version = "gene_version", version_sep = ".",
                       verbose = TRUE) {
-  # Check that some arguments are length 1 character vectors
-  args_used <- get_args()
-  args_check <- c("file", "transcript_id", "gene_id", "gene_name",
-                  "transcript_version", "gene_version", "version_sep")
-  check_char1(unlist(args_used[args_check]))
-  
-  if (!str_detect(file, "\\.gtf")) {
-    stop("file must be a GTF file.\n")
-  }
+  # Validate arguments
+  check_char1(setNames(file, "file"))
   file <- normalizePath(file, mustWork = TRUE)
+  check_gff("gtf", file, transcript_id, gene_id, gene_name,
+            transcript_version, gene_version, version_sep)
   if (verbose) {
-    message("Reading GTF file\n")
+    message(paste("Reading GTF file."))
   }
   gr <- read_gff(file)
   tags <- names(mcols(gr))
-  if (is.null(transcript_id)) stop("transcript_id cannot be NULL.\n")
-  if (is.null(gene_id)) stop("gene_id cannot be NULL.\n")
   check_tag_present(c(transcript_id, gene_id), tags, error = TRUE)
   # Will do nothing if all are NULL
   check_tag_present(c(gene_name, transcript_version, gene_version), 
                     tags, error = FALSE)
-  
-  gr <- gr %>% 
-    filter(!is.na(transcript_id), type %in% type_use)
+  gr <- gr[!is.na(mcols(gr)[[transcript_id]])]
+  gr <- gr[gr$type %in% type_use]
   if (length(gr) == 0) {
-    stop(paste("No transcript has types", paste(type_use, collapse = ", "), 
-               ".\n"))
+    stop(paste("No entry has types", paste(type_use, collapse = ", "), 
+               "\n"))
   }
-  
   out <- data.frame(gene = mcols(gr)[[gene_id]],
                     transcript = mcols(gr)[[transcript_id]],
                     stringsAsFactors = FALSE)
-  if (!is.null(gene_name)) {
+  if (!is.null(gene_name) && gene_name %in% tags) {
     out$gene_name <- mcols(gr)[[gene_name]]
   }
-  if (!is.null(transcript_version)) {
+  if (!is.null(transcript_version) && transcript_version %in% tags) {
     tv <- mcols(gr)[[transcript_version]]
     out$transcript <- paste(out$transcript, tv, sep = version_sep)
   }
-  if (!is.null(gene_version)) {
+  if (!is.null(gene_version) && gene_version %in% tags) {
     gv <- mcols(gr)[[gene_version]]
     out$gene <- paste(out$gene, gv, sep = version_sep)
   }
   distinct(out)
 }
 
-#' Get transcript and gene info from GTF file
+#' Get transcript and gene info from GFF3 file
 #' 
-#' This function reads a GTF file and extracts the transcript ID and
-#' corresponding gene ID. The memoised version of this function is exported 
-#' since reading large gtf files can take a while.
+#' This function reads a GFF3 file and extracts the transcript ID and
+#' corresponding gene ID. This function assumes that the GFF3 file is properly
+#' formatted. See \url{http://gmod.org/wiki/GFF3} for a detailed
+#' description of proper GFF3 format. Note that GTF files have a somewhat
+#' different and simpler format in the attribute field, which this function does
+#' not support. See \url{http://mblab.wustl.edu/GTF2.html} for a detailed
+#' description of proper GTF format. To extract transcript and gene information
+#' from GTF files, see the function \code{\link{tr2g_gtf}} in this package. 
+#' Some files bearing the \code{.gff3} are in fact more like the GTF format. If
+#' this is so, then change the extension to \code{.gtf} and use the function
+#' \code{\link{tr2g_gtf}} in this package instead.
 #' 
 #' Transcript and gene versions may not be present in all GTF files, so these
 #' arguments are optional. This function has arguments for transcript and gene 
 #' version numbers because Ensembl IDs have version numbers. For Ensembl IDs, we
 #' recommend including the version number, since a change in version number 
-#' signals a change in the entity referred to by the ID after reannotation.
+#' signals a change in the entity referred to by the ID after reannotation. If a
+#' version is used, then it will be appended to the ID, separated by 
+#' \code{version_sep}.
 #' 
-#' @inheritParams .tr2g_gtf
-#' @inheritParams tr2g_ensembl
-#' @note The transcript and gene IDs are The \code{attribute} field (the last 
+#' The transcript and gene IDs are The \code{attribute} field (the last 
 #' field) of GTF files can be complicated and inconsistent across different 
 #' sources. Please check the \code{attribute} tags in your GTF file and consider
 #' the arguments of this function carefully. The defaults are set according to 
-#' Ensembl GTF files; defaults may not work for files from other sources.
-#' @seealso \code{\link{tr2g_ensembl}} \code{\link{tr2g_fasta}} \code{\link{transcript2gene}}
+#' Ensembl GTF files; defaults may not work for files from other sources. Due to
+#' the general lack of standards for the \code{attribute} field, you may need to
+#' further clean up the output of this function.
+#' 
+#' @inheritParams tr2g_gtf
 #' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
 #' for transcript ID, and \code{gene_name} for gene names. 
 #' @family functions to retrieve transcript and gene info
+#' @importFrom plyranges read_gff3
+#' @importFrom stringr str_split
+#' @importFrom dplyr left_join distinct
+#' @importFrom tidyr unite
 #' @export
-tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
-                     gene_id = "gene_id", gene_name = "gene_name",
-                     transcript_version = "transcript_version",
-                     gene_version = "gene_version", version_sep = ".",
-                     verbose = TRUE, cache = TRUE) {
-  if (cache) {
-    f <- addMemoization(.tr2g_gtf)
-  } else {
-    f <- .tr2g_gtf
+tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
+                      gene_id = "gene_id", gene_name = "Name",
+                      transcript_version = "version",
+                      gene_version = "version", version_sep = ".",
+                      verbose = TRUE) {
+  # Validate arguments
+  check_char1(setNames(file, "file"))
+  file <- normalizePath(file, mustWork = TRUE)
+  check_gff("gff3", file, transcript_id, gene_id, gene_name,
+            transcript_version, gene_version, version_sep)
+  if (verbose) {
+    message(paste("Reading GFF3 file."))
   }
-  f(file, type_use, transcript_id, gene_id, gene_name, transcript_version,
-    gene_version, version_sep, verbose)
+  gr <- read_gff3(file)
+  tags <- names(mcols(gr))
+  check_tag_present(c(transcript_id, gene_id), tags, error = TRUE)
+  # Will do nothing if all are NULL
+  check_tag_present(c(gene_name, transcript_version, gene_version), 
+                    tags, error = FALSE)
+  # Get transcript ID
+  gr_tx <- gr[!is.na(mcols(gr)[[transcript_id]])]
+  gr_tx <- gr_tx[gr_tx$type %in% type_use]
+  if (length(gr_tx) == 0) {
+    stop(paste("No entry has types", paste(type_use, collapse = ", "), 
+               "\n"))
+  }
+  genes <- str_split(gr_tx$Parent, ":", simplify = TRUE)[,2]
+  out <- data.frame(gene = genes,
+                    transcript = mcols(gr_tx)[[transcript_id]],
+                    stringsAsFactors = FALSE)
+  if (!is.null(transcript_version) && transcript_version %in% tags) {
+    tv <- mcols(gr_tx)[[transcript_version]]
+    out$transcript <- paste(out$transcript, tv, sep = version_sep)
+  }
+  # Get gene name and version
+  get_gene_name <- !is.null(gene_name) && gene_name %in% tags
+  get_gene_version <- !is.null(gene_version) && gene_version %in% tags
+  if (get_gene_name || get_gene_version) {
+    gr_g <- gr[!is.na(mcols(gr)[[gene_id]])]
+    gs <- data.frame(gene = mcols(gr_g)[[gene_id]],
+                     stringsAsFactors = FALSE)
+    if (get_gene_name) {
+      gs$gene_name <- mcols(gr_g)[[gene_name]]
+    }
+    # Add gene names to output
+    out <- out %>% 
+      left_join(gs, by = "gene")
+    if (get_gene_version) {
+      gs$gv <- mcols(gr_g)[[gene_version]]
+      # Add gene version to output
+      out <- out %>% 
+        left_join(gs, by = c("gene", "gene_name")) %>% 
+        unite("gene", gene, gv, sep = version_sep)
+    }
+  }
+  distinct(out)
 }
-
-# To do: tr2g_gff
 
 #' Get transcript and gene info from names in FASTA files
 #' 
-#' FASTA files, such as those for cDNA and ncRNA from Ensembl, have genome
+#' FASTA files, such as those for cDNA and ncRNA from Ensembl, might have genome
 #' annotation information in the name of each sequence entry. This function
 #' extracts the transcript and gene IDs from such FASTA files. 
 #' 
@@ -249,6 +275,14 @@ tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
 #' extract the transcript and gene IDs by some other means. The Bioconductor
 #' package \code{Biostrings} is recommended; after reading the FASTA file into 
 #' R, the sequence names can be accessed by the \code{names} function.
+#' 
+#' While normally, you should call \code{\link{sort_tr2g}} to sort the 
+#' transcript IDs from the output of the \code{tr2g_*} family of functions, If 
+#' the FASTA file supplied here is the same as the one used to build the
+#' kallisto index, then the transcript IDs in the output of this function are in
+#' the same order as in the kallisto index, so you can skip \code{\link{sort_tr2g}}
+#' and proceed directly to \code{\link{EC2gene}} with the output of this 
+#' function.
 #' 
 #' @inheritParams tr2g_ensembl
 #' @param file Path to the FASTA file to be read. The file can remain gzipped.
@@ -256,87 +290,127 @@ tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
 #' for transcript ID, and \code{gene_name} for gene names. 
 #' @importFrom Biostrings readDNAStringSet
 #' @importFrom stringr str_extract
-#' @seealso \code{\link{tr2g_fasta}}
+#' @importFrom tidyr separate
+#' @importFrom dplyr select
+#' @family functions to retrieve transcript and gene info
 #' 
-.tr2g_fasta <- function(file, verbose = TRUE) {
+tr2g_fasta <- function(file, verbose = TRUE) {
+  check_char1(setNames(file, "file"))
+  file <- normalizePath(file, mustWork = TRUE)
   if (!str_detect(file, "(\\.fasta)|(\\.fa)|(\\.fna)")) {
     stop("file must be a FASTA file.\n")
   }
   file <- normalizePath(file, mustWork = TRUE)
+  if (verbose) {
+    message("Reading FASTA file.")
+  }
   s <- readDNAStringSet(file)
   out <- data.frame(gene = str_extract(names(s), "ENS[A-Z]*G\\d+\\.\\d+"),
                     transcript = str_extract(names(s), "ENS[A-Z]*T\\d+\\.\\d+"),
                     gene_name = str_extract(names(s), "gene_symbol:[a-zA-Z\\d-\\.]+"),
                     stringsAsFactors = FALSE) %>% 
-    separate(gene_name, into = c("g", "gene_name"), sep = ":") %>% 
+    tidyr::separate(gene_name, into = c("g", "gene_name"), sep = ":") %>% 
     dplyr::select(-g) %>% 
     distinct()
   out
 }
 
-#' Get transcript and gene info from names in FASTA files
+#' Sort transcripts to the same order as in kallisto index
 #' 
-#' FASTA files, such as those for cDNA and ncRNA from Ensembl, have genome
-#' annotation information in the name of each sequence entry. This function
-#' extracts the transcript and gene IDs from such FASTA files. 
+#' This function takes the data frame output from the \code{tr2g_*} family of
+#' functions in this package as the input, and sorts it so the transcripts are
+#' in the same order as in the kallisto index used to generate the \code{bus}
+#' file. Sorting is vital to obtain the correct sparse matrix from the \code{bus}
+#' file as equivalence class notations are based on the index of transcripts
+#' in the kallisto index.
 #' 
-#' At present, this function only works with FASTA files from Ensembl, and uses
-#' regex to extract Ensembl IDs. Sequence names should be formatted as follows:
+#' Since the attribute field of GTF and GFF3 files varies across sources, output 
+#' from \code{\link{tr2g_gtf}} and \code{\link{tr2g_gff3}} may need further
+#' clean up. You may also supply gene and transcript IDs from other sources. 
+#' This function should be used after the clean up, when the transcript IDs in
+#' the cleaned up data frame have the same format as those in \code{transcript}
 #' 
-#' ```
-#' ENST00000632684.1 cdna chromosome:GRCh38:7:142786213:142786224:1 
-#' gene:ENSG00000282431.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene 
-#' gene_symbol:TRBD1 description:T cell receptor beta diversity 1 
-#' [Source:HGNC Symbol;Acc:HGNC:12158]
-#' ```
-#' 
-#' If your FASTA file sequence names are formatted differently, then you must
-#' extract the transcript and gene IDs by some other means. The Bioconductor
-#' package \code{Biostrings} is recommended; after reading the FASTA file into 
-#' R, the sequence names can be accessed by the \code{names} function.
-#' 
-#' @inheritParams tr2g_ensembl
-#' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
-#' for transcript ID, and \code{gene_name} for gene names. 
-#' @seealso \code{\link{tr2g_ensembl}} \code{\link{tr2g_gtf}} \code{\link{transcript2gene}}
+#' @param tr2g The data frame output from the \code{tr2g_*} family of functions.
+#' Exactly one of \code{tr2g} and \code{file} should be missing.
+#' @param file Character vector of length 1, path to a csv or tsv file with
+#' transcript IDs and the corresponding gene IDs. Headers \code{transcript} and
+#' \code{gene} must be present in the file.
+#' @param kallisto_out_path Character vector of length 1, path to the directory
+#' for the outputs of kallisto bus.
+#' @param save Whether to save the output.
+#' @param \dots Other arguments passed to \code{\link[data.table]{fwrite}}, such
+#' as \code{sep}, \code{quote}, and \code{col.names}.
+#' @param file_save File name of the file to be saved. If the directory in which
+#' the file is to be saved does not exist, then the directory will be created.
+#' @return A data frame with columns \code{transcript} and \code{gene} and the
+#' other columns present in \code{tr2g} or the data frame in \code{file}, with
+#' the transcript IDs sorted to be in the same order as in the kallisto index.
+#' When \code{save = TRUE}, the data frame is not only saved on disk but also
+#' returned in the R session.
+#' @importFrom data.table fread fwrite
+#' @export
 #' @family functions to retrieve transcript and gene info
-tr2g_fasta <- function(file, verbose = TRUE, cache = TRUE) {
-  if (cache) {
-    f <- addMemoization(.tr2g_fasta)
-  } else {
-    f <- .tr2g_fasta
+#' 
+sort_tr2g <- function(tr2g, file, kallisto_out_path, save = FALSE,
+                      file_save = "./tr2g_sorted.csv", verbose = TRUE, ...) {
+  if (!xor(missing(tr2g), missing(file))) {
+    stop("Exactly one of tr2g and file should be missing.\n")
   }
-  f(file, verbose)
+  kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
+  trs_path <- paste(kallisto_out_path, "transcripts.txt", sesp = "/")
+  if (!file.exists(tx_path)) {
+    stop(paste("The file transcripts.txt does not exist in",
+               kallisto_out_path, ".\n"))
+  }
+  if (missing(tr2g)) {
+    tr2g <- fread(file)
+  }
+  trs <- fread(trs_path)
+  if (verbose) {
+    message("Sorting transcripts")
+  }
+  out <- merge(trs, tr2g, by = c("gene", "transcript"), sort = FALSE)
+  if (save) {
+    file_save <- normalizePath(file_save)
+    dn <- dirname(file_save)
+    if (!dir.exists(dn)) dir.create(dn)
+    fwrite(out, file_save, ...)
+  } else {
+    extra_args <- list(...)
+    if (length(extra_args) > 0) {
+      arg_names <- paste(names(extra_args), collapse = ", ")
+      message(paste("Arguments", arg_names, "are ignored."))
+    }
+  }
+  out
 }
 
-#' Map Transcript ID to Gene ID
+#' Map Ensembl transcript ID to gene ID
 #' 
-#' This function first retrieves gene and transcript ID information with the
-#' \code{tr2g_*} family of functions, and then sorts the transcripts so they are
-#' in the same order as in the \code{kallisto} index.
+#' This function is a shortcut to get the correctly sorted data frame with 
+#' transcript IDs and the corresponding gene IDs from Ensembl biomart. It calls
+#' \code{\link{tr2g_ensembl}} and then \code{\link{sort_tr2g}}. Unlike in
+#' \code{\link{tr2g_ensembl}}, multiple species can be supplied if cells from
+#' different species were sequenced together.
 #' 
-#' You can supply both species names and file paths. Eventually, all the
-#' transcript and gene information will be combined regardless of source and
-#' sorted.
-#' 
-#' The \code{tr2g_*} family of functions called by this function
-#' have the option to cache results, determined by the \code{cache} argument
-#' of this function. To clear cache, see \code{\link[R.cache]{clearCache}}.
+#' Note that here, the arguments passed to \dots will be passed to 
+#' \code{\link[biomaRt]{useEnsembl}} rather than \code{\link[data.table]{fwrite}},
+#' so default settings of \code{\link[data.table]{fwrite}} will be used if 
+#' \code{save = TRUE}, which will save a csv file that includes the column names
+#' to \code{file_save}.
 #' 
 #' @inheritParams tr2g_ensembl
+#' @inheritParams sort_tr2g
 #' @param species A character vector of Latin names of species present in this
 #' scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.
-#' @param files A character vector of paths to GTF/GFF/FASTA files. The files 
-#' can remain gzipped.
 #' @param kallisto_out_path Path to the \code{kallisto bus} output directory.
 #' @param verbose Whether to display progress. Defaults to \code{TRUE}.
 #' @return A data frame with two columns: \code{gene} and \code{transcript},
 #' with Ensembl gene and transcript IDs (with version number), in the same order
 #' as in the transcriptome index used in \code{kallisto}.
-#' @importFrom data.table fread := rbindlist
+#' @importFrom data.table rbindlist
 #' @export
 #' @family functions to retrieve transcript and gene info
-#' @seealso \code{\link{tr2g_ensembl}} \code{\link{tr2g_gtf}} \code{\link{tr2g_fasta}}
 #' @examples
 #' \dontrun{
 #' # Download dataset already in BUS format
@@ -346,43 +420,16 @@ tr2g_fasta <- function(file, verbose = TRUE, cache = TRUE) {
 #'                         kallisto_out_path = "./out_hgmm100")
 #' }
 #' 
-transcript2gene <- function(species, files, kallisto_out_path, 
+transcript2gene <- function(species, kallisto_out_path, 
                             other_attrs = NULL, ensembl_version = NULL,
-                            verbose = TRUE, cache = TRUE, ...) {
+                            save = FALSE, file_save = "./tr2g_sorted.csv",
+                            verbose = TRUE, ...) {
   kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
-  ensembl_data <- file_data <- NULL
-  if (!missing(species)) {
-    ensembl_dfs <- lapply(species, tr2g_ensembl, other_attrs = other_attrs, 
-                  ensembl_version = ensembl_version, 
-                  verbose = verbose, cache = cache, ...)
-    ensembl_data <- rbindlist(ensembl_dfs) %>% unique()
-  }
-  if (!missing(files)) {
-    if (any(!str_detect(files, "(\\.gff)|(\\.gtf)|(\\.fa)|(\\.fasta)|(\\.fna)"))) {
-      stop("Files must be GTF/GFF/FASTA.\n")
-    }
-    file_dfs <- lapply(files, function(x) {
-      if (str_detect(x, "(\\.gff)|(\\.gtf)")) {
-        tr2g_gtf(x, verbose = verbose, cache = cache)
-      } else {
-        tr2g_fasta(x, verbose = verbose, cache = cache)
-      }
-    })
-    file_data <- rbindlist(file_dfs) %>% unique()
-  }
-  if (!is.null(ensembl_data) && !is.null(file_data)) {
-    out <- merge(ensembl_data, file_data, 
-                 by = c("gene", "transcript", "gene_name"),
-                 all = TRUE) %>% unique(by = c("gene", "transcript", "gene_name"))
-  }
-  
-  # Sort according to the order in kallisto index
-  if (verbose) {
-    message("Sorting\n")
-  }
-  trs <- fread(paste(kallisto_out_path, "transcripts.txt", sep = "/"),
-               col.names = "transcript")
-  merge(trs, out, by = c("gene", "transcript"), sort = FALSE)
+  fls <- lapply(species, tr2g_ensembl, other_attrs = other_attrs,
+                ensembl_version = ensembl_version, verbose = verbose, ...)
+  fls <- rbindlist(fls)
+  sort_tr2g(fls, kallisto_out_path = kallisto_out_path, save = save,
+            file_save = file_save, verbose = verbose)
 }
 
 #' Map EC Index to Genes Compatible with the EC
@@ -410,6 +457,7 @@ transcript2gene <- function(species, files, kallisto_out_path,
 #' \code{kallisto bus} output file \code{matrix.ec}. 
 #' @seealso \code{\link{transcript2gene}}
 #' @importFrom parallel mclapply
+#' @importFrom data.table :=
 #' @export
 #' @examples
 #' \dontrun{

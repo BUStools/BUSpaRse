@@ -7,8 +7,7 @@
 tr2g_gtf(file, type_use = "exon", transcript_id = "transcript_id",
   gene_id = "gene_id", gene_name = "gene_name",
   transcript_version = "transcript_version",
-  gene_version = "gene_version", version_sep = ".", verbose = TRUE,
-  cache = TRUE)
+  gene_version = "gene_version", version_sep = ".", verbose = TRUE)
 }
 \arguments{
 \item{file}{Path to a GTF file to be read. The file can remain gzipped.}
@@ -48,8 +47,6 @@ version number, then use \code{NULL} for this argument.}
 number. Defaults to ".", as in Ensembl.}
 
 \item{verbose}{Whether to display progress.}
-
-\item{cache}{Logical, whether to cache results, defaults to \code{TRUE}.}
 }
 \value{
 A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
@@ -57,27 +54,34 @@ for transcript ID, and \code{gene_name} for gene names.
 }
 \description{
 This function reads a GTF file and extracts the transcript ID and
-corresponding gene ID. The memoised version of this function is exported
-since reading large gtf files can take a while.
+corresponding gene ID. This function assumes that the GTF file is properly
+formatted. See \url{http://mblab.wustl.edu/GTF2.html} for a detailed
+description of proper GTF format. Note that GFF3 files have a somewhat
+different and more complicated format in the attribute field, which this
+function does not support. See \url{http://gmod.org/wiki/GFF3} for a detailed
+description of proper GFF3 format. To extract transcript and gene information
+from GFF3 files, see the function \code{\link{tr2g_gff3}} in this package.
 }
 \details{
 Transcript and gene versions may not be present in all GTF files, so these
 arguments are optional. This function has arguments for transcript and gene
 version numbers because Ensembl IDs have version numbers. For Ensembl IDs, we
 recommend including the version number, since a change in version number
-signals a change in the entity referred to by the ID after reannotation.
-}
-\note{
+signals a change in the entity referred to by the ID after reannotation. If a
+version is used, then it will be appended to the ID, separated by
+\code{version_sep}.
+
 The transcript and gene IDs are The \code{attribute} field (the last
 field) of GTF files can be complicated and inconsistent across different
 sources. Please check the \code{attribute} tags in your GTF file and consider
 the arguments of this function carefully. The defaults are set according to
-Ensembl GTF files; defaults may not work for files from other sources.
+Ensembl GTF files; defaults may not work for files from other sources. Due to
+the general lack of standards for the \code{attribute} field, you may need to
+further clean up the output of this function.
 }
 \seealso{
-\code{\link{tr2g_ensembl}} \code{\link{tr2g_fasta}} \code{\link{transcript2gene}}
-
-Other functions to retrieve transcript and gene info: \code{\link{tr2g_ensembl}},
-  \code{\link{tr2g_fasta}}, \code{\link{transcript2gene}}
+Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
+  \code{\link{tr2g_ensembl}}, \code{\link{tr2g_fasta}},
+  \code{\link{tr2g_gff3}}, \code{\link{transcript2gene}}
 }
 \concept{functions to retrieve transcript and gene info}

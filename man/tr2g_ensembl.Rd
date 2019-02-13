@@ -5,7 +5,7 @@
 \title{Get transcript and gene info from Ensembl}
 \usage{
 tr2g_ensembl(species, other_attrs = NULL, ensembl_version = NULL,
-  verbose = TRUE, cache = TRUE, ...)
+  verbose = TRUE, ...)
 }
 \arguments{
 \item{species}{Character vector of length 1, Latin name of the species of
@@ -22,30 +22,21 @@ to the Ensembl release of a particular date.}
 
 \item{verbose}{Whether to display progress.}
 
-\item{cache}{Logical, whether to cache results, defaults to \code{TRUE}.}
-
-\item{...}{Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
+\item{\dots}{Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
 such as host and mirror.
 Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.}
 }
 \value{
 A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
-for transcript ID, and \code{gene_name} for gene names. The gene and transcript
-IDs will have the version number. If \code{other_attrs} has been specified,
-then those will also be columns in the data frame returned.
+for transcript ID, and \code{gene_name} for gene names. If \code{other_attrs}
+has been specified, then those will also be columns in the data frame returned.
 }
 \description{
 This function queries Ensembl biomart to convert transcript IDs to gene IDs.
 }
-\details{
-The output from this function can be cached, so subsequent calls with exactly
-the same parameters will retrieve result from the cache, unless the cache is
-cleared. To clear cache, see \code{\link[R.cache]{clearCache}}.
-}
 \seealso{
-\code{\link{tr2g_gtf}} \code{\link{tr2g_fasta}} \code{\link{transcript2gene}}
-
-Other functions to retrieve transcript and gene info: \code{\link{tr2g_fasta}},
+Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
+  \code{\link{tr2g_fasta}}, \code{\link{tr2g_gff3}},
   \code{\link{tr2g_gtf}}, \code{\link{transcript2gene}}
 }
 \concept{functions to retrieve transcript and gene info}

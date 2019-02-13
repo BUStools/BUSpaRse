@@ -73,3 +73,10 @@ make_sparse_matrix <- function(fn, genes, est_ncells, est_ngenes,
   colnames(res_mat) <- barcodes
   res_mat
 }
+
+#' Get gene count matrix in one step
+#' 
+
+busparse <- function(species, kallisto_out_path) {
+  
+}

@@ -4,19 +4,19 @@
 \alias{tr2g_fasta}
 \title{Get transcript and gene info from names in FASTA files}
 \usage{
-tr2g_fasta(file, verbose = TRUE, cache = TRUE)
+tr2g_fasta(file, verbose = TRUE)
 }
 \arguments{
-\item{verbose}{Whether to display progress.}
+\item{file}{Path to the FASTA file to be read. The file can remain gzipped.}
 
-\item{cache}{Logical, whether to cache results, defaults to \code{TRUE}.}
+\item{verbose}{Whether to display progress.}
 }
 \value{
 A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
 for transcript ID, and \code{gene_name} for gene names.
 }
 \description{
-FASTA files, such as those for cDNA and ncRNA from Ensembl, have genome
+FASTA files, such as those for cDNA and ncRNA from Ensembl, might have genome
 annotation information in the name of each sequence entry. This function
 extracts the transcript and gene IDs from such FASTA files.
 }
@@ -32,11 +32,18 @@ If your FASTA file sequence names are formatted differently, then you must
 extract the transcript and gene IDs by some other means. The Bioconductor
 package \code{Biostrings} is recommended; after reading the FASTA file into
 R, the sequence names can be accessed by the \code{names} function.
+
+While normally, you should call \code{\link{sort_tr2g}} to sort the
+transcript IDs from the output of the \code{tr2g_*} family of functions, If
+the FASTA file supplied here is the same as the one used to build the
+kallisto index, then the transcript IDs in the output of this function are in
+the same order as in the kallisto index, so you can skip \code{\link{sort_tr2g}}
+and proceed directly to \code{\link{EC2gene}} with the output of this
+function.
 }
 \seealso{
-\code{\link{tr2g_ensembl}} \code{\link{tr2g_gtf}} \code{\link{transcript2gene}}
-
-Other functions to retrieve transcript and gene info: \code{\link{tr2g_ensembl}},
+Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
+  \code{\link{tr2g_ensembl}}, \code{\link{tr2g_gff3}},
   \code{\link{tr2g_gtf}}, \code{\link{transcript2gene}}
 }
 \concept{functions to retrieve transcript and gene info}
