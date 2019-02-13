@@ -97,4 +97,7 @@ test_that("Extract transcript and gene ID from FASTA file", {
 test_that("Correct gene list output", {
   expect_equal(EC2gene(tr2g_toy, toy_path, verbose = FALSE),
                genes_toy)
+  # Test multicore
+  expect_equal(EC2gene(tr2g_toy, toy_path, ncores = 2, verbose = FALSE),
+               genes_toy)
 })

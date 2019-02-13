@@ -11,7 +11,9 @@ NULL
 #' October 2018 release). This argument defaults to \code{NULL}, which will use
 #' the current release of Ensembl. Use 
 #' \code{\link[biomaRt]{listEnsemblArchives}} to see the version number corresponding
-#' to the Ensembl release of a particular date.
+#' to the Ensembl release of a particular date. The version specified here must
+#' match the version of Ensembl where the transcriptome used to build the
+#' kallisto index was downloaded.
 #' @param other_attrs Character vector. Other attributes to get from Ensembl, 
 #' such as gene symbol and position on the genome.
 #' @param verbose Whether to display progress.
@@ -19,6 +21,7 @@ NULL
 #' such as host and mirror.
 #' Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.
 #' @importFrom biomaRt useEnsembl getBM
+#' @importFrom stats setNames
 #' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
 #' for transcript ID, and \code{gene_name} for gene names. If \code{other_attrs}
 #' has been specified, then those will also be columns in the data frame returned.
@@ -246,6 +249,8 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
     if (get_gene_version) {
       gs$gv <- mcols(gr_g)[[gene_version]]
       # Add gene version to output
+      # Avoid R CMD check note
+      gene <- gv <- NULL
       out <- out %>% 
         left_join(gs, by = c("gene", "gene_name")) %>% 
         unite("gene", gene, gv, sep = version_sep)
@@ -304,6 +309,8 @@ tr2g_fasta <- function(file, verbose = TRUE) {
     message("Reading FASTA file.")
   }
   s <- readDNAStringSet(file)
+  # Avoid R CMD check note
+  g <- gene_name <- NULL
   out <- data.frame(gene = str_extract(names(s), "ENS[A-Z]*G\\d+\\.\\d+"),
                     transcript = str_extract(names(s), "ENS[A-Z]*T\\d+\\.\\d+"),
                     gene_name = str_extract(names(s), "gene_symbol:[a-zA-Z\\d-\\.]+"),
@@ -337,6 +344,7 @@ tr2g_fasta <- function(file, verbose = TRUE) {
 #' @param kallisto_out_path Character vector of length 1, path to the directory
 #' for the outputs of kallisto bus.
 #' @param save Whether to save the output.
+#' @param verbose Whether to display progress.
 #' @param \dots Other arguments passed to \code{\link[data.table]{fwrite}}, such
 #' as \code{sep}, \code{quote}, and \code{col.names}.
 #' @param file_save File name of the file to be saved. If the directory in which
@@ -369,7 +377,7 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, save = FALSE,
     message("Sorting transcripts")
   }
   out <- merge(trs, tr2g, by = "transcript", sort = FALSE)
-  if (nrow(trs) != nrow(tr2g)) {
+  if (nrow(trs) != nrow(out)) {
     stop("Some transcripts in the kallisto index absent from tr2g.\n")
   }
   if (save) {
@@ -393,7 +401,10 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, save = FALSE,
 #' transcript IDs and the corresponding gene IDs from Ensembl biomart. It calls
 #' \code{\link{tr2g_ensembl}} and then \code{\link{sort_tr2g}}. Unlike in
 #' \code{\link{tr2g_ensembl}}, multiple species can be supplied if cells from
-#' different species were sequenced together.
+#' different species were sequenced together. This function should only be used
+#' if the kallisto inidex was built with transcriptomes from Ensembl. Also, 
+#' please make surre that to set \code{ensembl_version} to match the version
+#' where the transcriptomes were downloaded.
 #' 
 #' Note that here, the arguments passed to \dots will be passed to 
 #' \code{\link[biomaRt]{useEnsembl}} rather than \code{\link[data.table]{fwrite}},
@@ -447,7 +458,7 @@ transcript2gene <- function(species, kallisto_out_path,
 #' transcript ID on Ensembl. The output of this function should be passed to
 #' \code{make_sparse_matrix} in the next step in the workflow, which will 
 #' produce the sparse matrix that can be used in 
-#' \code{\href{https://satijalab.org/seurat/}{Seurat}}.
+#' \href{https://satijalab.org/seurat/}{Seurat}.
 #' 
 #' @inheritParams transcript2gene
 #' @param tr2g A Data frame with columns \code{gene} and \code{transcript}, in
