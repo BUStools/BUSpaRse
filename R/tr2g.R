@@ -112,7 +112,6 @@ tr2g_ensembl <- function(species, other_attrs = NULL, ensembl_version = NULL,
 #' @importFrom magrittr %>% 
 #' @importFrom stringr str_detect
 #' @importFrom dplyr distinct
-#' @importFrom purrr walk2
 #' @importFrom S4Vectors mcols
 #' @family functions to retrieve transcript and gene info
 #' @export
@@ -357,19 +356,22 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, save = FALSE,
     stop("Exactly one of tr2g and file should be missing.\n")
   }
   kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
-  trs_path <- paste(kallisto_out_path, "transcripts.txt", sesp = "/")
-  if (!file.exists(tx_path)) {
-    stop(paste("The file transcripts.txt does not exist in",
-               kallisto_out_path, ".\n"))
+  trs_path <- paste(kallisto_out_path, "transcripts.txt", sep = "/")
+  if (!file.exists(trs_path)) {
+    stop("The file transcripts.txt does not exist in",
+               kallisto_out_path, "\n")
   }
   if (missing(tr2g)) {
     tr2g <- fread(file)
   }
-  trs <- fread(trs_path)
+  trs <- fread(trs_path, header = FALSE, col.names = "transcript")
   if (verbose) {
     message("Sorting transcripts")
   }
-  out <- merge(trs, tr2g, by = c("gene", "transcript"), sort = FALSE)
+  out <- merge(trs, tr2g, by = "transcript", sort = FALSE)
+  if (nrow(trs) != nrow(tr2g)) {
+    stop("Some transcripts in the kallisto index absent from tr2g.\n")
+  }
   if (save) {
     file_save <- normalizePath(file_save)
     dn <- dirname(file_save)
@@ -456,7 +458,9 @@ transcript2gene <- function(species, kallisto_out_path,
 #' elements of this list are in the same order as the ECs listed in the
 #' \code{kallisto bus} output file \code{matrix.ec}. 
 #' @seealso \code{\link{transcript2gene}}
-#' @importFrom parallel mclapply
+#' @importFrom parallel stopCluster makePSOCKcluster
+#' @importFrom doParallel registerDoParallel
+#' @importFrom pbapply pblapply pboptions
 #' @importFrom data.table :=
 #' @export
 #' @examples
@@ -472,20 +476,30 @@ transcript2gene <- function(species, kallisto_out_path,
 EC2gene <- function(tr2g, kallisto_out_path, ncores = 1, verbose = TRUE) {
   genes <- tr2g$gene
   # Read in matrix.ec
-  if (verbose) cat("Reading matrix.ec\n")
+  if (verbose) message("Reading matrix.ec")
   path_use <- normalizePath(kallisto_out_path, mustWork = TRUE)
   ECs <- fread(paste(path_use, "matrix.ec", sep = "/"), 
                col.names = c("EC_index", "EC"),
                data.table = TRUE, showProgress = verbose)
-  if (verbose) cat("Processing genes\n")
+  if (verbose) message("Processing genes")
   # Prevent R CMD check note no visible binding for global variable
   EC_index <- EC <- NULL
   ECs[, c("EC_index", "EC") := list(EC_index, 
                                  strsplit(EC, ","))]
-  ECs[, genes := mclapply(EC, 
-                          function(x) {
-                            inds <- as.integer(x) + 1
-                            unique(genes[inds])
-                          }, mc.cores = ncores)]
+  # Set up progress bar
+  if (!verbose) {
+    pboptions(type = "none")
+  }
+  # Set up parallel processing
+  if (ncores > 1) {
+    cl <- makePSOCKcluster(ncores)
+  } else cl <- NULL
+  ECs[, genes := pblapply(EC, function(x) {
+    inds <- as.integer(x) + 1
+    unique(genes[inds])
+  }, cl = cl)]
+  if (ncores > 1) {
+    stopCluster
+  }
   ECs$genes
 }
