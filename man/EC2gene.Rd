@@ -35,7 +35,7 @@ The data frame passed to \code{tr2g} can be generated from function
 transcript ID on Ensembl. The output of this function should be passed to
 \code{make_sparse_matrix} in the next step in the workflow, which will
 produce the sparse matrix that can be used in
-\code{\href{https://satijalab.org/seurat/}{Seurat}}.
+\href{https://satijalab.org/seurat/}{Seurat}.
 }
 \examples{
 \dontrun{

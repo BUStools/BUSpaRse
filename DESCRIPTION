@@ -13,9 +13,9 @@ BugReports: https://github.com/BUStools/BUSpaRse/issues
 URL: https://github.com/BUStools/BUSpaRse
 Imports: 
     Rcpp,
-    Matrix (>= 1.2.15),
+    Matrix,
     biomaRt,
-    data.table (>= 1.11.8),
+    data.table,
     zeallot,
     parallel,
     pbapply,
@@ -25,7 +25,9 @@ Imports:
     plyranges,
     Biostrings,
     stringr,
-    magrittr
+    magrittr,
+    S4Vectors,
+    methods
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
