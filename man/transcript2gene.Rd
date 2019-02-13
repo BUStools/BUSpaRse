@@ -21,7 +21,9 @@ such as gene symbol and position on the genome.}
 October 2018 release). This argument defaults to \code{NULL}, which will use
 the current release of Ensembl. Use
 \code{\link[biomaRt]{listEnsemblArchives}} to see the version number corresponding
-to the Ensembl release of a particular date.}
+to the Ensembl release of a particular date. The version specified here must
+match the version of Ensembl where the transcriptome used to build the
+kallisto index was downloaded.}
 
 \item{save}{Whether to save the output.}
 
@@ -44,7 +46,10 @@ This function is a shortcut to get the correctly sorted data frame with
 transcript IDs and the corresponding gene IDs from Ensembl biomart. It calls
 \code{\link{tr2g_ensembl}} and then \code{\link{sort_tr2g}}. Unlike in
 \code{\link{tr2g_ensembl}}, multiple species can be supplied if cells from
-different species were sequenced together.
+different species were sequenced together. This function should only be used
+if the kallisto inidex was built with transcriptomes from Ensembl. Also,
+please make surre that to set \code{ensembl_version} to match the version
+where the transcriptomes were downloaded.
 }
 \details{
 Note that here, the arguments passed to \dots will be passed to

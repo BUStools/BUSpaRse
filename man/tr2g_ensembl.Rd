@@ -18,7 +18,9 @@ such as gene symbol and position on the genome.}
 October 2018 release). This argument defaults to \code{NULL}, which will use
 the current release of Ensembl. Use
 \code{\link[biomaRt]{listEnsemblArchives}} to see the version number corresponding
-to the Ensembl release of a particular date.}
+to the Ensembl release of a particular date. The version specified here must
+match the version of Ensembl where the transcriptome used to build the
+kallisto index was downloaded.}
 
 \item{verbose}{Whether to display progress.}
 

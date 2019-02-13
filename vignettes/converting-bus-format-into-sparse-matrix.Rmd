@@ -37,7 +37,7 @@ download_hgmm(".", dataset = "hgmm100")
 First, we map transcripts, as in the `kallisto` index, to the corresponding genes. 
 ```{r}
 tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
-                         kallisto_out_path = "./out_hgmm100")
+                         kallisto_out_path = "./out_hgmm100", ensembl_version = 94)
 ```
 
 ```{r}
