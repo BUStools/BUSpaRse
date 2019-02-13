@@ -4,11 +4,11 @@
 \alias{make_sparse_matrix}
 \title{Convert the Output of \code{kallisto bus} into Gene by Gell Matrix}
 \usage{
-make_sparse_matrix(fn, genes, est_ncells, est_ngenes, whitelist = NULL,
-  display_progress = TRUE, progress_unit = 5e+06)
+make_sparse_matrix(bus_fn, genes, est_ncells, est_ngenes,
+  whitelist = NULL, verbose = TRUE, progress_unit = 5e+06)
 }
 \arguments{
-\item{fn}{File name of output of \code{bustools}, namely \code{output.bus}
+\item{bus_fn}{File name of output of \code{bustools}, namely \code{output.bus}
 from \code{kallisto bus} after sorted and converted to text by
 \code{bustools}.}
 
@@ -25,7 +25,7 @@ optional argument, that defaults to \code{NULL}. When it is \code{NULL},
 all cell barcodes present will be included in the sparse matrix, not only
 the barcodes known to be valid.}
 
-\item{display_progress}{Whether to display progress.}
+\item{verbose}{Whether to display progress.}
 
 \item{progress_unit}{How many iteration to print one progress update when
 reading in the \code{kallisto bus} file.}
@@ -48,6 +48,7 @@ example path to get the whitelist file is
 for v2 chemistry.
 }
 \examples{
+\dontrun{
 # Download dataset already in BUS format
 library(TENxhgmmBUS)
 library(Matrix)
@@ -62,6 +63,9 @@ res_mat <- make_sparse_matrix("./out_hgmm100/output.sorted.txt",
 tot_counts <- colSums(res_mat)
 res_mat <- res_mat[,tot_counts > 500]
 }
+}
 \seealso{
 \code{\link{EC2gene}}
 }
+\concept{functions to generate sparse matrix from outputs of other 
+\code{BUSpaRse} functions}
