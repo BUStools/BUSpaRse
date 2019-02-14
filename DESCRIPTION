@@ -1,8 +1,8 @@
 Package: BUSpaRse
 Type: Package
 Title: Process BUS format in R
-Version: 0.99.1
-Date: 2019-01-08
+Version: 0.99.0
+Date: 2019-02-12
 Authors@R: 
     person("Lambda", "Moses", email = "dlu2@caltech.edu", 
     role = c("aut", "cre"))
@@ -13,19 +13,29 @@ BugReports: https://github.com/BUStools/BUSpaRse/issues
 URL: https://github.com/BUStools/BUSpaRse
 Imports: 
     Rcpp,
-    Matrix (>= 1.2.15),
+    Matrix,
     biomaRt,
-    data.table (>= 1.11.8),
+    data.table,
     zeallot,
-    parallel
+    parallel,
+    pbapply,
+    doParallel,
+    dplyr,
+    tidyr,
+    plyranges,
+    Biostrings,
+    stringr,
+    magrittr,
+    S4Vectors,
+    methods
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 6.1.1
+Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,
     rmarkdown,
     testthat,
-    BiocStyle,
-    TENxhgmmBUS
+    BiocStyle
 VignetteBuilder: knitr
 Collate: 
     'RcppExports.R'
