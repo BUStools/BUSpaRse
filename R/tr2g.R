@@ -461,7 +461,7 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
     tr2g <- rbindlist(fls)
     # Just to be safe, to make sure that the transcripts are in the right order
     return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, 
-                      save = save_tr2g, file_save = file_save, 
+                      save = save, file_save = file_save, 
                       verbose = verbose))
   }
 }
