@@ -17,12 +17,9 @@ cache:
 environment:
   R_VERSION: bioc-devel
   
-before_script:
-  # ensure bioc-devel is being used
+build_script:
   - R -e 'BiocManager::install(version = "devel", ask=FALSE)'
   - R -e 'BiocManager::valid()'
-  
-build_script:
   - travis-tool.sh install_github BUStools/TENxhgmmBUS
   - travis-tool.sh install_github Bioconductor/BiocManager
   - travis-tool.sh install_deps
