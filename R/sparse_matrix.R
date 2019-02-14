@@ -16,7 +16,7 @@ NULL
 #' \code{cellranger-2.1.0/cellranger-cs/2.1.0/lib/python/cellranger/barcodes/737K-august-2016.txt}
 #' for v2 chemistry.
 #' 
-#' @param fn File name of output of \code{bustools}, namely \code{output.bus}
+#' @param bus_fn File name of output of \code{bustools}, namely \code{output.bus}
 #' from \code{kallisto bus} after sorted and converted to text by
 #'  \code{bustools}.
 #' @param genes A list with each element a string vector of genes that an 
@@ -28,15 +28,18 @@ NULL
 #' @param est_ncells Estimated number of cells; providing this argument will
 #' speed up computation as it minimizes memory reallocation as vectors grow.
 #' @param est_ngenes Estimated number of genes.
-#' @param display_progress Whether to display progress.
+#' @param verbose Whether to display progress.
 #' @param progress_unit How many iteration to print one progress update when
 #' reading in the \code{kallisto bus} file.
 #' @return A sparse matrix with genes in rows and cells in columns.
 #' @seealso \code{\link{EC2gene}}
+#' @family functions to generate sparse matrix from outputs of other 
+#' \code{BUSpaRse} functions
 #' @importFrom zeallot %<-%
 #' @importClassesFrom Matrix dgCMatrix
 #' @export
 #' @examples
+#' \dontrun{
 #' # Download dataset already in BUS format
 #' library(TENxhgmmBUS)
 #' library(Matrix)
@@ -50,13 +53,14 @@ NULL
 #' # Remove empty droplets
 #' tot_counts <- colSums(res_mat)
 #' res_mat <- res_mat[,tot_counts > 500]
+#' }
 
-make_sparse_matrix <- function(fn, genes, est_ncells, est_ngenes, 
+make_sparse_matrix <- function(bus_fn, genes, est_ncells, est_ngenes, 
                                whitelist = NULL, 
-                               display_progress = TRUE,
+                               verbose = TRUE,
                                progress_unit = 5e6) {
-  fn <- normalizePath(fn, mustWork = TRUE)
-  if (!grepl(".txt$", fn)) {
+  bus_fn <- normalizePath(bus_fn, mustWork = TRUE)
+  if (!grepl(".txt$", bus_fn)) {
     stop("Argument fn must point to a text file. Please run bustools text.")
   }
   if (is.null(whitelist)) {
@@ -64,12 +68,74 @@ make_sparse_matrix <- function(fn, genes, est_ncells, est_ngenes,
   }
   # Prevent the no visible binding of global variable note in R CMD check
   barcodes <- geneIDs <- NULL
-  c(res_mat, barcodes, geneIDs) %<-% fill_cell_gene(fn, genes, 
+  c(res_mat, barcodes, geneIDs) %<-% fill_cell_gene(bus_fn, genes, 
                                                   est_ncells, est_ngenes, 
                                                   whitelist, 
-                                                  display_progress,
-                                                  progress_unit)
+                                                  verbose, progress_unit)
   rownames(res_mat) <- geneIDs
   colnames(res_mat) <- barcodes
   res_mat
 }
+
+#' Get gene count matrix in one step
+#' 
+#' The \code{bustools} output has 4 columns: barcode, UMI, equivalence class, 
+#' and counts. This function directly converts that file into a sparse matrix 
+#' that can be used in downstream analyses in one step for species that are in
+#' the Ensembl database. This function condenses a multi-step workflow 
+#' implemented in this package into one step. For non-model organisms absent 
+#' from Ensembl, please run the individual steps separately, as this function
+#' either queries Ensembl through biomart or parses Ensembl FASTA sequence names
+#' for transcript and gene information required to aggregate read counts mapped 
+#' to transcripts into counts for genes. The vignette has a tutorial of running 
+#' the individual steps in this workflow.
+#' 
+#' For 10x data sets, you can find a barcode whitelist file that comes with
+#' CellRanger installation. You don't need to run CellRanger to get that. An 
+#' example path to get the whitelist file is
+#' \code{cellranger-2.1.0/cellranger-cs/2.1.0/lib/python/cellranger/barcodes/737K-august-2016.txt}
+#' for v2 chemistry.
+#' 
+#' Passing FASTA files to \code{fasta_file} is faster than passing \code{species}
+#' since with the latter, this function will query the Ensembl biomart database,
+#' which is really slow.
+#' 
+#' @inheritParams make_sparse_matrix
+#' @inheritParams transcript2gene
+#' @inheritParams EC2gene
+#' @param save_tr2g Logical, whether to save the data frame that maps transcripts
+#' to genes to disk.
+#' @note By default, this function does not save the data frame that maps
+#' transcripts to genes. As this information, along with human readable gene
+#' names corresponding to gene IDs and other information passed to \code{other_attrs}
+#' that can be retrieved from Ensembl might be useful later in the analysis,
+#' this function has an option to save the data frame. Set \code{save_tr2g = TRUE}
+#' to save this to disk.
+#' @return A sparse matrix with genes in rows and cells in columns.
+#' @family functions to generate sparse matrix in one step
+#' @importFrom devtools install_github
+#' @export
+
+busparse_gene_count <- function(species, fasta_file, bus_fn,
+                                est_ncells, est_ngenes, whitelist = NULL, 
+                                ensembl_version = NULL, other_attrs = NULL,
+                                save_tr2g = FALSE, 
+                                file_save = "./tr2g_sorted.csv",
+                                verbose = TRUE, ncores = 1,
+                                progress_unit = 5e6, ...) {
+  bus_fn <- normalizePath(bus_fn, mustWork = TRUE)
+  kallisto_out_path <- dirname(bus_fn)
+  # Get transcript and gene information
+  tr2g <- transcript2gene(species, fasta_file, kallisto_out_path, 
+                          other_attrs, ensembl_version,
+                          save, file_save, verbose, ...)
+  genes <- EC2gene(tr2g, kallisto_out_path, ncores = ncores, verbose = verbose)
+  make_sparse_matrix(bus_fn, genes, est_ncells = est_ncells, 
+                     est_ngenes = est_ngenes, whitelist = whitelist,
+                     verbose = verbose, progress_unit = progress_unit)
+}
+
+# To do: Make TCC matrix, parallelize read count processing
+# Unit test one step functions, write examples for all exported functions.
+# Unit test tr2g_ensembl related functions.
+# Unit test file saving

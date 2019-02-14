@@ -22,6 +22,13 @@ The [Barcode, UMI, Set (BUS) format](https://www.biorxiv.org/content/early/2018/
 In this vignette, we convert an 10x 1:1 mouse and human cell mixture dataset from the BUS format to a sparse matrix. To see how the BUS format can be generated from fastq file, see [the website of this package](https://bustools.github.io/BUS_notebooks_R/index.html).
 
 ## Download the dataset
+```{r}
+# Install TENxhgmmBUS
+if (!require(TENxhgmmBUS)) {
+  devtools::install_github("BUStools/TENxhgmmBUS")
+}
+```
+
 ```{r, message=FALSE}
 # The dataset package
 library(TENxhgmmBUS)
@@ -37,7 +44,7 @@ download_hgmm(".", dataset = "hgmm100")
 First, we map transcripts, as in the `kallisto` index, to the corresponding genes. 
 ```{r}
 tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
-                         kallisto_out_path = "./out_hgmm100")
+                         kallisto_out_path = "./out_hgmm100", ensembl_version = 94)
 ```
 
 ```{r}

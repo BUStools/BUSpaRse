@@ -12,37 +12,45 @@ the same order as in the transcriptome index for \code{kallisto}.}
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
-\item{ncores}{Number of cores to use, defaults to 1.}
+\item{ncores}{Number of cores to use, defaults to 1. Note that while this
+function supports multithreading by PSOCK clusters, unless the dataset is
+very large, setting \code{ncores > 1} is not advisable. This is because even
+if \code{ncores > 1}, only one core will be used anyway unless the job is
+truly intensive. In this case, setting \code{ncores > 1} will \emph{compromise}
+performance.}
 
 \item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 }
 \value{
 A list each element of whom is the set of genes the corresponding EC
-is compatible to. The genes are in Ensembl ID with version number. The 
+is compatible to. The genes are in Ensembl ID with version number. The
 elements of this list are in the same order as the ECs listed in the
 \code{kallisto bus} output file \code{matrix.ec}.
 }
 \description{
 In the output file \code{output.bus}, equivalence classes (EC) are denoted by
-an index, which is related to the set of transcripts the EC is compatible to 
+an index, which is related to the set of transcripts the EC is compatible to
 in the output file \code{matrix.ec}. This function further relates the set of
 transcripts to the set of genes the EC is compatible to. This function first
 reads in \code{matrix.ec}, and then translates the transcripts into genes.
 }
 \details{
-The data frame passed to \code{tr2g} can be generated from function 
+The data frame passed to \code{tr2g} can be generated from function
 \code{transcript2gene} in this package for any organism that has gene and
 transcript ID on Ensembl. The output of this function should be passed to
-\code{make_sparse_matrix} in the next step in the workflow, which will 
-produce the sparse matrix that can be used in \code{Seurat}.
+\code{make_sparse_matrix} in the next step in the workflow, which will
+produce the sparse matrix that can be used in
+\href{https://satijalab.org/seurat/}{Seurat}.
 }
 \examples{
+\dontrun{
 # Download dataset already in BUS format
 library(TENxhgmmBUS)
 download_hgmm(".", "hgmm100")
 tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
                         kallisto_out_path = "./out_hgmm100")
 genes <- EC2gene(tr2g, "./out_hgmm100", ncores = 1, verbose = FALSE)
+}
 
 }
 \seealso{

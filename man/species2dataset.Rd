@@ -8,7 +8,7 @@ species2dataset(species)
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
-scRNA-seq dataset.}
+scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.}
 }
 \value{
 The appropriate dataset name for biomart.
