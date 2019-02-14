@@ -15,7 +15,7 @@ cache:
 
 # Adapt as necessary starting from here
 environment:
-  R_VERSION: bioc-devel
+  R_VERSION: devel
   
 build_script:
   - R -e 'BiocManager::install(version = "devel", ask=FALSE)'
