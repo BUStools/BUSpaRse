@@ -142,7 +142,7 @@ busparse_gene_count <- function(species, fasta_file, bus_fn,
     fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose)
     tr2g <- rbindlist(fls)
     # Just to be safe, to make sure that the transcripts are in the right order
-    tr2g <- sort_tr2g(tr2g, kallisto_out_path = kalliisto_out_path, 
+    tr2g <- sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, 
                       save = save_tr2g, file_save = file_save, 
                       verbose = verbose)
   }
