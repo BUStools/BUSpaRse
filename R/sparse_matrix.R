@@ -127,7 +127,7 @@ busparse_gene_count <- function(species, fasta_file, kallisto_out_path, bus_fn,
                                 file_save = "./tr2g_sorted.csv",
                                 verbose = TRUE, ncores = 1,
                                 progress_unit = 5e6, ...) {
-  if (!xor(missing(species), missing(fasta_files))) {
+  if (!xor(missing(species), missing(fasta_file))) {
     stop("Exactly one of species and fasta_file can be missing.\n")
   }
   # Get transcript and gene information
