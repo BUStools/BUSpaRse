@@ -4,8 +4,8 @@
 \alias{busparse_gene_count}
 \title{Get gene count matrix in one step}
 \usage{
-busparse_gene_count(species, kallisto_out_path, bus_fn, est_ncells,
-  est_ngenes, whitelist = NULL, ensembl_version = NULL,
+busparse_gene_count(species, fasta_file, kallisto_out_path, bus_fn,
+  est_ncells, est_ngenes, whitelist = NULL, ensembl_version = NULL,
   other_attrs = NULL, save_tr2g = FALSE,
   file_save = "./tr2g_sorted.csv", verbose = TRUE, ncores = 1,
   progress_unit = 5e+06, ...)
@@ -13,6 +13,12 @@ busparse_gene_count(species, kallisto_out_path, bus_fn, est_ncells,
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
 scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.}
+
+\item{fasta_file}{Character vector of paths to the transcriptome FASTA files
+used to build the kallisto index. If multiple FASTA files were used for the
+kallisto index, then the order of paths here must match that of the FASTA
+files when building the kallisto index. Exactly one of \code{species} and
+\code{fasta_file} can be missing.}
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
@@ -68,9 +74,10 @@ that can be used in downstream analyses in one step for species that are in
 the Ensembl database. This function condenses a multi-step workflow
 implemented in this package into one step. For non-model organisms absent
 from Ensembl, please run the individual steps separately, as this function
-queries Ensembl through biomart for transcript and gene information required
-to aggregate read counts mapped to transcripts into counts for genes. The
-vignette has a tutorial of running the individual steps in this workflow.
+either queries Ensembl through biomart or parses Ensembl FASTA sequence names
+for transcript and gene information required to aggregate read counts mapped
+to transcripts into counts for genes. The vignette has a tutorial of running
+the individual steps in this workflow.
 }
 \details{
 For 10x data sets, you can find a barcode whitelist file that comes with
@@ -78,6 +85,10 @@ CellRanger installation. You don't need to run CellRanger to get that. An
 example path to get the whitelist file is
 \code{cellranger-2.1.0/cellranger-cs/2.1.0/lib/python/cellranger/barcodes/737K-august-2016.txt}
 for v2 chemistry.
+
+Passing FASTA files to \code{fasta_file} is faster than passing \code{species}
+since with the latter, this function will query the Ensembl biomart database,
+which is really slow.
 }
 \note{
 By default, this function does not save the data frame that maps
