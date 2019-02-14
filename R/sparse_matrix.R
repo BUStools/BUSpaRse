@@ -103,9 +103,6 @@ make_sparse_matrix <- function(bus_fn, genes, est_ncells, est_ngenes,
 #' @inheritParams make_sparse_matrix
 #' @inheritParams transcript2gene
 #' @inheritParams EC2gene
-#' @param fasta_file Character vector of paths to the transcriptome FASTA files
-#' used to build the kallisto index. Exactly one of \code{species} and
-#' \code{fasta_file} can be missing.
 #' @param save_tr2g Logical, whether to save the data frame that maps transcripts
 #' to genes to disk.
 #' @note By default, this function does not save the data frame that maps
@@ -126,26 +123,12 @@ busparse_gene_count <- function(species, fasta_file, bus_fn,
                                 file_save = "./tr2g_sorted.csv",
                                 verbose = TRUE, ncores = 1,
                                 progress_unit = 5e6, ...) {
-  if (!xor(missing(species), missing(fasta_file))) {
-    stop("Exactly one of species and fasta_file can be missing.\n")
-  }
   bus_fn <- normalizePath(bus_fn, mustWork = TRUE)
   kallisto_out_path <- dirname(bus_fn)
   # Get transcript and gene information
-  if (missing(fasta_file)) {
-    tr2g <- transcript2gene(species, kallisto_out_path,
-                            other_attrs = other_attrs,
-                            ensembl_version = ensembl_version,
-                            save = save_tr2g, file_save = file_save, 
-                            verbose = verbose, ...)
-  } else {
-    fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose)
-    tr2g <- rbindlist(fls)
-    # Just to be safe, to make sure that the transcripts are in the right order
-    tr2g <- sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, 
-                      save = save_tr2g, file_save = file_save, 
-                      verbose = verbose)
-  }
+  tr2g <- transcript2gene(species, fasta_file, kallisto_out_path, 
+                          other_attrs, ensembl_version,
+                          save, file_save, verbose, ...)
   genes <- EC2gene(tr2g, kallisto_out_path, ncores = ncores, verbose = verbose)
   make_sparse_matrix(bus_fn, genes, est_ncells = est_ncells, 
                      est_ngenes = est_ngenes, whitelist = whitelist,

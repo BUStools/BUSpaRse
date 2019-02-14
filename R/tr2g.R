@@ -398,13 +398,16 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, save = FALSE,
 #' Map Ensembl transcript ID to gene ID
 #' 
 #' This function is a shortcut to get the correctly sorted data frame with 
-#' transcript IDs and the corresponding gene IDs from Ensembl biomart. It calls
-#' \code{\link{tr2g_ensembl}} and then \code{\link{sort_tr2g}}. Unlike in
-#' \code{\link{tr2g_ensembl}}, multiple species can be supplied if cells from
-#' different species were sequenced together. This function should only be used
-#' if the kallisto inidex was built with transcriptomes from Ensembl. Also, 
-#' please make surre that to set \code{ensembl_version} to match the version
-#' where the transcriptomes were downloaded.
+#' transcript IDs and the corresponding gene IDs from Ensembl biomart or Ensembl
+#' transcriptome FASTA files. For biomart query, it calls 
+#' \code{\link{tr2g_ensembl}} and then \code{\link{sort_tr2g}}. For FASTA files,
+#' it calls \code{\link{tr2g_fasta}} and then \code{\link{sort_tr2g}}. Unlike in
+#' \code{\link{tr2g_ensembl}} and \code{\link{tr2g_fasta}}, multiple species can
+#' be supplied if cells from different species were sequenced together. This 
+#' function should only be used if the kallisto inidex was built with 
+#' transcriptomes from Ensembl. Also, if querying biomart, please make sure to set 
+#' \code{ensembl_version} to match the version where the transcriptomes were 
+#' downloaded.
 #' 
 #' Note that here, the arguments passed to \dots will be passed to 
 #' \code{\link[biomaRt]{useEnsembl}} rather than \code{\link[data.table]{fwrite}},
@@ -416,6 +419,9 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, save = FALSE,
 #' @inheritParams sort_tr2g
 #' @param species A character vector of Latin names of species present in this
 #' scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.
+#' @param fasta_file Character vector of paths to the transcriptome FASTA files
+#' used to build the kallisto index. Exactly one of \code{species} and
+#' \code{fasta_file} can be missing.
 #' @param kallisto_out_path Path to the \code{kallisto bus} output directory.
 #' @param verbose Whether to display progress. Defaults to \code{TRUE}.
 #' @return A data frame with two columns: \code{gene} and \code{transcript},
@@ -433,16 +439,31 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, save = FALSE,
 #'                         kallisto_out_path = "./out_hgmm100")
 #' }
 #' 
-transcript2gene <- function(species, kallisto_out_path, 
+transcript2gene <- function(species, fasta_file, kallisto_out_path, 
                             other_attrs = NULL, ensembl_version = NULL,
                             save = FALSE, file_save = "./tr2g_sorted.csv",
                             verbose = TRUE, ...) {
-  kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
-  fls <- lapply(species, tr2g_ensembl, other_attrs = other_attrs,
-                ensembl_version = ensembl_version, verbose = verbose, ...)
-  fls <- rbindlist(fls)
-  sort_tr2g(fls, kallisto_out_path = kallisto_out_path, save = save,
-            file_save = file_save, verbose = verbose)
+  if (!xor(missing(species), missing(fasta_file))) {
+    stop("Exactly one of species and fasta_file can be missing.\n")
+  }
+  if (missing(fasta_file)) {
+    kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
+    fls <- lapply(species, tr2g_ensembl, other_attrs = other_attrs,
+                  ensembl_version = ensembl_version, verbose = verbose, ...)
+    tr2g <- rbindlist(fls)
+    return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, save = save,
+              file_save = file_save, verbose = verbose))
+  } else {
+    if (!is.null(ensembl_version) || length(list(...)) > 0) {
+      message("Arguments related to Ensembl biomart queries are ignored.")
+    }
+    fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose)
+    tr2g <- rbindlist(fls)
+    # Just to be safe, to make sure that the transcripts are in the right order
+    return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, 
+                      save = save_tr2g, file_save = file_save, 
+                      verbose = verbose))
+  }
 }
 
 #' Map EC Index to Genes Compatible with the EC
