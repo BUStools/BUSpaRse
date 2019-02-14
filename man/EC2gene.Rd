@@ -12,7 +12,12 @@ the same order as in the transcriptome index for \code{kallisto}.}
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
-\item{ncores}{Number of cores to use, defaults to 1.}
+\item{ncores}{Number of cores to use, defaults to 1. Note that while this
+function supports multithreading by PSOCK clusters, unless the dataset is
+very large, setting \code{ncores > 1} is not advisable. This is because even
+if \code{ncores > 1}, only one core will be used anyway unless the job is
+truly intensive. In this case, setting \code{ncores > 1} will \emph{compromise}
+performance.}
 
 \item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 }

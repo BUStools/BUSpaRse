@@ -104,9 +104,7 @@ make_sparse_matrix <- function(bus_fn, genes, est_ncells, est_ngenes,
 #' @inheritParams transcript2gene
 #' @inheritParams EC2gene
 #' @param fasta_file Character vector of paths to the transcriptome FASTA files
-#' used to build the kallisto index. If multiple FASTA files were used for the
-#' kallisto index, then the order of paths here must match that of the FASTA
-#' files when building the kallisto index. Exactly one of \code{species} and
+#' used to build the kallisto index. Exactly one of \code{species} and
 #' \code{fasta_file} can be missing.
 #' @param save_tr2g Logical, whether to save the data frame that maps transcripts
 #' to genes to disk.
@@ -118,9 +116,10 @@ make_sparse_matrix <- function(bus_fn, genes, est_ncells, est_ngenes,
 #' to save this to disk.
 #' @return A sparse matrix with genes in rows and cells in columns.
 #' @family functions to generate sparse matrix in one step
+#' @importFrom devtools install_github
 #' @export
 
-busparse_gene_count <- function(species, fasta_file, kallisto_out_path, bus_fn,
+busparse_gene_count <- function(species, fasta_file, bus_fn,
                                 est_ncells, est_ngenes, whitelist = NULL, 
                                 ensembl_version = NULL, other_attrs = NULL,
                                 save_tr2g = FALSE, 
@@ -130,6 +129,8 @@ busparse_gene_count <- function(species, fasta_file, kallisto_out_path, bus_fn,
   if (!xor(missing(species), missing(fasta_file))) {
     stop("Exactly one of species and fasta_file can be missing.\n")
   }
+  bus_fn <- normalizePath(bus_fn, mustWork = TRUE)
+  kallisto_out_path <- dirname(bus_fn)
   # Get transcript and gene information
   if (missing(fasta_file)) {
     tr2g <- transcript2gene(species, kallisto_out_path,
@@ -140,6 +141,10 @@ busparse_gene_count <- function(species, fasta_file, kallisto_out_path, bus_fn,
   } else {
     fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose)
     tr2g <- rbindlist(fls)
+    # Just to be safe, to make sure that the transcripts are in the right order
+    tr2g <- sort_tr2g(tr2g, kallisto_out_path = kalliisto_out_path, 
+                      save = save_tr2g, file_save = file_save, 
+                      verbose = verbose)
   }
   genes <- EC2gene(tr2g, kallisto_out_path, ncores = ncores, verbose = verbose)
   make_sparse_matrix(bus_fn, genes, est_ncells = est_ncells, 

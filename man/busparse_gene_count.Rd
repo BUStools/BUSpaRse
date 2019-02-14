@@ -4,23 +4,18 @@
 \alias{busparse_gene_count}
 \title{Get gene count matrix in one step}
 \usage{
-busparse_gene_count(species, fasta_file, kallisto_out_path, bus_fn,
-  est_ncells, est_ngenes, whitelist = NULL, ensembl_version = NULL,
-  other_attrs = NULL, save_tr2g = FALSE,
-  file_save = "./tr2g_sorted.csv", verbose = TRUE, ncores = 1,
-  progress_unit = 5e+06, ...)
+busparse_gene_count(species, fasta_file, bus_fn, est_ncells, est_ngenes,
+  whitelist = NULL, ensembl_version = NULL, other_attrs = NULL,
+  save_tr2g = FALSE, file_save = "./tr2g_sorted.csv", verbose = TRUE,
+  ncores = 1, progress_unit = 5e+06, ...)
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
 scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.}
 
 \item{fasta_file}{Character vector of paths to the transcriptome FASTA files
-used to build the kallisto index. If multiple FASTA files were used for the
-kallisto index, then the order of paths here must match that of the FASTA
-files when building the kallisto index. Exactly one of \code{species} and
+used to build the kallisto index. Exactly one of \code{species} and
 \code{fasta_file} can be missing.}
-
-\item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
 \item{bus_fn}{File name of output of \code{bustools}, namely \code{output.bus}
 from \code{kallisto bus} after sorted and converted to text by
@@ -55,7 +50,12 @@ the file is to be saved does not exist, then the directory will be created.}
 
 \item{verbose}{Whether to display progress.}
 
-\item{ncores}{Number of cores to use, defaults to 1.}
+\item{ncores}{Number of cores to use, defaults to 1. Note that while this
+function supports multithreading by PSOCK clusters, unless the dataset is
+very large, setting \code{ncores > 1} is not advisable. This is because even
+if \code{ncores > 1}, only one core will be used anyway unless the job is
+truly intensive. In this case, setting \code{ncores > 1} will \emph{compromise}
+performance.}
 
 \item{progress_unit}{How many iteration to print one progress update when
 reading in the \code{kallisto bus} file.}

@@ -24,7 +24,6 @@ In this vignette, we convert an 10x 1:1 mouse and human cell mixture dataset fro
 ## Download the dataset
 ```{r}
 # Install TENxhgmmBUS
-if (!require(devtools)) install.packages("devtools")
 if (!require(TENxhgmmBUS)) {
   devtools::install_github("BUStools/TENxhgmmBUS")
 }

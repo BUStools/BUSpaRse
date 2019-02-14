@@ -463,7 +463,12 @@ transcript2gene <- function(species, kallisto_out_path,
 #' @inheritParams transcript2gene
 #' @param tr2g A Data frame with columns \code{gene} and \code{transcript}, in
 #' the same order as in the transcriptome index for \code{kallisto}.
-#' @param ncores Number of cores to use, defaults to 1.
+#' @param ncores Number of cores to use, defaults to 1. Note that while this
+#' function supports multithreading by PSOCK clusters, unless the dataset is
+#' very large, setting \code{ncores > 1} is not advisable. This is because even 
+#' if \code{ncores > 1}, only one core will be used anyway unless the job is 
+#' truly intensive. In this case, setting \code{ncores > 1} will _compromise_
+#' performance.
 #' @return A list each element of whom is the set of genes the corresponding EC
 #' is compatible to. The genes are in Ensembl ID with version number. The 
 #' elements of this list are in the same order as the ECs listed in the
