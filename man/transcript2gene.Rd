@@ -4,13 +4,17 @@
 \alias{transcript2gene}
 \title{Map Ensembl transcript ID to gene ID}
 \usage{
-transcript2gene(species, kallisto_out_path, other_attrs = NULL,
-  ensembl_version = NULL, save = FALSE,
+transcript2gene(species, fasta_file, kallisto_out_path,
+  other_attrs = NULL, ensembl_version = NULL, save = FALSE,
   file_save = "./tr2g_sorted.csv", verbose = TRUE, ...)
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
 scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.}
+
+\item{fasta_file}{Character vector of paths to the transcriptome FASTA files
+used to build the kallisto index. Exactly one of \code{species} and
+\code{fasta_file} can be missing.}
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
@@ -43,13 +47,16 @@ as in the transcriptome index used in \code{kallisto}.
 }
 \description{
 This function is a shortcut to get the correctly sorted data frame with
-transcript IDs and the corresponding gene IDs from Ensembl biomart. It calls
-\code{\link{tr2g_ensembl}} and then \code{\link{sort_tr2g}}. Unlike in
-\code{\link{tr2g_ensembl}}, multiple species can be supplied if cells from
-different species were sequenced together. This function should only be used
-if the kallisto inidex was built with transcriptomes from Ensembl. Also,
-please make surre that to set \code{ensembl_version} to match the version
-where the transcriptomes were downloaded.
+transcript IDs and the corresponding gene IDs from Ensembl biomart or Ensembl
+transcriptome FASTA files. For biomart query, it calls
+\code{\link{tr2g_ensembl}} and then \code{\link{sort_tr2g}}. For FASTA files,
+it calls \code{\link{tr2g_fasta}} and then \code{\link{sort_tr2g}}. Unlike in
+\code{\link{tr2g_ensembl}} and \code{\link{tr2g_fasta}}, multiple species can
+be supplied if cells from different species were sequenced together. This
+function should only be used if the kallisto inidex was built with
+transcriptomes from Ensembl. Also, if querying biomart, please make sure to set
+\code{ensembl_version} to match the version where the transcriptomes were
+downloaded.
 }
 \details{
 Note that here, the arguments passed to \dots will be passed to
