@@ -4,3 +4,12 @@ language: R
 r: bioc-devel
 sudo: false
 cache: packages
+r_github_packages:
+  - BUStools/TENxhgmmBUS
+  - Bioconductor/BiocManager
+  
+before_script:
+  # ensure bioc-devel is being used
+  - R -e 'BiocManager::install(version = "devel", ask=FALSE)'
+  - R -e 'BiocManager::valid()'
+  
