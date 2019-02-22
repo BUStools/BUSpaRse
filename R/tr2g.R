@@ -531,12 +531,14 @@ EC2gene <- function(tr2g, kallisto_out_path, ncores = 1, verbose = TRUE) {
   if (ncores > 1) {
     cl <- makePSOCKcluster(ncores)
   } else cl <- NULL
+  on.exit({
+    if (ncores > 1 && exists("cl")) {
+      stopCluster(cl)
+    }
+  })
   ECs[, genes := pblapply(EC, function(x) {
     inds <- as.integer(x) + 1
     unique(genes[inds])
   }, cl = cl)]
-  if (ncores > 1) {
-    stopCluster
-  }
   ECs$genes
 }
