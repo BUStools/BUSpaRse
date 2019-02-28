@@ -23,6 +23,7 @@ Imports:
     zeallot,
     dplyr,
     tidyr,
+    tibble,
     plyranges,
     Biostrings,
     stringr,
@@ -49,7 +50,7 @@ Collate:
     'tr2g.R'
     'utils.R'
 Encoding: UTF-8
-License: MIT + file LICENSE
+License: BSD_2_clause + file LICENSE
 biocViews:
     SingleCell,
     RNASeq,

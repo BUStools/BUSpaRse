@@ -18,14 +18,16 @@ test_that("Check for correct gene count matrix", {
   out_fn <- paste0(toy_path, "/output.sorted.txt")
   # With whitelist
   m <- make_sparse_matrix(out_fn, tr2g_toy, 10, 3, whitelist = whitelist,
-                          gene_count = TRUE, TCC = FALSE, verbose = FALSE)
+                          gene_count = TRUE, TCC = FALSE, verbose = FALSE,
+                          ncores = 2)
   expect_equal(dim(m), dim(expected_mat))
   # Reoroder rows and columns
   m <- m[rownames(expected_mat), colnames(expected_mat)]
   expect_equal(m, expected_mat)
   # Without whitelist
   m2 <- make_sparse_matrix(out_fn, tr2g_toy, 11, 3, 
-                           gene_count = TRUE, TCC = FALSE, verbose = FALSE)
+                           gene_count = TRUE, TCC = FALSE, verbose = FALSE,
+                           ncores = 2)
   expect_equal(dim(m2), dim(expected_mat_full))
   # Reorder
   m2 <- m2[rownames(expected_mat_full), colnames(expected_mat_full)]
@@ -36,14 +38,16 @@ test_that("Check for correct TCC matrix", {
   out_fn <- paste0(toy_path, "/output.sorted.txt")
   # With whitelist
   m <- make_sparse_matrix(out_fn, tr2g_toy, 10, 9, whitelist = whitelist,
-                          gene_count = FALSE, TCC = TRUE, verbose = FALSE)
+                          gene_count = FALSE, TCC = TRUE, verbose = FALSE,
+                          ncores = 2)
   expect_equal(dim(m), dim(expected_tcc))
   # Reoroder rows and columns
   m <- m[rownames(expected_tcc), colnames(expected_tcc)]
   expect_equal(m, expected_tcc)
   # Without whitelist
   m2 <- make_sparse_matrix(out_fn, tr2g_toy, 11, 9, 
-                           gene_count = FALSE, TCC = TRUE, verbose = FALSE)
+                           gene_count = FALSE, TCC = TRUE, verbose = FALSE,
+                           ncores = 2)
   expect_equal(dim(m2), dim(expected_tcc_full))
   # Reorder
   m2 <- m2[rownames(expected_tcc_full), colnames(expected_tcc_full)]

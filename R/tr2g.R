@@ -481,10 +481,10 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
 #' the purpose of this function is to query which genes equivalence classes map
 #' to.
 #' 
-#' This function returns a named list, whose names are the equivalence class (EC)
-#' indices in the first column of file `matrix.ec` in the kallisto bus output.
-#' Note that the EC indices are 0 based, so are the names of elements of this
-#' list. The names of elements of this list are 0 based EC indices as string.
+#' Calling this function is unnessary when working with gene count matrices.
+#' However, this function is useful for finding genes the ECs map to in TCC
+#' matrices, such as when finding species-specific ECs in mixed species datasets
+#' and identifying ECs mapped to known marker genes of cell types.
 #' 
 #' @inheritParams transcript2gene
 #' @param tr2g A Data frame with columns \code{gene} and \code{transcript}, in
@@ -493,11 +493,18 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
 #' will automatically determine the number of cores as it sees fit. Negative
 #' numbers are interpreted as 0. Positive numbers will limit the number of cores
 #' used.
-#' @return A named list each element of whom is the set of genes the 
-#' corresponding EC is compatible to. The names are the EC indices, which are 
-#' also row names in the TCC matrix. 
+#' @return A data frame with 3 columns:
+#' \describe{
+#' \item{EC_ind}{Index of the EC as appearing in the `matrix.ec` file.}
+#' \item{EC}{A list column each element of which is a numeric vector of the
+#' transcripts in the EC corresponding to the EC index. To learn more about list
+#' columns, see the [relevant section in the R for Data Science book](https://r4ds.had.co.nz/many-models.html#list-columns-1).}
+#' \item{gene}{A list column each element of which is a character vector of genes
+#' the EC maps to.}
+#' }
 #' @seealso \code{\link{transcript2gene}}
 #' @importFrom RcppParallel RcppParallelLibs
+#' @importFrom tibble tibble
 #' @export
 #' @examples
 #' \dontrun{
@@ -511,7 +518,15 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
 #' 
 EC2gene <- function(tr2g, kallisto_out_path, ncores = 0, verbose = TRUE) {
   kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
-  genes <- EC2gene_export(tr2g, kallisto_out_path, ncores, verbose)
+  c(ec_vec, genes) %<-% EC2gene_export(tr2g, kallisto_out_path, ncores, verbose)
   # Sort according to indices
-  genes[as.character(0:(length(genes) - 1))]
+  EC_inds <- 0:(length(genes) - 1)
+  genes <- genes[as.character(EC_inds)]
+  names(genes) <- NULL
+  ec_vec <- ec_vec[as.character(EC_inds)]
+  names(ec_vec) <- NULL
+  ec_vec <- lapply(ec_vec, as.numeric)
+  tibble(EC_ind = EC_inds,
+         EC = ec_vec,
+         gene = genes)
 }

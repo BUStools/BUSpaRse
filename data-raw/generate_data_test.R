@@ -11,6 +11,8 @@
 # 8. Same UMI maps to different ECs that don't have intersecting genes
 # 9. Same UMI maps to different ECs with intersection that has multiple genes
 # 10. Same UMI maps to different ECs with intersection with 1 gene
+library(dplyr)
+library(tibble)
 
 tr2g_toy <- data.frame(
   gene = c("meow", "kitty", "kitty", "kitty", "purr"),
@@ -18,16 +20,15 @@ tr2g_toy <- data.frame(
   stringsAsFactors = FALSE
 )
 
-ECs_toy <- data.frame(
-  EC_index = 0:9,
-  EC = c(as.character(0:4), "1,2", "2,3", "0,1", "0,4", "0,2,4"),
-  stringsAsFactors = FALSE
+ECs_toy <- tibble(
+  EC_ind = 0:9,
+  EC = c(as.character(0:4), "1,2", "2,3", "0,1", "0,4", "0,2,4")
 )
-
-genes_toy <- list("meow", "kitty", "kitty", "kitty", "purr",
-                  "kitty", "kitty", c("kitty", "meow"), c("meow", "purr"),
-                  c("kitty", "meow", "purr"))
-names(genes_toy) <- as.character(0:9)
+EC2g_toy <- ECs_toy %>% 
+  mutate(EC = lapply(EC, function(x) as.numeric(strsplit(x, ",")[[1]])),
+         gene = list("meow", "kitty", "kitty", "kitty", "purr",
+                     "kitty", "kitty", c("kitty", "meow"), c("meow", "purr"),
+                     c("kitty", "meow", "purr")))
 
 output_sorted_toy <- data.frame(
   barcode = c("A", "A", "B", "C", "D", "D", "E", "F", "F", "G", "G", "H", "H", 
@@ -72,6 +73,6 @@ write.table(ECs_toy, file = "./inst/testdata/matrix.ec", quote = FALSE,
             row.names = FALSE, col.names = FALSE, sep = "\t")
 write.table(output_sorted_toy, file = "./inst/testdata/output.sorted.txt", 
             quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
-save(tr2g_toy, genes_toy, whitelist, expected_mat, expected_mat_full,
-     expected_tcc, expected_tcc_full,
+save(tr2g_toy, whitelist, expected_mat, expected_mat_full,
+     expected_tcc, expected_tcc_full, EC2g_toy,
      file = "./inst/testdata/toy_example.RData")

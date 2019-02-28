@@ -115,7 +115,8 @@ Rcpp::List EC2gene_export(Rcpp::DataFrame tr2g, std::string kallisto_out_path,
   tbb::concurrent_unordered_map<int, vector<string> > ec_vec, ec2g;
   ec_vec = matrix_ec(tr2g.nrow(), kallisto_out_path, ncores, verbose);
   ec2g = EC2geneC(tr2g, ec_vec, ncores, verbose);
-  return wrap(ec2g);
+  return List::create(_["ec_vec"] = wrap(ec_vec),
+                      _["ec2g"] = wrap(ec2g));
 }
 
 // Intersection of gene vectors
