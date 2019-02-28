@@ -146,7 +146,7 @@ make_sparse_matrix <- function(bus_path, tr2g, est_ncells,
 #' to save this to disk.
 #' 
 #' @inheritParams make_sparse_matrix
-#' @inheritParams sort_tr2g
+#' @inheritParams transcript2gene
 #' @inheritParams EC2gene
 #' @param save_tr2g Logical, whether to save the data frame that maps transcripts
 #' to genes to disk.

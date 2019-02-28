@@ -11,6 +11,13 @@ busparse_matrix(species, fasta_file, bus_path, est_ncells, est_ngenes,
   progress_unit = 5e+06, ...)
 }
 \arguments{
+\item{species}{A character vector of Latin names of species present in this
+scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.}
+
+\item{fasta_file}{Character vector of paths to the transcriptome FASTA files
+used to build the kallisto index. Exactly one of \code{species} and
+\code{fasta_file} can be missing.}
+
 \item{bus_path}{Path to the sorted text \code{bus} output file.}
 
 \item{est_ncells}{Estimated number of cells; providing this argument will
@@ -26,6 +33,17 @@ are known to be valid or not.}
 \item{gene_count}{Logical, whether the gene count matrix should be returned.}
 
 \item{TCC}{Logical, whether the TCC matrix should be returned.}
+
+\item{ensembl_version}{Integer version number of Ensembl (e.g. 94 for the
+October 2018 release). This argument defaults to \code{NULL}, which will use
+the current release of Ensembl. Use
+\code{\link[biomaRt]{listEnsemblArchives}} to see the version number corresponding
+to the Ensembl release of a particular date. The version specified here must
+match the version of Ensembl where the transcriptome used to build the
+kallisto index was downloaded.}
+
+\item{other_attrs}{Character vector. Other attributes to get from Ensembl,
+such as gene symbol and position on the genome.}
 
 \item{save_tr2g}{Logical, whether to save the data frame that maps transcripts
 to genes to disk.}
@@ -43,8 +61,9 @@ used.}
 \item{progress_unit}{How many iteration to print one progress update when
 reading in the \code{kallisto bus} file.}
 
-\item{...}{Other arguments passed to \code{\link[data.table]{fwrite}}, such
-as \code{sep}, \code{quote}, and \code{col.names}.}
+\item{...}{Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
+such as host and mirror.
+Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.}
 }
 \value{
 If both gene count and TCC matrices are returned, then this function
