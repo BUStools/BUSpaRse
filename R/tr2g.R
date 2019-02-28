@@ -381,7 +381,7 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, save = FALSE,
     stop("Some transcripts in the kallisto index absent from tr2g.\n")
   }
   if (save) {
-    file_save <- normalizePath(file_save)
+    file_save <- normalizePath(file_save, mustWork = FALSE)
     dn <- dirname(file_save)
     if (!dir.exists(dn)) dir.create(dn)
     fwrite(out, file_save, ...)
@@ -475,30 +475,29 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
 #' reads in \code{matrix.ec}, and then translates the transcripts into genes.
 #' 
 #' The data frame passed to \code{tr2g} can be generated from function 
-#' \code{transcript2gene} in this package for any organism that has gene and
-#' transcript ID on Ensembl. The output of this function should be passed to
-#' \code{make_sparse_matrix} in the next step in the workflow, which will 
-#' produce the sparse matrix that can be used in 
-#' \href{https://satijalab.org/seurat/}{Seurat}.
+#' \code{\link{transcript2gene}} in this package for any organism that has gene and
+#' transcript ID on Ensembl, or from the \code{tr2g_*} family of function.
+#' You no longer need to use this function before running \code{make_sparse_matrix};
+#' the purpose of this function is to query which genes equivalence classes map
+#' to.
+#' 
+#' This function returns a named list, whose names are the equivalence class (EC)
+#' indices in the first column of file `matrix.ec` in the kallisto bus output.
+#' Note that the EC indices are 0 based, so are the names of elements of this
+#' list. The names of elements of this list are 0 based EC indices as string.
 #' 
 #' @inheritParams transcript2gene
 #' @param tr2g A Data frame with columns \code{gene} and \code{transcript}, in
 #' the same order as in the transcriptome index for \code{kallisto}.
-#' @param ncores Number of cores to use, defaults to 1. Note that while this
-#' function supports multithreading by PSOCK clusters, unless the dataset is
-#' very large, setting \code{ncores > 1} is not advisable. This is because even 
-#' if \code{ncores > 1}, only one core will be used anyway unless the job is 
-#' truly intensive. In this case, setting \code{ncores > 1} will _compromise_
-#' performance.
-#' @return A list each element of whom is the set of genes the corresponding EC
-#' is compatible to. The genes are in Ensembl ID with version number. The 
-#' elements of this list are in the same order as the ECs listed in the
-#' \code{kallisto bus} output file \code{matrix.ec}. 
+#' @param ncores Number of cores to use, defaults to 0, which means the system
+#' will automatically determine the number of cores as it sees fit. Negative
+#' numbers are interpreted as 0. Positive numbers will limit the number of cores
+#' used.
+#' @return A named list each element of whom is the set of genes the 
+#' corresponding EC is compatible to. The names are the EC indices, which are 
+#' also row names in the TCC matrix. 
 #' @seealso \code{\link{transcript2gene}}
-#' @importFrom parallel stopCluster makePSOCKcluster
-#' @importFrom doParallel registerDoParallel
-#' @importFrom pbapply pblapply pboptions
-#' @importFrom data.table :=
+#' @importFrom RcppParallel RcppParallelLibs
 #' @export
 #' @examples
 #' \dontrun{
@@ -510,35 +509,9 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
 #' genes <- EC2gene(tr2g, "./out_hgmm100", ncores = 1, verbose = FALSE)
 #' }
 #' 
-EC2gene <- function(tr2g, kallisto_out_path, ncores = 1, verbose = TRUE) {
-  genes <- tr2g$gene
-  # Read in matrix.ec
-  if (verbose) message("Reading matrix.ec")
-  path_use <- normalizePath(kallisto_out_path, mustWork = TRUE)
-  ECs <- fread(paste(path_use, "matrix.ec", sep = "/"), 
-               col.names = c("EC_index", "EC"),
-               data.table = TRUE, showProgress = verbose)
-  if (verbose) message("Processing genes")
-  # Prevent R CMD check note no visible binding for global variable
-  EC_index <- EC <- NULL
-  ECs[, c("EC_index", "EC") := list(EC_index, 
-                                 strsplit(EC, ","))]
-  # Set up progress bar
-  if (!verbose) {
-    pboptions(type = "none")
-  }
-  # Set up parallel processing
-  if (ncores > 1) {
-    cl <- makePSOCKcluster(ncores)
-  } else cl <- NULL
-  on.exit({
-    if (ncores > 1 && exists("cl")) {
-      stopCluster(cl)
-    }
-  })
-  ECs[, genes := pblapply(EC, function(x) {
-    inds <- as.integer(x) + 1
-    unique(genes[inds])
-  }, cl = cl)]
-  ECs$genes
+EC2gene <- function(tr2g, kallisto_out_path, ncores = 0, verbose = TRUE) {
+  kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
+  genes <- EC2gene_export(tr2g, kallisto_out_path, ncores, verbose)
+  # Sort according to indices
+  genes[as.character(0:(length(genes) - 1))]
 }

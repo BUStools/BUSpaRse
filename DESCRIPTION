@@ -13,6 +13,10 @@ BugReports: https://github.com/BUStools/BUSpaRse/issues
 URL: https://github.com/BUStools/BUSpaRse
 Imports: 
     Rcpp,
+    RcppArmadillo,
+    RcppProgress,
+    BH,
+    RcppParallel,
     Matrix,
     biomaRt,
     data.table,
@@ -29,7 +33,7 @@ Imports:
     S4Vectors,
     methods,
     devtools
-LinkingTo: Rcpp, RcppArmadillo, RcppProgress
+LinkingTo: Rcpp, RcppArmadillo, RcppProgress, BH, RcppParallel
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 Suggests: 
@@ -50,3 +54,4 @@ biocViews:
     SingleCell,
     RNASeq,
     WorkflowStep
+SystemRequirements: GNU make

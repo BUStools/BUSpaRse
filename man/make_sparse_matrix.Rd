@@ -4,26 +4,34 @@
 \alias{make_sparse_matrix}
 \title{Convert the Output of \code{kallisto bus} into Gene by Gell Matrix}
 \usage{
-make_sparse_matrix(bus_fn, genes, est_ncells, est_ngenes,
-  whitelist = NULL, verbose = TRUE, progress_unit = 5e+06)
+make_sparse_matrix(bus_path, tr2g, est_ncells, est_ngenes,
+  whitelist = NULL, gene_count = TRUE, TCC = TRUE, ncores = 0,
+  verbose = TRUE, progress_unit = 5e+06)
 }
 \arguments{
-\item{bus_fn}{File name of output of \code{bustools}, namely \code{output.bus}
-from \code{kallisto bus} after sorted and converted to text by
-\code{bustools}.}
+\item{bus_path}{Path to the sorted text \code{bus} output file.}
 
-\item{genes}{A list with each element a string vector of genes that an
-equivalence class maps to, generated earlier in \code{EC2gene}.}
+\item{tr2g}{A Data frame with columns \code{gene} and \code{transcript}, in
+the same order as in the transcriptome index for \code{kallisto}.}
 
 \item{est_ncells}{Estimated number of cells; providing this argument will
 speed up computation as it minimizes memory reallocation as vectors grow.}
 
-\item{est_ngenes}{Estimated number of genes.}
+\item{est_ngenes}{Estimated number of genes or equivalence classes.}
 
 \item{whitelist}{A character vector with valid cell barcodes. This is an
 optional argument, that defaults to \code{NULL}. When it is \code{NULL},
-all cell barcodes present will be included in the sparse matrix, not only
-the barcodes known to be valid.}
+all cell barcodes present will be included in the sparse matrix whether they
+are known to be valid or not.}
+
+\item{gene_count}{Logical, whether the gene count matrix should be returned.}
+
+\item{TCC}{Logical, whether the TCC matrix should be returned.}
+
+\item{ncores}{Number of cores to use, defaults to 0, which means the system
+will automatically determine the number of cores as it sees fit. Negative
+numbers are interpreted as 0. Positive numbers will limit the number of cores
+used.}
 
 \item{verbose}{Whether to display progress.}
 
@@ -31,7 +39,11 @@ the barcodes known to be valid.}
 reading in the \code{kallisto bus} file.}
 }
 \value{
-A sparse matrix with genes in rows and cells in columns.
+If both gene count and TCC matrices are returned, then this function
+returns a list with two matrices, each with genes/equivalence classes in the
+rows and barcodes in the columns. If only one of gene count and TCC matrices
+is returned, then a \code{dgCMatrix} with genes/equivalence classes in the
+rows and barcodes in the columns.
 }
 \description{
 This function takes the output file of \code{kallisto bus}, after being
@@ -41,6 +53,12 @@ columns: barcode, UMI, equivalence class, and counts. This function converts
 that file into a sparse matrix that can be used in downstream analyses.
 }
 \details{
+This function can generate both the gene count matrix and the transcript
+compatibility count (TCC) matrix. The TCC matrix has barcodes in the columns
+and equivalence classes in the rows. See
+\href{https://genomebiology.biomedcentral.com/articles/10.1186/s13059-016-0970-8}{Ntranos et al. 2016}
+for more information about the RCC matrix.
+
 For 10x data sets, you can find a barcode whitelist file that comes with
 CellRanger installation. You don't need to run CellRanger to get that. An
 example path to get the whitelist file is
@@ -55,10 +73,10 @@ library(Matrix)
 download_hgmm(".", "hgmm100")
 tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
                         kallisto_out_path = "./out_hgmm100")
-genes <- EC2gene(tr2g, "./out_hgmm100", ncores = 1, verbose = FALSE)
 res_mat <- make_sparse_matrix("./out_hgmm100/output.sorted.txt",
-                              genes = genes, est_ncells = 3e5, 
-                              est_ngenes = nrow(tr2g))
+                              tr2g = tr2g, est_ncells = 3e5, 
+                              est_ngenes = nrow(tr2g), gene_count = TRUE,
+                              TCC = FALSE)
 # Remove empty droplets
 tot_counts <- colSums(res_mat)
 res_mat <- res_mat[,tot_counts > 500]

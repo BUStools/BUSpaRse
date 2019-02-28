@@ -4,7 +4,7 @@
 \alias{EC2gene}
 \title{Map EC Index to Genes Compatible with the EC}
 \usage{
-EC2gene(tr2g, kallisto_out_path, ncores = 1, verbose = TRUE)
+EC2gene(tr2g, kallisto_out_path, ncores = 0, verbose = TRUE)
 }
 \arguments{
 \item{tr2g}{A Data frame with columns \code{gene} and \code{transcript}, in
@@ -12,20 +12,17 @@ the same order as in the transcriptome index for \code{kallisto}.}
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
-\item{ncores}{Number of cores to use, defaults to 1. Note that while this
-function supports multithreading by PSOCK clusters, unless the dataset is
-very large, setting \code{ncores > 1} is not advisable. This is because even
-if \code{ncores > 1}, only one core will be used anyway unless the job is
-truly intensive. In this case, setting \code{ncores > 1} will \emph{compromise}
-performance.}
+\item{ncores}{Number of cores to use, defaults to 0, which means the system
+will automatically determine the number of cores as it sees fit. Negative
+numbers are interpreted as 0. Positive numbers will limit the number of cores
+used.}
 
 \item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 }
 \value{
-A list each element of whom is the set of genes the corresponding EC
-is compatible to. The genes are in Ensembl ID with version number. The
-elements of this list are in the same order as the ECs listed in the
-\code{kallisto bus} output file \code{matrix.ec}.
+A named list each element of whom is the set of genes the
+corresponding EC is compatible to. The names are the EC indices, which are
+also row names in the TCC matrix.
 }
 \description{
 In the output file \code{output.bus}, equivalence classes (EC) are denoted by
@@ -36,11 +33,16 @@ reads in \code{matrix.ec}, and then translates the transcripts into genes.
 }
 \details{
 The data frame passed to \code{tr2g} can be generated from function
-\code{transcript2gene} in this package for any organism that has gene and
-transcript ID on Ensembl. The output of this function should be passed to
-\code{make_sparse_matrix} in the next step in the workflow, which will
-produce the sparse matrix that can be used in
-\href{https://satijalab.org/seurat/}{Seurat}.
+\code{\link{transcript2gene}} in this package for any organism that has gene and
+transcript ID on Ensembl, or from the \code{tr2g_*} family of function.
+You no longer need to use this function before running \code{make_sparse_matrix};
+the purpose of this function is to query which genes equivalence classes map
+to.
+
+This function returns a named list, whose names are the equivalence class (EC)
+indices in the first column of file \code{matrix.ec} in the kallisto bus output.
+Note that the EC indices are 0 based, so are the names of elements of this
+list. The names of elements of this list are 0 based EC indices as string.
 }
 \examples{
 \dontrun{
