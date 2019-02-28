@@ -80,9 +80,9 @@ bc_rank <- barcodeRanks(gene_count)
 
 ```{r}
 qplot(bc_rank$rank, bc_rank$total, geom = "line") +
-  geom_hline(yintercept = bc_rank$knee, color = "blue", linetype = 2) +
-  geom_hline(yintercept = bc_rank$inflection, color = "green", linetype = 2) +
-  annotate("text", x = 1000, y = 1.5 * c(bc_rank$knee, bc_rank$inflection),
+  geom_hline(yintercept = metadata(bc_rank)$knee, color = "blue", linetype = 2) +
+  geom_hline(yintercept = metadata(bc_rank)$inflection, color = "green", linetype = 2) +
+  annotate("text", x = 1000, y = 1.5 * c(metadata(bc_rank)$knee, metadata(bc_rank)$inflection),
            label = c("knee", "inflection"), color = c("blue", "green")) +
   scale_x_log10() +
   scale_y_log10() +
@@ -91,7 +91,7 @@ qplot(bc_rank$rank, bc_rank$total, geom = "line") +
 ```
 
 ```{r}
-gene_count <- gene_count[, tot_counts > bc_rank$inflection]
+gene_count <- gene_count[, tot_counts > metadata(bc_rank)$inflection]
 dim(gene_count)
 ```
 
@@ -115,9 +115,9 @@ bc_rank <- barcodeRanks(tcc)
 
 ```{r}
 qplot(bc_rank$rank, bc_rank$total, geom = "line") +
-  geom_hline(yintercept = bc_rank$knee, color = "blue", linetype = 2) +
-  geom_hline(yintercept = bc_rank$inflection, color = "green", linetype = 2) +
-  annotate("text", x = 1000, y = 1.5 * c(bc_rank$knee, bc_rank$inflection),
+  geom_hline(yintercept = metadata(bc_rank)$knee, color = "blue", linetype = 2) +
+  geom_hline(yintercept = metadata(bc_rank)$inflection, color = "green", linetype = 2) +
+  annotate("text", x = 1000, y = 1.5 * c(metadata(bc_rank)$knee, metadata(bc_rank)$inflection),
            label = c("knee", "inflection"), color = c("blue", "green")) +
   scale_x_log10() +
   scale_y_log10() +
@@ -126,6 +126,6 @@ qplot(bc_rank$rank, bc_rank$total, geom = "line") +
 ```
 
 ```{r}
-tcc <- tcc[, tot_counts > bc_rank$inflection]
+tcc <- tcc[, tot_counts > metadata(bc_rank)$inflection]
 dim(tcc)
 ```
