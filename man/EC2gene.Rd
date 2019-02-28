@@ -20,9 +20,15 @@ used.}
 \item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 }
 \value{
-A named list each element of whom is the set of genes the
-corresponding EC is compatible to. The names are the EC indices, which are
-also row names in the TCC matrix.
+A data frame with 3 columns:
+\describe{
+\item{EC_ind}{Index of the EC as appearing in the \code{matrix.ec} file.}
+\item{EC}{A list column each element of which is a numeric vector of the
+transcripts in the EC corresponding to the EC index. To learn more about list
+columns, see the \href{https://r4ds.had.co.nz/many-models.html#list-columns-1}{relevant section in the R for Data Science book}.}
+\item{gene}{A list column each element of which is a character vector of genes
+the EC maps to.}
+}
 }
 \description{
 In the output file \code{output.bus}, equivalence classes (EC) are denoted by
@@ -39,10 +45,10 @@ You no longer need to use this function before running \code{make_sparse_matrix}
 the purpose of this function is to query which genes equivalence classes map
 to.
 
-This function returns a named list, whose names are the equivalence class (EC)
-indices in the first column of file \code{matrix.ec} in the kallisto bus output.
-Note that the EC indices are 0 based, so are the names of elements of this
-list. The names of elements of this list are 0 based EC indices as string.
+Calling this function is unnessary when working with gene count matrices.
+However, this function is useful for finding genes the ECs map to in TCC
+matrices, such as when finding species-specific ECs in mixed species datasets
+and identifying ECs mapped to known marker genes of cell types.
 }
 \examples{
 \dontrun{
