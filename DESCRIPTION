@@ -32,7 +32,8 @@ Imports:
     magrittr,
     S4Vectors,
     methods,
-    devtools
+    devtools,
+    R.utils
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress, BH, RcppParallel
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
@@ -41,7 +42,8 @@ Suggests:
     rmarkdown,
     testthat,
     BiocStyle,
-    TENxhgmmBUS
+    TENxhgmmBUS,
+    DropletUtils
 VignetteBuilder: knitr
 Collate: 
     'RcppExports.R'

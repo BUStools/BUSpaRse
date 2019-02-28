@@ -97,7 +97,7 @@ cumivs EC2geneC(Rcpp::DataFrame tr2g, cumivs ec_vec, int ncores, bool verbose) {
     if (!Progress::check_abort()) {
       p.increment();
       vector<string> genes;
-      for (auto gi : ec_vec[i]) {
+      for (auto gi : ec_vec[i]) { 
         genes.push_back(g[stoi(gi)]);
       }
       gene_unique(genes);
@@ -211,7 +211,7 @@ List fill_cell_gene(std::string fn, std::string kallisto_out_path,
     if (i % 1000 == 0) {
       checkUserInterrupt();
     }
-    if (gene_count) ec = stoi(ec_str);
+    ec = stoi(ec_str);
     if (bc == pbar) {
       // Same barcode
       if (umi == pumi) {
@@ -231,7 +231,7 @@ List fill_cell_gene(std::string fn, std::string kallisto_out_path,
           // New UMI, process the previous gene list
           n = gs.size();
           for (int j = 0; j < n; j++) {
-            cell_gene[bc][gs[j]] += 1.0/(double)n;
+            cell_gene[pbar][gs[j]] += 1.0/(double)n;
           }
           gs = ec2g[ec];
         }

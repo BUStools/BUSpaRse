@@ -34,6 +34,8 @@ if (!require(TENxhgmmBUS)) {
 library(TENxhgmmBUS)
 library(BUSpaRse)
 library(Matrix)
+library(DropletUtils)
+library(zeallot)
 ```
 
 ```{r}
@@ -51,43 +53,78 @@ tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
 head(tr2g)
 ```
 
-Then we map the equivalence class to genes. This gives us a list that maps each equivalence class to genes it's compatible to.
+Here we make both the gene count matrix and the TCC matrix.
 ```{r}
-genes <- EC2gene(tr2g, "./out_hgmm100", ncores = 1, verbose = FALSE)
-```
-
-```{r}
-head(genes)
-```
-
-```{r}
-tail(genes)
-```
-
-Finally, we can make the sparse matrix.
-```{r}
-res_mat <- make_sparse_matrix("./out_hgmm100/output.sorted.txt",
-                               genes = genes, est_ncells = 3e5, 
-                               est_ngenes = nrow(tr2g))
+c(gene_count, tcc) %<-% make_sparse_matrix("./out_hgmm100/output.sorted.txt",
+                               tr2g = tr2g, est_ncells = 1e5,
+                              est_ngenes = nrow(tr2g), ncores = 2)
 ```
 
 ## Remove empty droplets
 Here we have a sparse matrix with genes in rows and cells in columns.
 ```{r}
-dim(res_mat)
+dim(gene_count)
 ```
 
 This dataset should only have about 100 cells, but here we get over 100,000. In fact, most of the barcodes correspond to empty droplets; they can be removed by filtering out barcodes with too few UMI.
 
 ```{r}
-tot_counts <- Matrix::colSums(res_mat)
-res_mat <- res_mat[,tot_counts > 500]
-dim(res_mat)
+tot_counts <- Matrix::colSums(gene_count)
+summary(tot_counts)
 ```
 
 ```{r}
-hist(Matrix::colSums(res_mat), breaks = 30, 
-     main = "Histogram of number of UMIs per barcode")
+bc_rank <- barcodeRanks(gene_count)
+```
+
+```{r}
+qplot(bc_rank$rank, bc_rank$total, geom = "line") +
+  geom_hline(yintercept = bc_rank$knee, color = "blue", linetype = 2) +
+  geom_hline(yintercept = bc_rank$inflection, color = "green", linetype = 2) +
+  annotate("text", x = 1000, y = 1.5 * c(bc_rank$knee, bc_rank$inflection),
+           label = c("knee", "inflection"), color = c("blue", "green")) +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(x = "Rank", y = "Total reads") +
+  theme_bw()
+```
+
+```{r}
+gene_count <- gene_count[, tot_counts > bc_rank$inflection]
+dim(gene_count)
 ```
 
 Then this sparse matrix can be used in Seurat for downstream analysis.
+
+Likewise, we can remove empty droplets from the TCC matrix.
+```{r}
+dim(tcc)
+```
+
+This dataset should only have about 100 cells, but here we get over 100,000. In fact, most of the barcodes correspond to empty droplets; they can be removed by filtering out barcodes with too few UMI.
+
+```{r}
+tot_counts <- Matrix::colSums(tcc)
+summary(tot_counts)
+```
+
+```{r}
+bc_rank <- barcodeRanks(tcc)
+```
+
+```{r}
+qplot(bc_rank$rank, bc_rank$total, geom = "line") +
+  geom_hline(yintercept = bc_rank$knee, color = "blue", linetype = 2) +
+  geom_hline(yintercept = bc_rank$inflection, color = "green", linetype = 2) +
+  annotate("text", x = 1000, y = 1.5 * c(bc_rank$knee, bc_rank$inflection),
+           label = c("knee", "inflection"), color = c("blue", "green")) +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(x = "Rank", y = "Total reads") +
+  theme_bw()
+```
+
+```{r}
+tcc <- tcc[, tot_counts > bc_rank$inflection]
+dim(tcc)
+```

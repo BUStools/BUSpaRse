@@ -25,8 +25,9 @@ ECs_toy <- data.frame(
 )
 
 genes_toy <- list("meow", "kitty", "kitty", "kitty", "purr",
-                  "kitty", "kitty", c("meow", "kitty"), c("meow", "purr"),
-                  c("meow", "kitty", "purr"))
+                  "kitty", "kitty", c("kitty", "meow"), c("meow", "purr"),
+                  c("kitty", "meow", "purr"))
+names(genes_toy) <- as.character(0:9)
 
 output_sorted_toy <- data.frame(
   barcode = c("A", "A", "B", "C", "D", "D", "E", "F", "F", "G", "G", "H", "H", 
@@ -40,7 +41,7 @@ output_sorted_toy <- data.frame(
 )
 whitelist <- LETTERS[1:10]
 
-# The expected matrix
+# The expected gene_count matrix
 rowinds <- c(1, 1, 2, 2, 1, 2, 1, 2, 2, 1, 3, 3)
 colinds <- c(1, 2, 3, 4, 5, 5, 6, 6, 7, 8, 8, 9)
 values <- c(2, 1, 1, 2, 0.5, 0.5, 1, 1, 2, 0.5, 0.5, 1)
@@ -52,10 +53,25 @@ expected_mat_full <- Matrix::sparseMatrix(i = c(rowinds, 2), j = c(colinds, 10),
                                           dimnames = list(c("meow", "kitty", "purr"),
                                                           LETTERS[c(1:7, 9:11)]))
 
+# The expected TCC matrix
+rowinds <- c(1,1,5,5,6,7,7,2,3,8,4)
+rowinds_full <- c(1,1,6,6,7,8,8,3,4,9,5,2)
+colinds <- c(1,2,3,4,4,5,6,7,7,8,9)
+values <- c(2,1,1,1,1,1,2,1,1,1,1)
+expected_tcc <- Matrix::sparseMatrix(i = rowinds, j = colinds, x = values,
+                                     dimnames = list(ECs_toy$EC[c(1, 3:9)],
+                                                     LETTERS[c(1:7, 9:10)]))
+# Without whitelist
+expected_tcc_full <- Matrix::sparseMatrix(i = rowinds_full, j = c(colinds, 10), 
+                                          x = c(values, 1),
+                                          dimnames = list(ECs_toy$EC[1:9],
+                                                          LETTERS[c(1:7, 9:11)]))
+
 # Save data
 write.table(ECs_toy, file = "./inst/testdata/matrix.ec", quote = FALSE, 
             row.names = FALSE, col.names = FALSE, sep = "\t")
 write.table(output_sorted_toy, file = "./inst/testdata/output.sorted.txt", 
             quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
 save(tr2g_toy, genes_toy, whitelist, expected_mat, expected_mat_full,
+     expected_tcc, expected_tcc_full,
      file = "./inst/testdata/toy_example.RData")

@@ -33,5 +33,34 @@ test_that("Check for correct gene count matrix", {
 })
 
 test_that("Check for correct TCC matrix", {
-  
+  out_fn <- paste0(toy_path, "/output.sorted.txt")
+  # With whitelist
+  m <- make_sparse_matrix(out_fn, tr2g_toy, 10, 9, whitelist = whitelist,
+                          gene_count = FALSE, TCC = TRUE, verbose = FALSE)
+  expect_equal(dim(m), dim(expected_tcc))
+  # Reoroder rows and columns
+  m <- m[rownames(expected_tcc), colnames(expected_tcc)]
+  expect_equal(m, expected_tcc)
+  # Without whitelist
+  m2 <- make_sparse_matrix(out_fn, tr2g_toy, 11, 9, 
+                           gene_count = FALSE, TCC = TRUE, verbose = FALSE)
+  expect_equal(dim(m2), dim(expected_tcc_full))
+  # Reorder
+  m2 <- m2[rownames(expected_tcc_full), colnames(expected_tcc_full)]
+  expect_equal(m2, expected_tcc_full)
+})
+
+test_that("mtx file is saved and read properly", {
+  # Without compression
+  save_cellranger(mat = expected_mat, out_path = ".", compress = FALSE)
+  mat_read <- read_cellranger(".")
+  mat_read <- methods::as(mat_read, "dgCMatrix")
+  expect_equal(mat_read, expected_mat)
+  file.remove(c("matrix.mtx", "barcodes.tsv", "features.tsv"))
+  # With compression
+  save_cellranger(mat = expected_mat, out_path = ".")
+  mat_read <- read_cellranger(".")
+  mat_read <- methods::as(mat_read, "dgCMatrix")
+  expect_equal(mat_read, expected_mat)
+  file.remove(c("matrix.mtx.gz", "barcodes.tsv.gz", "features.tsv.gz"))
 })
