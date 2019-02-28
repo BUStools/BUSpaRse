@@ -4,6 +4,7 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::depends(BH)]]
 // [[Rcpp::depends(RcppParallel)]]
+#define BOOST_DISABLE_ASSERTS
 #define ARMA_64BIT_WORD 1
 #include <RcppArmadillo.h>
 #ifdef _OPENMP
