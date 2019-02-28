@@ -36,6 +36,7 @@ library(BUSpaRse)
 library(Matrix)
 library(DropletUtils)
 library(zeallot)
+library(ggplot2)
 ```
 
 ```{r}
