@@ -24,9 +24,9 @@ The package will be available on Bioconductor shortly, but before its first Bioc
 Features currently available in the master branch:
 
 * Create gene count matrix from BUS output (sorted and converted to text) in one step for organisms available on Ensembl. Only works if kallisto index was created from Ensembl transcriptomes.
-* Create gene count matrix in 3 separate steps for organisms not available on Ensembl:
-  - Map transcripts to genes (`tr2g_*` functions)
-  - Determine the genes each equivalence class maps to (`EC2gene`)
+* Create transcript compatibility count (TCC) matrix from BUS output in one step for Ensembl organisms.
+* Create gene count/TCC matrix in 2 separate steps for organisms not available on Ensembl:
+  - Map transcripts to genes (`tr2g_*` functions or `transcript2gene`)
   - Create the gene count matrix (`make_sparse_matrix`)
 * Extract transcript and gene IDs from the following file formats with `tr2g_*` functions:
   - Ensembl (directly query biomart with species names)
@@ -34,10 +34,10 @@ Features currently available in the master branch:
   - GTF files
   - GFF3 files
 
-Upcoming features in `devel` branch:
+To do:
 
-* Create transcript compatibility count (TCC) matrices
-* Multithreaded processing of BUS output when generating the sparse matrix
+* Multithreaded processing of BUS output when generating the sparse matrix.
+* Write the matrix generated into HDF5 file chunk-wise to avoid loading large datasets entirely into memory.
 
 ### Installation note for MacOS
 First of all, install Xcode command line tool. 
