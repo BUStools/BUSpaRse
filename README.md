@@ -6,7 +6,7 @@
 This package processes `bus` files generated from raw single-cell RNA-seq data, e.g. using [kallisto](http://pachterlab.github.io/kallisto/). The [`bus` format](https://github.com/BUStools/BUS-format) is a table with 4 columns: **B**arbode, **U**MI, **S**et, and counts, that represent scRNA-seq datasets. The main goal of this package is to parse `bus` format in R into a sparse matrix that can be used for downstream analysis, such as with `Seurat` and `SingleCellExperiment`. See [this paper](https://www.biorxiv.org/content/early/2018/11/21/472571) for more information about the `bus` format.
 
 ## Example
-See [the vignettes](https://bustools.github.io/BUS_notebooks_R/index.html) for examples of using `BUSpaRse`. The vignettes contain a complete walk-through, starting with downloading of the FASTQ files for an experiment and ending with an analysis. There are currently vignettes for 10x v2 and 10x v3 technology datasets (Drop-seq, inDrops, and CEL-seq2 coming soon). 
+See [the vignettes](https://bustools.github.io/BUS_notebooks_R/index.html) for examples of using `BUSpaRse`. The vignettes contain a complete walk-through, starting with downloading the FASTQ files for an experiment and ending with an analysis. There are currently vignettes for 10x v2 and 10x v3 technology datasets (Drop-seq, inDrops, and CEL-seq2 coming soon). 
 
 ## Installation
 
@@ -82,4 +82,5 @@ LDFLAGS=-L/usr/local/clang6/lib
 Above is the default path where this Clang 6.0 is installed. Please change it if Clang 6.0 is installed in a custom path, or if a different compiler with OpenMP support is used. This will tell R to use the compiler that has OpenMP enabled. Then restart the R session and reinstall this package.
 
 [^1]: StackOverflow question https://stackoverflow.com/questions/52513927/installing-xcode-command-line-tools
+
 [^2]: https://teuder.github.io/rcpp4everyone_en/020_install.html
