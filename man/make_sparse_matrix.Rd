@@ -12,7 +12,9 @@ make_sparse_matrix(bus_path, tr2g, est_ncells, est_ngenes,
 \item{bus_path}{Path to the sorted text \code{bus} output file.}
 
 \item{tr2g}{A Data frame with columns \code{gene} and \code{transcript}, in
-the same order as in the transcriptome index for \code{kallisto}.}
+the same order as in the transcriptome index for \code{kallisto}. This
+argument can be missing or is ignored if only the TCC matrix, not the gene
+count matrix, is made.}
 
 \item{est_ncells}{Estimated number of cells; providing this argument will
 speed up computation as it minimizes memory reallocation as vectors grow.}

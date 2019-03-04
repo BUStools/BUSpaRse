@@ -24,6 +24,10 @@ NULL
 #' 
 #' @inheritParams EC2gene
 #' @param bus_path Path to the sorted text `bus` output file.
+#' @param tr2g A Data frame with columns \code{gene} and \code{transcript}, in
+#' the same order as in the transcriptome index for \code{kallisto}. This
+#' argument can be missing or is ignored if only the TCC matrix, not the gene 
+#' count matrix, is made.
 #' @param whitelist A character vector with valid cell barcodes. This is an
 #' optional argument, that defaults to \code{NULL}. When it is \code{NULL},
 #' all cell barcodes present will be included in the sparse matrix whether they
@@ -73,6 +77,10 @@ make_sparse_matrix <- function(bus_path, tr2g, est_ncells,
   bus_fn <- basename(bus_path)
   if (!grepl(".txt$", bus_fn)) {
     stop("Argument fn must point to a text file. Please run bustools text.")
+  }
+  if (TCC && !gene_count) {
+    tr2g <- data.frame(gene = character(0),
+                       transcript = character(0))
   }
   if (is.null(whitelist)) {
     whitelist <- ""
@@ -169,12 +177,15 @@ busparse_matrix <- function(species, fasta_file, bus_path,
                             progress_unit = 5e6, ...) {
   bus_path <- normalizePath(bus_path, mustWork = TRUE)
   kallisto_out_path <- dirname(bus_path)
-  #bus_fn <- basename(bus_path)
   # Get transcript and gene information
-  tr2g <- transcript2gene(species, fasta_file, kallisto_out_path, 
-                          other_attrs, ensembl_version,
-                          save_tr2g, file_save, verbose, ...)
-  genes <- EC2gene(tr2g, kallisto_out_path, ncores = ncores, verbose = verbose)
+  if (TCC && !gene_count) {
+    tr2g <- data.frame(gene = character(0),
+                       transcript = character(0))
+  } else {
+    tr2g <- transcript2gene(species, fasta_file, kallisto_out_path, 
+                            other_attrs, ensembl_version,
+                            save_tr2g, file_save, verbose, ...)
+  }
   make_sparse_matrix(bus_path, tr2g, est_ncells = est_ncells, 
                      est_ngenes = est_ngenes, whitelist = whitelist,
                      gene_count = gene_count, TCC = TCC, ncores = ncores,
