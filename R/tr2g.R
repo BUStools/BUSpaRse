@@ -297,7 +297,7 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
 #' @importFrom tidyr separate
 #' @importFrom dplyr select
 #' @family functions to retrieve transcript and gene info
-#' 
+#' @export
 tr2g_fasta <- function(file, verbose = TRUE) {
   check_char1(setNames(file, "file"))
   file <- normalizePath(file, mustWork = TRUE)
