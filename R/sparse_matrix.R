@@ -30,8 +30,10 @@ NULL
 #' count matrix, is made.
 #' @param whitelist A character vector with valid cell barcodes. This is an
 #' optional argument, that defaults to \code{NULL}. When it is \code{NULL},
-#' all cell barcodes present will be included in the sparse matrix whether they
-#' are known to be valid or not.
+#' all cell barcodes present that have some UMI assignable to genes or ECs will 
+#' be included in the sparse matrix whether they are known to be valid or not.
+#' Barcodes with only UMIs that are not assignable to genes or ECs will still be
+#' excluded.
 #' @param gene_count Logical, whether the gene count matrix should be returned.
 #' @param TCC Logical, whether the TCC matrix should be returned.
 #' @param est_ncells Estimated number of cells; providing this argument will
