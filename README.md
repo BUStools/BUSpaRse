@@ -34,10 +34,7 @@ Features currently available in the master branch:
   - GTF files
   - GFF3 files
 
-To do:
-
-* Multithreaded processing of BUS output when generating the sparse matrix.
-* Write the matrix generated into HDF5 file chunk-wise to avoid loading large datasets entirely into memory.
+An upcoming version of `bustools` will have a much more efficient implementation of the functionality to generate sparse matrices in this package. However, the `tr2g_*` functions in this package will still be useful as the new version of `bustools` will require a file relating transcripts to genes. You may still choose to use this package for sparse matrices and experiment with new ways to make sparse matrices or adapt it for other applications, as R and Rcpp code is easier to manipulate and experiment on interactively in RStudio than pure C++ code written for command line tools (as in the case of `bustools`). 
 
 ### Installation note for MacOS
 First of all, install Xcode command line tool. 
