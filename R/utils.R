@@ -151,9 +151,10 @@ check_file_gz <- function(fn) {
 #' 
 #' @param out_path Directory where `matrix.mtx`, `features.tsv`, and `barcodes.tsv`
 #' are saved.
-#' @return A sparse matrix as in `matrix.mtx` with contents of `features.tsv` as
+#' @return A dgCMatrix as in `matrix.mtx` with contents of `features.tsv` as
 #' row names and contents of `barcodes.tsv` as column names.
 #' @importFrom Matrix readMM
+#' @importFrom methods as
 #' @export
 #' 
 read_cellranger <- function(out_path) {
@@ -165,6 +166,8 @@ read_cellranger <- function(out_path) {
   f_fn <- check_file_gz(f_fn)
   b_fn <- check_file_gz(b_fn)
   mat_read <- readMM(mat_fn)
+  # Convert to dgCMatrix
+  mat_read <- as(mat_read, "dgCMatrix")
   gn <- fread(f_fn, header = FALSE)$V1
   bc <- fread(b_fn, header = FALSE)$V1
   rownames(mat_read) <- gn
