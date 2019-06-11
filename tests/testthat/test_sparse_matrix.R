@@ -32,6 +32,7 @@ test_that("Check for correct gene count matrix", {
   # Reorder
   m2 <- m2[rownames(expected_mat_full), colnames(expected_mat_full)]
   expect_equal(m2, expected_mat_full)
+  rm(list = c("m", "m2"))
 })
 
 test_that("Check for correct TCC matrix", {
@@ -54,19 +55,5 @@ test_that("Check for correct TCC matrix", {
   # Reorder
   m2 <- m2[rownames(expected_tcc_full), colnames(expected_tcc_full)]
   expect_equal(m2, expected_tcc_full)
-})
-
-test_that("mtx file is saved and read properly", {
-  # Without compression
-  save_cellranger(mat = expected_mat, out_path = ".", compress = FALSE)
-  mat_read <- read_cellranger(".")
-  mat_read <- methods::as(mat_read, "dgCMatrix")
-  expect_equal(mat_read, expected_mat)
-  file.remove(c("matrix.mtx", "barcodes.tsv", "features.tsv"))
-  # With compression
-  save_cellranger(mat = expected_mat, out_path = ".")
-  mat_read <- read_cellranger(".")
-  mat_read <- methods::as(mat_read, "dgCMatrix")
-  expect_equal(mat_read, expected_mat)
-  file.remove(c("matrix.mtx.gz", "barcodes.tsv.gz", "features.tsv.gz"))
+  rm(list = c("m", "m2"))
 })

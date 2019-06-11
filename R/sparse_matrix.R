@@ -5,10 +5,11 @@ NULL
 #' Convert the Output of \code{kallisto bus} into Gene by Gell Matrix
 #' 
 #' This function takes the output file of \code{kallisto bus}, after being 
-#' sorted and converted into text witth \code{bustools}. See vignettes on the
-#' website of this package for a tutorial. The \code{bustools} output has 4 
-#' columns: barcode, UMI, equivalence class, and counts. This function converts
-#' that file into a sparse matrix that can be used in downstream analyses.
+#' sorted and converted into text with \code{bustools}. See vignettes on the
+#' [website of this package](https://bustools.github.io/BUS_notebooks_R/) for a 
+#' tutorial. The \code{bustools} output has 4 columns: barcode, UMI, equivalence
+#' class, and counts. This function converts that file into a sparse matrix that
+#' can be used in downstream analyses.
 #' 
 #' This function can generate both the gene count matrix and the transcript
 #' compatibility count (TCC) matrix. The TCC matrix has barcodes in the columns
@@ -124,77 +125,3 @@ make_sparse_matrix <- function(bus_path, tr2g, est_ncells,
     return(tcc_mat)
   }
 }
-
-#' Get gene count or TCC matrix in one step
-#' 
-#' The \code{bustools} output has 4 columns: barcode, UMI, equivalence class, 
-#' and counts. This function directly converts that file into a sparse matrix 
-#' that can be used in downstream analyses in one step for species that are in
-#' the Ensembl database. This function condenses a multi-step workflow 
-#' implemented in this package into one step. For non-model organisms absent 
-#' from Ensembl, please run the individual steps separately, as this function
-#' either queries Ensembl through biomart or parses Ensembl FASTA sequence names
-#' for transcript and gene information required to aggregate read counts mapped 
-#' to transcripts into counts for genes. The vignette has a tutorial of running 
-#' the individual steps in this workflow.
-#' 
-#' For 10x data sets, you can find a barcode whitelist file that comes with
-#' CellRanger installation. You don't need to run CellRanger to get that. An 
-#' example path to get the whitelist file is
-#' \code{cellranger-2.1.0/cellranger-cs/2.1.0/lib/python/cellranger/barcodes/737K-august-2016.txt}
-#' for v2 chemistry.
-#' 
-#' Passing FASTA files to \code{fasta_file} is faster than passing \code{species}
-#' since with the latter, this function will query the Ensembl biomart database,
-#' which is really slow.
-#' 
-#' By default, this function does not save the data frame that maps
-#' transcripts to genes. As this information, along with human readable gene
-#' names corresponding to gene IDs and other information passed to \code{other_attrs}
-#' that can be retrieved from Ensembl might be useful later in the analysis,
-#' this function has an option to save the data frame. Set \code{save_tr2g = TRUE}
-#' to save this to disk.
-#' 
-#' @inheritParams make_sparse_matrix
-#' @inheritParams transcript2gene
-#' @inheritParams EC2gene
-#' @param save_tr2g Logical, whether to save the data frame that maps transcripts
-#' to genes to disk.
-#' @return If both gene count and TCC matrices are returned, then this function
-#' returns a list with two matrices, each with genes/equivalence classes in the
-#' rows and barcodes in the columns. If only one of gene count and TCC matrices
-#' is returned, then a \code{dgCMatrix} with genes/equivalence classes in the 
-#' rows and barcodes in the columns.
-#' @family functions to generate sparse matrix in one step
-#' @importFrom devtools install_github
-#' @export
-
-busparse_matrix <- function(species, fasta_file, bus_path, 
-                            est_ncells, est_ngenes, whitelist = NULL, 
-                            gene_count = TRUE, TCC = TRUE,
-                            ensembl_version = NULL, other_attrs = NULL,
-                            save_tr2g = FALSE, 
-                            file_save = "./tr2g_sorted.csv",
-                            verbose = TRUE, ncores = 0,
-                            progress_unit = 5e6, ...) {
-  bus_path <- normalizePath(bus_path, mustWork = TRUE)
-  kallisto_out_path <- dirname(bus_path)
-  # Get transcript and gene information
-  if (TCC && !gene_count) {
-    tr2g <- data.frame(gene = character(0),
-                       transcript = character(0))
-  } else {
-    tr2g <- transcript2gene(species, fasta_file, kallisto_out_path, 
-                            other_attrs, ensembl_version,
-                            save_tr2g, file_save, verbose, ...)
-  }
-  make_sparse_matrix(bus_path, tr2g, est_ncells = est_ncells, 
-                     est_ngenes = est_ngenes, whitelist = whitelist,
-                     gene_count = gene_count, TCC = TCC, ncores = ncores,
-                     verbose = verbose, progress_unit = progress_unit)
-}
-
-# To do: 
-# Unit test one step functions, write examples for all exported functions.
-# Unit test tr2g_ensembl related functions.
-# Unit test file saving
