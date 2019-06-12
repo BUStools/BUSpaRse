@@ -4,10 +4,17 @@
 \alias{tr2g_fasta}
 \title{Get transcript and gene info from names in FASTA files}
 \usage{
-tr2g_fasta(file, verbose = TRUE)
+tr2g_fasta(file, use_transcript_version = TRUE,
+  use_gene_version = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{file}{Path to the FASTA file to be read. The file can remain gzipped.}
+
+\item{use_transcript_version}{Logical, whether to include version number in
+the Ensembl transcript ID.}
+
+\item{use_gene_version}{Logical, whether to include version number in the
+Ensembl gene ID.}
 
 \item{verbose}{Whether to display progress.}
 }
@@ -22,7 +29,8 @@ extracts the transcript and gene IDs from such FASTA files.
 }
 \details{
 At present, this function only works with FASTA files from Ensembl, and uses
-regex to extract Ensembl IDs. Sequence names should be formatted as follows:\preformatted{ENST00000632684.1 cdna chromosome:GRCh38:7:142786213:142786224:1 
+regex to extract vertebrate Ensembl IDs. Sequence names should be formatted
+as follows:\preformatted{ENST00000632684.1 cdna chromosome:GRCh38:7:142786213:142786224:1 
 gene:ENSG00000282431.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene 
 gene_symbol:TRBD1 description:T cell receptor beta diversity 1 
 [Source:HGNC Symbol;Acc:HGNC:12158]

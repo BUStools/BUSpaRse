@@ -15,7 +15,8 @@ the same order as in the transcriptome index for \code{kallisto}.}
 \item{ncores}{Number of cores to use, defaults to 0, which means the system
 will automatically determine the number of cores as it sees fit. Negative
 numbers are interpreted as 0. Positive numbers will limit the number of cores
-used.}
+used. This might not speed up \code{EC2gene} very much unless there are many genes
+or ECs detected.}
 
 \item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 }

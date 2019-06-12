@@ -7,6 +7,13 @@ NULL
 #' 
 #' @param species Character vector of length 1, Latin name of the species of
 #' interest.
+#' @param type Character, must be one of "vertebrate", "metazoa", "plant", 
+#' "fungus" and "protist". Passing "vertebrate" will use the default 
+#' www.ensembl.org host. Gene annotation of some common invertebrate model
+#' organisms, such as _Drosophila melanogaster_, are available on www.ensembl.org
+#' so for these invertebrate model organisms, "vertebrate" can be used for this
+#' argument. Passing values other than "vertebrate" will use other Ensembl hosts.
+#' For animals absent from www.ensembl.org, try "metazoa". 
 #' @param ensembl_version Integer version number of Ensembl (e.g. 94 for the
 #' October 2018 release). This argument defaults to \code{NULL}, which will use
 #' the current release of Ensembl. Use 
@@ -15,11 +22,15 @@ NULL
 #' match the version of Ensembl where the transcriptome used to build the
 #' kallisto index was downloaded.
 #' @param other_attrs Character vector. Other attributes to get from Ensembl, 
-#' such as gene symbol and position on the genome.
+#' such as gene symbol and position on the genome. 
+#' Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.
+#' @param use_transcript_version Logical, whether to include version number in
+#' the Ensembl transcript ID. 
+#' @param use_gene_version Logical, whether to include version number in the
+#' Ensembl gene ID.
 #' @param verbose Whether to display progress.
 #' @param \dots Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
 #' such as host and mirror.
-#' Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.
 #' @importFrom biomaRt useEnsembl getBM
 #' @importFrom stats setNames
 #' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
@@ -27,10 +38,20 @@ NULL
 #' has been specified, then those will also be columns in the data frame returned.
 #' @family functions to retrieve transcript and gene info
 #' @export
-tr2g_ensembl <- function(species, other_attrs = NULL, ensembl_version = NULL, 
-                          verbose = TRUE, ...) {
+#' @examples
+#' tr2g <- tr2g_ensembl(species = "Felis catus", other_attrs = "description")
+#' tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant")
+#' 
+tr2g_ensembl <- function(species, type = "vertebrate", other_attrs = NULL, 
+                         use_transcript_version = TRUE,
+                         use_gene_version = TRUE,
+                         ensembl_version = NULL, 
+                         verbose = TRUE, ...) {
   # Validate arguments
-  check_char1(setNames(species, "species"))
+  check_char1(setNames(c(species, type), c("species", "type")))
+  if (!type %in% c("vertebrate", "metazoa", "plant", "fungus", "protist")) {
+    stop("type must be one of 'vertebrate', 'metazoa', 'plant', 'fungus', and 'protist'.\n")
+  }
   if (!is.null(ensembl_version) && !is.numeric(ensembl_version)) {
     stop("ensembl_version must be integer.\n")
   }
@@ -38,18 +59,36 @@ tr2g_ensembl <- function(species, other_attrs = NULL, ensembl_version = NULL,
       (!is.atomic(other_attrs) || !is.character(other_attrs))) {
     stop("other_attrs must be an atomic character vector.\n")
   }
-  mart_name <- species2dataset(species)
+  if (type != "vertebrate" && (use_transcript_version || use_gene_version)) {
+    message("Version is only available to vertebrates.\n")
+    use_transcript_version <- use_gene_version <- FALSE
+  }
+  ds_name <- species2dataset(species, type)
+  host_pre <- switch(type,
+                     vertebrate = "www",
+                     metazoa = "metazoa",
+                     plant = "plants",
+                     fungus = "fungi",
+                     protist = "protists")
+  mart_use <- paste(host_pre, "mart", sep = "_")
+  host_use <- paste0(host_pre, ".ensembl.org")
+  if (type == "vertebrate") mart_use <- "ensembl"
   if (verbose) {
     message(paste("Querying biomart for transcript and gene IDs of",
                   species))
   }
-  mart <- useEnsembl(biomart = "ensembl", dataset = mart_name, 
+  mart <- useEnsembl(biomart = mart_use, dataset = ds_name, host = host_use,
                      version = ensembl_version, ...)
-  out <- getBM(c("ensembl_gene_id_version", 
-                 "ensembl_transcript_id_version",
-                 "external_gene_name",
-                 other_attrs), mart = mart)
-  names(out)[1:3] <- c("gene", "transcript", "gene_name")
+  attrs_use <- c("ensembl_transcript_id", "ensembl_gene_id",
+                 "external_gene_name", other_attrs)
+  if (use_transcript_version) {
+    attrs_use[1] <- paste(attrs_use[1], "version", sep = "_")
+  }
+  if (use_gene_version) {
+    attrs_use[2] <- paste(attrs_use[2], "version", sep = "_")
+  }
+  out <- getBM(attrs_use, mart = mart)
+  names(out)[1:3] <- c("transcript", "gene", "gene_name")
   out
 }
 
@@ -143,8 +182,8 @@ tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
     stop(paste("No entry has types", paste(type_use, collapse = ", "), 
                "\n"))
   }
-  out <- data.frame(gene = mcols(gr)[[gene_id]],
-                    transcript = mcols(gr)[[transcript_id]],
+  out <- data.frame(transcript = mcols(gr)[[transcript_id]],
+                    gene = mcols(gr)[[gene_id]],
                     stringsAsFactors = FALSE)
   if (!is.null(gene_name) && gene_name %in% tags) {
     out$gene_name <- mcols(gr)[[gene_name]]
@@ -226,8 +265,8 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
                "\n"))
   }
   genes <- str_split(gr_tx$Parent, ":", simplify = TRUE)[,2]
-  out <- data.frame(gene = genes,
-                    transcript = mcols(gr_tx)[[transcript_id]],
+  out <- data.frame(transcript = mcols(gr_tx)[[transcript_id]],
+                    gene = genes,
                     stringsAsFactors = FALSE)
   if (!is.null(transcript_version) && transcript_version %in% tags) {
     tv <- mcols(gr_tx)[[transcript_version]]
@@ -266,7 +305,8 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
 #' extracts the transcript and gene IDs from such FASTA files. 
 #' 
 #' At present, this function only works with FASTA files from Ensembl, and uses
-#' regex to extract Ensembl IDs. Sequence names should be formatted as follows:
+#' regex to extract vertebrate Ensembl IDs. Sequence names should be formatted 
+#' as follows:
 #' 
 #' ```
 #' ENST00000632684.1 cdna chromosome:GRCh38:7:142786213:142786224:1 
@@ -298,7 +338,9 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
 #' @importFrom dplyr select
 #' @family functions to retrieve transcript and gene info
 #' @export
-tr2g_fasta <- function(file, verbose = TRUE) {
+tr2g_fasta <- function(file, use_transcript_version = TRUE,
+                       use_gene_version = TRUE,
+                       verbose = TRUE) {
   check_char1(setNames(file, "file"))
   file <- normalizePath(file, mustWork = TRUE)
   if (!str_detect(file, "(\\.fasta)|(\\.fa)|(\\.fna)")) {
@@ -309,15 +351,30 @@ tr2g_fasta <- function(file, verbose = TRUE) {
     message("Reading FASTA file.")
   }
   s <- readDNAStringSet(file)
+  is_ens <- all(str_detect(names(s), "^ENS[A-Z]*T\\d+"))
+  if (!is_ens && (use_transcript_version || use_gene_version)) {
+    message("Version is not applicable to IDs not of the form ENS[species prefix][feature type prefix][a unique eleven digit number].\n")
+    use_transcript_version <- use_gene_version <- FALSE
+  }
   # Avoid R CMD check note
   g <- gene_name <- NULL
-  out <- data.frame(gene = str_extract(names(s), "ENS[A-Z]*G\\d+\\.\\d+"),
-                    transcript = str_extract(names(s), "ENS[A-Z]*T\\d+\\.\\d+"),
-                    gene_name = str_extract(names(s), "gene_symbol:[a-zA-Z\\d-\\.]+"),
-                    stringsAsFactors = FALSE) %>% 
-    tidyr::separate(gene_name, into = c("g", "gene_name"), sep = ":") %>% 
-    dplyr::select(-g) %>% 
+  out <- tibble(transcript = str_extract(names(s), "^[a-zA-Z\\d-\\.]+"),
+                gene = str_replace(names(s), "^.*gene:", "") %>% 
+                  str_replace("\\s+.*$", ""),
+                gene_name = str_replace(names(s), "^.*gene_symbol:", "") %>% 
+                  str_replace("\\s+.*$", "")) %>% 
     distinct()
+  # Remove version number
+  if (is_ens) {
+    if (!use_transcript_version) {
+      out <- out %>% 
+        mutate(transcript = str_replace(transcript, "\\.\\d+$", ""))
+    }
+    if (!use_gene_version) {
+      out <- out %>% 
+        mutate(gene = str_replace(gene, "\\.\\d+$", ""))
+    }
+  }
   out
 }
 
@@ -337,29 +394,20 @@ tr2g_fasta <- function(file, verbose = TRUE) {
 #' the cleaned up data frame have the same format as those in \code{transcript}
 #' 
 #' @param tr2g The data frame output from the \code{tr2g_*} family of functions.
-#' Exactly one of \code{tr2g} and \code{file} should be missing.
 #' @param file Character vector of length 1, path to a csv or tsv file with
 #' transcript IDs and the corresponding gene IDs. Headers \code{transcript} and
 #' \code{gene} must be present in the file.
 #' @param kallisto_out_path Character vector of length 1, path to the directory
 #' for the outputs of kallisto bus.
-#' @param save Whether to save the output.
 #' @param verbose Whether to display progress.
-#' @param \dots Other arguments passed to \code{\link[data.table]{fwrite}}, such
-#' as \code{sep}, \code{quote}, and \code{col.names}.
-#' @param file_save File name of the file to be saved. If the directory in which
-#' the file is to be saved does not exist, then the directory will be created.
 #' @return A data frame with columns \code{transcript} and \code{gene} and the
 #' other columns present in \code{tr2g} or the data frame in \code{file}, with
 #' the transcript IDs sorted to be in the same order as in the kallisto index.
-#' When \code{save = TRUE}, the data frame is not only saved on disk but also
-#' returned in the R session.
 #' @importFrom data.table fread fwrite
 #' @export
 #' @family functions to retrieve transcript and gene info
 #' 
-sort_tr2g <- function(tr2g, file, kallisto_out_path, save = FALSE,
-                      file_save = "./tr2g_sorted.csv", verbose = TRUE, ...) {
+sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
   if (!xor(missing(tr2g), missing(file))) {
     stop("Exactly one of tr2g and file should be missing.\n")
   }
@@ -378,21 +426,44 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, save = FALSE,
   }
   out <- merge(trs, tr2g, by = "transcript", sort = FALSE)
   if (nrow(trs) != nrow(out)) {
-    stop("Some transcripts in the kallisto index absent from tr2g.\n")
+    stop("Some transcripts in the kallisto index are absent from tr2g.\n")
   }
-  if (save) {
-    file_save <- normalizePath(file_save, mustWork = FALSE)
-    dn <- dirname(file_save)
-    if (!dir.exists(dn)) dir.create(dn)
-    fwrite(out, file_save, ...)
-  } else {
-    extra_args <- list(...)
-    if (length(extra_args) > 0) {
-      arg_names <- paste(names(extra_args), collapse = ", ")
-      message(paste("Arguments", arg_names, "are ignored."))
-    }
+  extra_args <- list(...)
+  if (length(extra_args) > 0) {
+    arg_names <- paste(names(extra_args), collapse = ", ")
+    message(paste("Arguments", arg_names, "are ignored."))
   }
   out
+}
+
+#' Save transcript to gene file for use in `bustools`
+#' 
+#' This function saves the transcript to gene data frame generated by this package
+#' in whatever means in a format required by `bustools`. In order to use 
+#' `bustools` to generate the gene count or TCC matrix, a file
+#' that maps transcripts to genes is required. This should be a tsv file with 2
+#' columns: the first column for transcript ID and the second for gene ID. The
+#' order of transcripts in this file must be the same as the order in the
+#' kallisto index, and this ordering can be ensured by the function 
+#' \code{\link{sort_tr2g}}. There must also be no headers. All columns other than
+#' `transcript` and `gene` will be discarded. To save a file with those columns,
+#' directly save the transcript to gene data frame with function like 
+#' \code{\link[utils]{write.table}}, \code{\link[readr]{write_tsv}}, and
+#' \code{\link[data.table]{fwrite}}.
+#' 
+#' @inheritParams sort_tr2g
+#' @param \dots Other arguments passed to \code{\link[data.table]{fwrite}}, such
+#' as \code{sep}, \code{quote}, and \code{col.names}.
+#' @param file_save File name of the file to be saved. The directory in which
+#' the file is to be saved must exist.
+#' @return Nothing is returned into the R session. A tsv file of the format 
+#' required by `bustools` with the name and directory specified will be written
+#' to disk.
+#' @export
+save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
+  file_save <- normalizePath(file_save, mustWork = FALSE)
+  fwrite(tr2g[,c("transcript", "gene")], file = file_save, sep = "\t",
+         col.name = FALSE)
 }
 
 #' Map Ensembl transcript ID to gene ID
@@ -409,16 +480,14 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, save = FALSE,
 #' \code{ensembl_version} to match the version where the transcriptomes were 
 #' downloaded.
 #' 
-#' Note that here, the arguments passed to \dots will be passed to 
-#' \code{\link[biomaRt]{useEnsembl}} rather than \code{\link[data.table]{fwrite}},
-#' so default settings of \code{\link[data.table]{fwrite}} will be used if 
-#' \code{save = TRUE}, which will save a csv file that includes the column names
-#' to \code{file_save}.
-#' 
 #' @inheritParams tr2g_ensembl
 #' @inheritParams sort_tr2g
 #' @param species A character vector of Latin names of species present in this
 #' scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.
+#' @param type A character vector indicating the type of each species. Each
+#' element must be one of "vertebrate", "metazoa", "plant", "fungus", and 
+#' "protist". If length is 1, then this type will be used for all species specified
+#' here. Can be missing if `fasta_file` is specified.
 #' @param fasta_file Character vector of paths to the transcriptome FASTA files
 #' used to build the kallisto index. Exactly one of \code{species} and
 #' \code{fasta_file} can be missing.
@@ -439,7 +508,7 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, save = FALSE,
 #'                         kallisto_out_path = "./out_hgmm100")
 #' }
 #' 
-transcript2gene <- function(species, fasta_file, kallisto_out_path, 
+transcript2gene <- function(species, type, fasta_file, kallisto_out_path, 
                             other_attrs = NULL, ensembl_version = NULL,
                             save = FALSE, file_save = "./tr2g_sorted.csv",
                             verbose = TRUE, ...) {
@@ -447,21 +516,26 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
     stop("Exactly one of species and fasta_file can be missing.\n")
   }
   if (missing(fasta_file)) {
+    if (length(type) != 1 && length(species) != length(type)) {
+      stop("species and type must have the same length.\n")
+    }
+    if (length(type) == 1) {
+      type <- rep(type, length(species))
+    }
     kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
-    fls <- lapply(species, tr2g_ensembl, other_attrs = other_attrs,
+    fls <- mapply(tr2g_ensembl, species, type,
+                  other_attrs = other_attrs,
                   ensembl_version = ensembl_version, verbose = verbose, ...)
     tr2g <- rbindlist(fls)
-    return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, save = save,
-              file_save = file_save, verbose = verbose))
+    return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, verbose = verbose))
   } else {
     if (!is.null(ensembl_version) || length(list(...)) > 0) {
-      message("Arguments related to Ensembl biomart queries are ignored.")
+      message("Arguments related to Ensembl biomart queries are ignored.\n")
     }
     fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose)
     tr2g <- rbindlist(fls)
     # Just to be safe, to make sure that the transcripts are in the right order
     return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, 
-                      save = save, file_save = file_save, 
                       verbose = verbose))
   }
 }
@@ -492,7 +566,8 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
 #' @param ncores Number of cores to use, defaults to 0, which means the system
 #' will automatically determine the number of cores as it sees fit. Negative
 #' numbers are interpreted as 0. Positive numbers will limit the number of cores
-#' used.
+#' used. This might not speed up `EC2gene` very much unless there are many genes
+#' or ECs detected.
 #' @return A data frame with 3 columns:
 #' \describe{
 #' \item{EC_ind}{Index of the EC as appearing in the `matrix.ec` file.}

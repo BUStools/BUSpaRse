@@ -4,14 +4,18 @@ library(Biostrings)
 library(plyranges)
 library(dplyr)
 library(tidyr)
-getGTF(organism = "Homo sapiens", path = ".")
-getGFF(organism = "Homo sapiens", path = ".")
+library(stringr)
+getGTF(organism = "Homo sapiens", path = ".", db = "ensembl")
+getGFF(organism = "Homo sapiens", path = ".", db = "ensembl")
 # fasta file
-getRNA(db = "ensembl", organism = "Homo sapiens", path = ".")
+getRNA(db = "ensembl", organism = "Homo sapiens", path = ".", reference = 95)
+# For non-ENS gene symbols
+getRNA(db = "ensembl", organism = "Drosophila melanogaster", path = ".", reference = 95)
 
-gtf <- read_gff("./Homo_sapiens.GRCh38.95_ensembl.gtf.gz")
-gff3 <- plyranges::read_gff3("./Homo_sapiens.GRCh38.95_ensembl.gff3.gz")
+gtf <- read_gff("./Homo_sapiens.GRCh38.96_ensembl.gtf.gz")
+gff3 <- plyranges::read_gff3("./Homo_sapiens.GRCh38.96_ensembl.gff3.gz")
 fa <- readDNAStringSet("./Homo_sapiens.GRCh38.ncrna.fa.gz")
+fa_dm <- readDNAStringSet("./Drosophila_melanogaster.BDGP6.22.ncrna.fa.gz")
 
 # Get a subset of the files for testing
 # Randomly select 5 transcripts
@@ -31,16 +35,21 @@ write_gff3(gff3_sub, "./inst/testdata/gff3_test.gff3")
 # Expected tr2g for GTF and GFF3 files
 tr2g_expected <- mcols(gtf_sub) %>% 
   as.data.frame() %>% 
-  select(gene = gene_id, transcript = transcript_id, gene_name) %>% 
+  select(transcript = transcript_id, gene = gene_id, gene_name) %>% 
   filter(complete.cases(.)) %>% 
   distinct() %>% 
   arrange(gene)
 write.csv(tr2g_expected, "./inst/testdata/tr2g_expected.csv", row.names = FALSE,
           quote = FALSE)
+# Save in the bustools format
+write.table(tr2g_expected[, c("transcript", "gene")], 
+            "./inst/testdata/tr2g_bustools.tsv", sep = "\t",
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
+
 # With version number
 tr2g_expected_version <- mcols(gtf_sub) %>% 
   as.data.frame() %>% 
-  select(gene = gene_id, transcript = transcript_id, gene_name,
+  select(transcript = transcript_id, gene = gene_id, gene_name,
          gene_version, transcript_version) %>% 
   filter(complete.cases(.)) %>% 
   distinct() %>% 
@@ -53,13 +62,32 @@ write.csv(tr2g_expected_version, "./inst/testdata/tr2g_expected_version.csv",
 # Use a subset of fasta file to test tr2g_fasta
 fa_sub <- fa[1:5]
 writeXStringSet(fa_sub, "./inst/testdata/fasta_test.fasta")
-fa_tr2g_expected <- data.frame(gene = c("ENSG00000222870.1", "ENSG00000252023.1",
-                                        "ENSG00000252039.1", "ENSG00000223198.1",
-                                        "ENSG00000207340.1"),
-                               transcript = c("ENST00000410938.1", "ENST00000516214.1",
-                                              "ENST00000516230.1", "ENST00000411266.1",
-                                              "ENST00000384610.1"),
-                               gene_name = c("RNU6-1328P", "RNU6-581P", "RNU6-287P",
-                                             "RNU2-22P", "RNVU1-1"))
+fa_tr2g_expected <- data.frame(transcript = str_extract(names(fa_sub), "^[a-zA-Z\\d-\\.]+"),
+                               gene = str_replace(names(fa_sub), "^.*gene:", "") %>% 
+                                 str_replace("\\s+.*$", ""),
+                               gene_name = str_replace(names(fa_sub), "^.*gene_symbol:", "") %>% 
+                                 str_replace("\\s+.*$", ""),
+                               stringsAsFactors = FALSE) %>% 
+  distinct()
+# No version number
+fa_tr2g_no_version <- fa_tr2g_expected %>% 
+  mutate(transcript = str_replace(transcript, "\\.\\d+$", ""),
+         gene = str_replace(gene, "\\.\\d+$", ""))
+
 write.csv(fa_tr2g_expected, file = "./inst/testdata/fa_tr2g_expected.csv",
+          quote = FALSE, row.names = FALSE)
+write.csv(fa_tr2g_no_version, file = "./inst/testdata/fa_tr2g_no_version.csv",
+          quote = FALSE, row.names = FALSE)
+
+# Non-ENS gene ID
+fa_dm_sub <- fa_dm[1:5]
+writeXStringSet(fa_dm_sub, "./inst/testdata/fasta_dm_test.fasta")
+fa_tr2g_dm <- data.frame(transcript = str_extract(names(fa_dm_sub), "^[a-zA-Z\\d-\\.]+"),
+                         gene = str_replace(names(fa_dm_sub), "^.*gene:", "") %>% 
+                           str_replace("\\s+.*$", ""),
+                         gene_name = str_replace(names(fa_dm_sub), "^.*gene_symbol:", "") %>% 
+                           str_replace("\\s+.*$", ""),
+                         stringsAsFactors = FALSE) %>% 
+  distinct()
+write.csv(fa_tr2g_dm, file = "./inst/testdata/fa_tr2g_dm.csv",
           quote = FALSE, row.names = FALSE)

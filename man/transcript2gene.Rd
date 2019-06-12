@@ -4,13 +4,18 @@
 \alias{transcript2gene}
 \title{Map Ensembl transcript ID to gene ID}
 \usage{
-transcript2gene(species, fasta_file, kallisto_out_path,
+transcript2gene(species, type, fasta_file, kallisto_out_path,
   other_attrs = NULL, ensembl_version = NULL, save = FALSE,
   file_save = "./tr2g_sorted.csv", verbose = TRUE, ...)
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
 scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.}
+
+\item{type}{A character vector indicating the type of each species. Each
+element must be one of "vertebrate", "metazoa", "plant", "fungus", and
+"protist". If length is 1, then this type will be used for all species specified
+here. Can be missing if \code{fasta_file} is specified.}
 
 \item{fasta_file}{Character vector of paths to the transcriptome FASTA files
 used to build the kallisto index. Exactly one of \code{species} and
@@ -19,7 +24,8 @@ used to build the kallisto index. Exactly one of \code{species} and
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
 \item{other_attrs}{Character vector. Other attributes to get from Ensembl,
-such as gene symbol and position on the genome.}
+such as gene symbol and position on the genome.
+Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.}
 
 \item{ensembl_version}{Integer version number of Ensembl (e.g. 94 for the
 October 2018 release). This argument defaults to \code{NULL}, which will use
@@ -29,16 +35,10 @@ to the Ensembl release of a particular date. The version specified here must
 match the version of Ensembl where the transcriptome used to build the
 kallisto index was downloaded.}
 
-\item{save}{Whether to save the output.}
-
-\item{file_save}{File name of the file to be saved. If the directory in which
-the file is to be saved does not exist, then the directory will be created.}
-
 \item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 
 \item{...}{Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
-such as host and mirror.
-Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.}
+such as host and mirror.}
 }
 \value{
 A data frame with two columns: \code{gene} and \code{transcript},
@@ -57,13 +57,6 @@ function should only be used if the kallisto inidex was built with
 transcriptomes from Ensembl. Also, if querying biomart, please make sure to set
 \code{ensembl_version} to match the version where the transcriptomes were
 downloaded.
-}
-\details{
-Note that here, the arguments passed to \dots will be passed to
-\code{\link[biomaRt]{useEnsembl}} rather than \code{\link[data.table]{fwrite}},
-so default settings of \code{\link[data.table]{fwrite}} will be used if
-\code{save = TRUE}, which will save a csv file that includes the column names
-to \code{file_save}.
 }
 \examples{
 \dontrun{

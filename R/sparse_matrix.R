@@ -47,7 +47,8 @@ NULL
 #' returns a list with two matrices, each with genes/equivalence classes in the
 #' rows and barcodes in the columns. If only one of gene count and TCC matrices
 #' is returned, then a \code{dgCMatrix} with genes/equivalence classes in the 
-#' rows and barcodes in the columns.
+#' rows and barcodes in the columns. These matrices are unfiltered. Please filter
+#' the empty droplets before downstream analysis.
 #' @seealso \code{\link{EC2gene}}
 #' @family functions to generate sparse matrix from outputs of other 
 #' \code{BUSpaRse} functions

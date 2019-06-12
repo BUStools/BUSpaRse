@@ -23,8 +23,10 @@ speed up computation as it minimizes memory reallocation as vectors grow.}
 
 \item{whitelist}{A character vector with valid cell barcodes. This is an
 optional argument, that defaults to \code{NULL}. When it is \code{NULL},
-all cell barcodes present will be included in the sparse matrix whether they
-are known to be valid or not.}
+all cell barcodes present that have some UMI assignable to genes or ECs will
+be included in the sparse matrix whether they are known to be valid or not.
+Barcodes with only UMIs that are not assignable to genes or ECs will still be
+excluded.}
 
 \item{gene_count}{Logical, whether the gene count matrix should be returned.}
 
@@ -33,7 +35,8 @@ are known to be valid or not.}
 \item{ncores}{Number of cores to use, defaults to 0, which means the system
 will automatically determine the number of cores as it sees fit. Negative
 numbers are interpreted as 0. Positive numbers will limit the number of cores
-used.}
+used. This might not speed up \code{EC2gene} very much unless there are many genes
+or ECs detected.}
 
 \item{verbose}{Whether to display progress.}
 
@@ -45,14 +48,16 @@ If both gene count and TCC matrices are returned, then this function
 returns a list with two matrices, each with genes/equivalence classes in the
 rows and barcodes in the columns. If only one of gene count and TCC matrices
 is returned, then a \code{dgCMatrix} with genes/equivalence classes in the
-rows and barcodes in the columns.
+rows and barcodes in the columns. These matrices are unfiltered. Please filter
+the empty droplets before downstream analysis.
 }
 \description{
 This function takes the output file of \code{kallisto bus}, after being
-sorted and converted into text witth \code{bustools}. See vignettes on the
-website of this package for a tutorial. The \code{bustools} output has 4
-columns: barcode, UMI, equivalence class, and counts. This function converts
-that file into a sparse matrix that can be used in downstream analyses.
+sorted and converted into text with \code{bustools}. See vignettes on the
+\href{https://bustools.github.io/BUS_notebooks_R/}{website of this package} for a
+tutorial. The \code{bustools} output has 4 columns: barcode, UMI, equivalence
+class, and counts. This function converts that file into a sparse matrix that
+can be used in downstream analyses.
 }
 \details{
 This function can generate both the gene count matrix and the transcript

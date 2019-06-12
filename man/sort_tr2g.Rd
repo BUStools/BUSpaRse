@@ -4,12 +4,10 @@
 \alias{sort_tr2g}
 \title{Sort transcripts to the same order as in kallisto index}
 \usage{
-sort_tr2g(tr2g, file, kallisto_out_path, save = FALSE,
-  file_save = "./tr2g_sorted.csv", verbose = TRUE, ...)
+sort_tr2g(tr2g, file, kallisto_out_path, verbose = TRUE)
 }
 \arguments{
-\item{tr2g}{The data frame output from the \code{tr2g_*} family of functions.
-Exactly one of \code{tr2g} and \code{file} should be missing.}
+\item{tr2g}{The data frame output from the \code{tr2g_*} family of functions.}
 
 \item{file}{Character vector of length 1, path to a csv or tsv file with
 transcript IDs and the corresponding gene IDs. Headers \code{transcript} and
@@ -18,22 +16,12 @@ transcript IDs and the corresponding gene IDs. Headers \code{transcript} and
 \item{kallisto_out_path}{Character vector of length 1, path to the directory
 for the outputs of kallisto bus.}
 
-\item{save}{Whether to save the output.}
-
-\item{file_save}{File name of the file to be saved. If the directory in which
-the file is to be saved does not exist, then the directory will be created.}
-
 \item{verbose}{Whether to display progress.}
-
-\item{\dots}{Other arguments passed to \code{\link[data.table]{fwrite}}, such
-as \code{sep}, \code{quote}, and \code{col.names}.}
 }
 \value{
 A data frame with columns \code{transcript} and \code{gene} and the
 other columns present in \code{tr2g} or the data frame in \code{file}, with
 the transcript IDs sorted to be in the same order as in the kallisto index.
-When \code{save = TRUE}, the data frame is not only saved on disk but also
-returned in the R session.
 }
 \description{
 This function takes the data frame output from the \code{tr2g_*} family of

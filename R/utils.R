@@ -9,14 +9,21 @@ NULL
 #' @inheritParams transcript2gene
 #' @return The appropriate dataset name for biomart.
 #' @export
-species2dataset <- function(species) { 
+species2dataset <- function(species, type = "vertebrate") { 
+  if (!type %in% c("vertebrate", "metazoa", "plant", "fungus", "protist")) {
+    stop("type must be one of 'vertebrate', 'metazoa', 'plant', 'fungus', and 'protist'.\n")
+  }
   species <- strsplit(species, " ")[[1]]
   if (length(species) != 2) {
     stop("Please use the Latin binomial convention for species rather than the colloquial name.\n")
   }
   species[1] <- tolower(substr(species[1], 1, 1))
   species <- paste(species, collapse = "")
-  paste(species, "gene", "ensembl", sep = "_")
+  if (type == "vertebrate") {
+    return(paste(species, "gene_ensembl", sep = "_"))
+  } else {
+    return(paste(species, "eg_gene", sep = "_"))
+  }
 }
 
 #' Check that a tag is present in attribute field of GTF/GFF
@@ -52,7 +59,7 @@ check_tag_present <- function(tags_use, tags, error = TRUE) {
 #' @return Error if \code{x} is not a character vector with length 1.
 check_char1 <- function(x) {
   arg_names <- names(x)
-  inds <- !is.character(x) | length(x) > 1
+  inds <- sapply(x, function(x) {!is.character(x) | length(x) > 1})
   if (any(inds)) {
     stop(paste(paste(arg_names[inds], sep = ", "), 
                "must be a character vector with length 1.\n"))

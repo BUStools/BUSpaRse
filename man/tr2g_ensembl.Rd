@@ -4,15 +4,31 @@
 \alias{tr2g_ensembl}
 \title{Get transcript and gene info from Ensembl}
 \usage{
-tr2g_ensembl(species, other_attrs = NULL, ensembl_version = NULL,
-  verbose = TRUE, ...)
+tr2g_ensembl(species, type = "vertebrate", other_attrs = NULL,
+  use_transcript_version = TRUE, use_gene_version = TRUE,
+  ensembl_version = NULL, verbose = TRUE, ...)
 }
 \arguments{
 \item{species}{Character vector of length 1, Latin name of the species of
 interest.}
 
+\item{type}{Character, must be one of "vertebrate", "metazoa", "plant",
+"fungus" and "protist". Passing "vertebrate" will use the default
+www.ensembl.org host. Gene annotation of some common invertebrate model
+organisms, such as \emph{Drosophila melanogaster}, are available on www.ensembl.org
+so for these invertebrate model organisms, "vertebrate" can be used for this
+argument. Passing values other than "vertebrate" will use other Ensembl hosts.
+For animals absent from www.ensembl.org, try "metazoa".}
+
 \item{other_attrs}{Character vector. Other attributes to get from Ensembl,
-such as gene symbol and position on the genome.}
+such as gene symbol and position on the genome.
+Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.}
+
+\item{use_transcript_version}{Logical, whether to include version number in
+the Ensembl transcript ID.}
+
+\item{use_gene_version}{Logical, whether to include version number in the
+Ensembl gene ID.}
 
 \item{ensembl_version}{Integer version number of Ensembl (e.g. 94 for the
 October 2018 release). This argument defaults to \code{NULL}, which will use
@@ -25,8 +41,7 @@ kallisto index was downloaded.}
 \item{verbose}{Whether to display progress.}
 
 \item{\dots}{Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
-such as host and mirror.
-Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.}
+such as host and mirror.}
 }
 \value{
 A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
@@ -35,6 +50,11 @@ has been specified, then those will also be columns in the data frame returned.
 }
 \description{
 This function queries Ensembl biomart to convert transcript IDs to gene IDs.
+}
+\examples{
+tr2g <- tr2g_ensembl(species = "Felis catus", other_attrs = "description")
+tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant")
+
 }
 \seealso{
 Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},

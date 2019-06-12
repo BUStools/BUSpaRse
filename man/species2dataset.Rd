@@ -4,11 +4,16 @@
 \alias{species2dataset}
 \title{Convert Latin species name to dataset name}
 \usage{
-species2dataset(species)
+species2dataset(species, type = "vertebrate")
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
 scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.}
+
+\item{type}{A character vector indicating the type of each species. Each
+element must be one of "vertebrate", "metazoa", "plant", "fungus", and
+"protist". If length is 1, then this type will be used for all species specified
+here. Can be missing if \code{fasta_file} is specified.}
 }
 \value{
 The appropriate dataset name for biomart.
