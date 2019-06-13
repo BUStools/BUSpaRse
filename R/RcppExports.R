@@ -5,7 +5,7 @@ EC2gene_export <- function(tr2g, kallisto_out_path, ncores = 0L, verbose = TRUE)
     .Call('_BUSpaRse_EC2gene_export', PACKAGE = 'BUSpaRse', tr2g, kallisto_out_path, ncores, verbose)
 }
 
-fill_cell_gene <- function(fn, kallisto_out_path, tr2g, est_ncells, est_ngenes, whitelist, gene_count = TRUE, tcc = TRUE, ncores = 0L, verbose = TRUE, progress_unit = 5e6L) {
-    .Call('_BUSpaRse_fill_cell_gene', PACKAGE = 'BUSpaRse', fn, kallisto_out_path, tr2g, est_ncells, est_ngenes, whitelist, gene_count, tcc, ncores, verbose, progress_unit)
+fill_cell_gene <- function(fn, kallisto_out_path, tr2g, est_ncells, est_ngenes, whitelist, gene_count = TRUE, tcc = TRUE, single_gene = TRUE, ncores = 0L, verbose = TRUE, progress_unit = 5e6L) {
+    .Call('_BUSpaRse_fill_cell_gene', PACKAGE = 'BUSpaRse', fn, kallisto_out_path, tr2g, est_ncells, est_ngenes, whitelist, gene_count, tcc, single_gene, ncores, verbose, progress_unit)
 }
 

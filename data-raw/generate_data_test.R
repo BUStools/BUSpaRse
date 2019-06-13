@@ -53,6 +53,13 @@ expected_mat_full <- Matrix::sparseMatrix(i = c(rowinds, 2), j = c(colinds, 10),
                                           x = c(values, 1),
                                           dimnames = list(c("meow", "kitty", "purr"),
                                                           LETTERS[c(1:7, 9:11)]))
+# The expected gene_count matrix in single gene wide
+rowinds <- c(1,1,2,2,2,3)
+colinds <- 1:6
+values <- c(2,1,1,2,2,1)
+expected_single <- Matrix::sparseMatrix(i = rowinds, j = colinds, x = values,
+                                        dimnames = list(c("meow", "kitty", "purr"),
+                                                        LETTERS[c(1:4, 7, 10)]))
 
 # The expected TCC matrix
 rowinds <- c(1,1,5,5,6,7,7,2,3,8,4)
@@ -73,6 +80,6 @@ write.table(ECs_toy, file = "./inst/testdata/matrix.ec", quote = FALSE,
             row.names = FALSE, col.names = FALSE, sep = "\t")
 write.table(output_sorted_toy, file = "./inst/testdata/output.sorted.txt", 
             quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
-save(tr2g_toy, whitelist, expected_mat, expected_mat_full,
+save(tr2g_toy, whitelist, expected_mat, expected_mat_full, expected_single,
      expected_tcc, expected_tcc_full, EC2g_toy,
      file = "./inst/testdata/toy_example.RData")

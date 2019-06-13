@@ -180,6 +180,7 @@ List fill_cell_gene(std::string fn, std::string kallisto_out_path,
                     DataFrame tr2g, int est_ncells, int est_ngenes,
                     std::vector<std::string> whitelist,
                     bool gene_count = true, bool tcc = true,
+                    bool single_gene = true,
                     int ncores = 0, bool verbose = true,
                     int progress_unit = 5e6) {
   if (!(gene_count || tcc)) {
@@ -232,8 +233,11 @@ List fill_cell_gene(std::string fn, std::string kallisto_out_path,
         if (gene_count) {
           // New UMI, process the previous gene list
           n = gs.size();
-          for (int j = 0; j < n; j++) {
-            cell_gene[pbar][gs[j]] += 1.0/(double)n;
+          // Single gene mode: skip if n > 1
+          if (!(single_gene && n > 1)) {
+            for (int j = 0; j < n; j++) {
+              cell_gene[pbar][gs[j]] += 1.0/(double)n;
+            }
           }
           gs = ec2g[ec];
         }
@@ -257,8 +261,10 @@ List fill_cell_gene(std::string fn, std::string kallisto_out_path,
       if (gene_count) {
         // Previous gene list
         n = gs.size();
-        for (int j = 0; j < n; j++) {
-          cell_gene[pbar][gs[j]] += 1.0/(double)n;
+        if (!(single_gene && n > 1)) {
+          for (int j = 0; j < n; j++) {
+            cell_gene[pbar][gs[j]] += 1.0/(double)n;
+          }
         }
         gs = ec2g[ec];
       }
@@ -282,8 +288,10 @@ List fill_cell_gene(std::string fn, std::string kallisto_out_path,
   if (gene_count) {
     // Remember the last gene
     n = gs.size();
-    for (int j = 0; j < n; j++) {
-      cell_gene[pbar][gs[j]] += 1.0/(double)n;
+    if (!(single_gene && n > 1)) {
+      for (int j = 0; j < n; j++) {
+        cell_gene[pbar][gs[j]] += 1.0/(double)n;
+      }
     }
   }
   

@@ -37,6 +37,10 @@ NULL
 #' excluded.
 #' @param gene_count Logical, whether the gene count matrix should be returned.
 #' @param TCC Logical, whether the TCC matrix should be returned.
+#' @param single_gene Logical, whether to use single gene mode. In single gene
+#' mode, only UMIs that can be uniquely mapped to one gene are kept. Without
+#' single gene mode, UMIs mapped to multiple genes will be evenly distributed to
+#' those genes.
 #' @param est_ncells Estimated number of cells; providing this argument will
 #' speed up computation as it minimizes memory reallocation as vectors grow.
 #' @param est_ngenes Estimated number of genes or equivalence classes.
@@ -50,8 +54,6 @@ NULL
 #' rows and barcodes in the columns. These matrices are unfiltered. Please filter
 #' the empty droplets before downstream analysis.
 #' @seealso \code{\link{EC2gene}}
-#' @family functions to generate sparse matrix from outputs of other 
-#' \code{BUSpaRse} functions
 #' @importFrom zeallot %<-%
 #' @importClassesFrom Matrix dgCMatrix
 #' @export
@@ -74,8 +76,8 @@ NULL
 
 make_sparse_matrix <- function(bus_path, tr2g, est_ncells, 
                                est_ngenes, whitelist = NULL, gene_count = TRUE,
-                               TCC = TRUE, ncores = 0, verbose = TRUE,
-                               progress_unit = 5e6) {
+                               TCC = TRUE, single_gene = TRUE, ncores = 0, 
+                               verbose = TRUE, progress_unit = 5e6) {
   bus_path <- normalizePath(bus_path, mustWork = TRUE)
   kallisto_out_path <- dirname(bus_path)
   bus_fn <- basename(bus_path)
@@ -97,7 +99,7 @@ make_sparse_matrix <- function(bus_path, tr2g, est_ncells,
                                                              tr2g, 
                                                              est_ncells, est_ngenes, 
                                                              whitelist, gene_count, TCC,
-                                                             ncores,
+                                                             single_gene, ncores,
                                                              verbose, progress_unit)
     rownames(gc_mat) <- geneIDs
     colnames(gc_mat) <- barcodes_gc
@@ -109,7 +111,7 @@ make_sparse_matrix <- function(bus_path, tr2g, est_ncells,
                                                         tr2g, 
                                                         est_ncells, est_ngenes, 
                                                         whitelist, gene_count, 
-                                                        FALSE, ncores,
+                                                        FALSE, single_gene, ncores,
                                                         verbose, progress_unit)
     rownames(gc_mat) <- geneIDs
     colnames(gc_mat) <- barcodes_gc
@@ -119,7 +121,7 @@ make_sparse_matrix <- function(bus_path, tr2g, est_ncells,
                                                           tr2g, 
                                                           est_ncells, est_ngenes, 
                                                           whitelist, FALSE, TCC,
-                                                          ncores,
+                                                          FALSE, ncores,
                                                           verbose, progress_unit)
     rownames(tcc_mat) <- ec_inds
     colnames(tcc_mat) <- barcodes_tcc

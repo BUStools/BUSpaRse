@@ -5,8 +5,9 @@
 \title{Convert the Output of \code{kallisto bus} into Gene by Gell Matrix}
 \usage{
 make_sparse_matrix(bus_path, tr2g, est_ncells, est_ngenes,
-  whitelist = NULL, gene_count = TRUE, TCC = TRUE, ncores = 0,
-  verbose = TRUE, progress_unit = 5e+06)
+  whitelist = NULL, gene_count = TRUE, TCC = TRUE,
+  single_gene = TRUE, ncores = 0, verbose = TRUE,
+  progress_unit = 5e+06)
 }
 \arguments{
 \item{bus_path}{Path to the sorted text \code{bus} output file.}
@@ -31,6 +32,11 @@ excluded.}
 \item{gene_count}{Logical, whether the gene count matrix should be returned.}
 
 \item{TCC}{Logical, whether the TCC matrix should be returned.}
+
+\item{single_gene}{Logical, whether to use single gene mode. In single gene
+mode, only UMIs that can be uniquely mapped to one gene are kept. Without
+single gene mode, UMIs mapped to multiple genes will be evenly distributed to
+those genes.}
 
 \item{ncores}{Number of cores to use, defaults to 0, which means the system
 will automatically determine the number of cores as it sees fit. Negative
@@ -92,5 +98,3 @@ res_mat <- res_mat[,tot_counts > 500]
 \seealso{
 \code{\link{EC2gene}}
 }
-\concept{functions to generate sparse matrix from outputs of other 
-\code{BUSpaRse} functions}
