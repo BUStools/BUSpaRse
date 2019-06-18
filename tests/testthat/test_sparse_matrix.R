@@ -68,3 +68,8 @@ test_that("Check for correct TCC matrix", {
   expect_equal(m2, expected_tcc_full)
   rm(list = c("m", "m2"))
 })
+
+test_that("bustools output should load properly", {
+  m <- read_count_output(toy_path, name = "genes", tcc = FALSE)
+  expect_equal(m, expected_mat)
+})

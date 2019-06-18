@@ -13,6 +13,7 @@
 # 10. Same UMI maps to different ECs with intersection with 1 gene
 library(dplyr)
 library(tibble)
+library(Matrix)
 
 tr2g_toy <- data.frame(
   gene = c("meow", "kitty", "kitty", "kitty", "purr"),
@@ -53,7 +54,12 @@ expected_mat_full <- Matrix::sparseMatrix(i = c(rowinds, 2), j = c(colinds, 10),
                                           x = c(values, 1),
                                           dimnames = list(c("meow", "kitty", "purr"),
                                                           LETTERS[c(1:7, 9:11)]))
-# The expected gene_count matrix in single gene wide
+# Save as mtx for unit testing and examples
+writeMM(expected_mat, "./inst/testdata/genes.mtx")
+writeLines(colnames(expected_mat), "./inst/testdata/genes.barcodes.txt", sep = "\n")
+writeLines(rownames(expected_mat), "./inst/testdata/genes.genes.txt", sep = "\n")
+
+# The expected gene_count matrix in single gene mode
 rowinds <- c(1,1,2,2,2,3)
 colinds <- 1:6
 values <- c(2,1,1,2,2,1)

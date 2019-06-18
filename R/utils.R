@@ -9,6 +9,9 @@ NULL
 #' @inheritParams transcript2gene
 #' @return The appropriate dataset name for biomart.
 #' @export
+#' @examples 
+#' species2dataset(species = "Homo sapiens")
+#' 
 species2dataset <- function(species, type = "vertebrate") { 
   if (!type %in% c("vertebrate", "metazoa", "plant", "fungus", "protist")) {
     stop("type must be one of 'vertebrate', 'metazoa', 'plant', 'fungus', and 'protist'.\n")
@@ -83,4 +86,35 @@ check_gff <- function(format, file, transcript_id, gene_id, gene_name,
   if (!str_detect(file, paste0("\\.", format))) {
     stop(paste("file must be a", toupper(format), "file.\n"))
   }
+}
+
+#' Read matrix along with barcode and gene names
+#' 
+#' This function takes in a directory and name and reads the mtx file, genes,
+#' and barcodes from the output of `bustools` to return a sparse matrix with 
+#' column names and row names.
+#' 
+#' @param dir Directory with the bustools count outputs.
+#' @param name The files in the output directory should be <name>.mtx, <name>.genes.txt,
+#' and <name>.barcodes.txt.
+#' @param tcc Logical, whether the matrix of interest is a TCC matrix. Defaults
+#' to \code{FALSE}.
+#' @return A dgCMatrix with barcodes as column names and genes as row names.
+#' @importFrom Matrix readMM
+#' @export
+#' @examples 
+#' # Internal toy data used for unit testing
+#' toy_path <- system.file("testdata", package = "BUSpaRse")
+#' m <- read_count_output(toy_path, name = "genes", tcc = FALSE)
+read_count_output <- function(dir, name, tcc = TRUE) {
+  dir <- normalizePath(dir, mustWork = TRUE)
+  m <- readMM(paste0(dir, "/", name, ".mtx"))
+  m <- as(m, "dgCMatrix")
+  # The matrix read has cells in rows
+  ge <- if (tcc) ".ec.txt" else ".genes.txt"
+  genes <- fread(paste0(dir, "/", name, ge), header = FALSE)$V1
+  barcodes <- fread(paste0(dir, "/", name, ".barcodes.txt"), header = FALSE)$V1
+  colnames(m) <- barcodes
+  rownames(m) <- genes
+  return(m)
 }
