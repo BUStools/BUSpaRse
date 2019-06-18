@@ -1,0 +1,14 @@
+%%MatrixMarket matrix coordinate real general
+3 9 12
+1 1 2
+1 2 1
+2 3 1
+2 4 2
+1 5 .5
+2 5 .5
+1 6 1
+2 6 1
+2 7 2
+1 8 .5
+3 8 .5
+3 9 1

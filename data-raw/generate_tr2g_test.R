@@ -41,6 +41,8 @@ tr2g_expected <- mcols(gtf_sub) %>%
   arrange(gene)
 write.csv(tr2g_expected, "./inst/testdata/tr2g_expected.csv", row.names = FALSE,
           quote = FALSE)
+writeLines(tr2g_expected$transcript, "./inst/testdata/transcripts.txt", sep = "\n")
+
 # Save in the bustools format
 write.table(tr2g_expected[, c("transcript", "gene")], 
             "./inst/testdata/tr2g_bustools.tsv", sep = "\t",

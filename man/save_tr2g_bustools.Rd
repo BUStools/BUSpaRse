@@ -34,3 +34,9 @@ directly save the transcript to gene data frame with function like
 \code{\link[utils]{write.table}}, \code{\link[readr]{write_tsv}}, and
 \code{\link[data.table]{fwrite}}.
 }
+\examples{
+toy_path <- system.file("testdata", package = "BUSpaRse")
+file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
+tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
+save_tr2g_bustools(tr2g, file_save = "./tr2g.tsv")
+}

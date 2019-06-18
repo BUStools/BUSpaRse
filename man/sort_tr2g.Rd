@@ -38,6 +38,12 @@ clean up. You may also supply gene and transcript IDs from other sources.
 This function should be used after the clean up, when the transcript IDs in
 the cleaned up data frame have the same format as those in \code{transcript}
 }
+\examples{
+toy_path <- system.file("testdata", package = "BUSpaRse")
+file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
+tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
+tr2g <- sort_tr2g(tr2g, kallisto_out_path = toy_path, verbose = FALSE)
+}
 \seealso{
 Other functions to retrieve transcript and gene info: \code{\link{tr2g_ensembl}},
   \code{\link{tr2g_fasta}}, \code{\link{tr2g_gff3}},

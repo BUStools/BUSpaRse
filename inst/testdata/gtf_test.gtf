@@ -1,6 +1,6 @@
 ##gff-version 2
 ##source-version rtracklayer 1.44.0
-##date 2019-06-12
+##date 2019-06-18
 6	ensembl_havana	gene	37819727	38154624	.	+	.	gene_id "ENSG00000156639"; gene_version "12"; gene_name "ZFAND3"; gene_source "ensembl_havana"; gene_biotype "protein_coding";
 6	ensembl_havana	transcript	37819727	38154624	.	+	.	gene_id "ENSG00000156639"; gene_version "12"; gene_name "ZFAND3"; gene_source "ensembl_havana"; gene_biotype "protein_coding"; transcript_id "ENST00000287218"; transcript_version "9"; transcript_name "ZFAND3-201"; transcript_source "ensembl_havana"; transcript_biotype "protein_coding"; tag "basic"; transcript_support_level "1 (assigned to previous version 8)"; ccds_id "CCDS4836"
 6	ensembl_havana	exon	37819727	37820016	.	+	.	gene_id "ENSG00000156639"; gene_version "12"; gene_name "ZFAND3"; gene_source "ensembl_havana"; gene_biotype "protein_coding"; transcript_id "ENST00000287218"; transcript_version "9"; transcript_name "ZFAND3-201"; transcript_source "ensembl_havana"; transcript_biotype "protein_coding"; tag "basic"; transcript_support_level "1 (assigned to previous version 8)"; exon_number "1"; exon_id "ENSE00001460453"; exon_version "3"; ccds_id "CCDS4836"

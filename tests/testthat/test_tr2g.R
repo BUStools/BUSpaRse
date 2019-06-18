@@ -161,3 +161,13 @@ test_that("Correct bustools tr2g tsv file", {
   file.remove("./tr2g.tsv")
   rm(list = c("tr2g1", "tr2g2"))
 })
+
+test_that("Correct sorting of transcripts", {
+  file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
+  tr2g <- tr2g_gtf(file = file_use, verbose = FALSE, 
+                   transcript_version = NULL, gene_version = NULL)
+  s <- sort_tr2g(tr2g, kallisto_out_path = toy_path, verbose = FALSE)
+  tx <- readLines(paste(toy_path, "transcripts.txt", sep = "/"))
+  expect_equal(s$transcript, tx)
+  rm(list = c("tr2g", "s", "tx"))
+})

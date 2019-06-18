@@ -1,6 +1,6 @@
 ##gff-version 3
 ##source-version rtracklayer 1.44.0
-##date 2019-06-12
+##date 2019-06-18
 12	ensembl_havana	gene	55549602	55555832	.	+	.	ID=gene:ENSG00000179626;logic_name=ensembl_havana_gene;Name=OR6C4;biotype=protein_coding;description=olfactory receptor family 6 subfamily C member 4 [Source:HGNC Symbol%3bAcc:HGNC:19632];gene_id=ENSG00000179626;version=4;
 12	havana	mRNA	55549602	55555832	.	+	.	ID=transcript:ENST00000641851;Name=OR6C4-203;biotype=protein_coding;version=1;Parent=gene:ENSG00000179626;tag=basic;transcript_id=ENST00000641851;ccdsid=CCDS31827.1
 12	havana	mRNA	55549602	55555832	.	+	.	ID=transcript:ENST00000641569;Name=OR6C4-202;biotype=protein_coding;version=1;Parent=gene:ENSG00000179626;tag=basic;transcript_id=ENST00000641569;ccdsid=CCDS31827.1

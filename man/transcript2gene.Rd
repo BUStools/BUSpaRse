@@ -59,13 +59,11 @@ transcriptomes from Ensembl. Also, if querying biomart, please make sure to set
 downloaded.
 }
 \examples{
-\dontrun{
 # Download dataset already in BUS format
-library(TENxhgmmBUS)
-download_hgmm(".", "hgmm100")
+library(TENxBUSData)
+TENxBUSData(".", dataset = "hgmm100")
 tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
-                        kallisto_out_path = "./out_hgmm100")
-}
+ensembl_version = 94, kallisto_out_path = "./out_hgmm100")
 
 }
 \seealso{

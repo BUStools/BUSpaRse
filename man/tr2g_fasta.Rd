@@ -11,10 +11,16 @@ tr2g_fasta(file, use_transcript_version = TRUE,
 \item{file}{Path to the FASTA file to be read. The file can remain gzipped.}
 
 \item{use_transcript_version}{Logical, whether to include version number in
-the Ensembl transcript ID.}
+the Ensembl transcript ID. To decide whether to
+include transcript version number, check whether version numbers are included
+in the \code{transcripts.txt} in the \code{kallisto} output directory. If that file
+includes version numbers, then trannscript version numbers must be included
+here as well. If that file does not include version numbers, then transcript
+version numbers must not be included here.}
 
 \item{use_gene_version}{Logical, whether to include version number in the
-Ensembl gene ID.}
+Ensembl gene ID. Unlike transcript
+version number, it's up to you whether to include gene version number.}
 
 \item{verbose}{Whether to display progress.}
 }
@@ -48,6 +54,11 @@ kallisto index, then the transcript IDs in the output of this function are in
 the same order as in the kallisto index, so you can skip \code{\link{sort_tr2g}}
 and proceed directly to \code{\link{EC2gene}} with the output of this
 function.
+}
+\examples{
+toy_path <- system.file("testdata", package = "BUSpaRse")
+file_use <- paste(toy_path, "fasta_test.fasta", sep = "/")
+tr2g <- tr2g_fasta(file = file_use, verbose = FALSE)
 }
 \seealso{
 Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},

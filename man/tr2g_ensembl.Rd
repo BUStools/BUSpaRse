@@ -25,10 +25,16 @@ such as gene symbol and position on the genome.
 Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.}
 
 \item{use_transcript_version}{Logical, whether to include version number in
-the Ensembl transcript ID.}
+the Ensembl transcript ID. To decide whether to
+include transcript version number, check whether version numbers are included
+in the \code{transcripts.txt} in the \code{kallisto} output directory. If that file
+includes version numbers, then trannscript version numbers must be included
+here as well. If that file does not include version numbers, then transcript
+version numbers must not be included here.}
 
 \item{use_gene_version}{Logical, whether to include version number in the
-Ensembl gene ID.}
+Ensembl gene ID. Unlike transcript
+version number, it's up to you whether to include gene version number.}
 
 \item{ensembl_version}{Integer version number of Ensembl (e.g. 94 for the
 October 2018 release). This argument defaults to \code{NULL}, which will use
@@ -53,6 +59,7 @@ This function queries Ensembl biomart to convert transcript IDs to gene IDs.
 }
 \examples{
 tr2g <- tr2g_ensembl(species = "Felis catus", other_attrs = "description")
+# This will use plants.ensembl.org as host instead of www.ensembl.org
 tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant")
 
 }

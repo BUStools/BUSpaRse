@@ -22,3 +22,7 @@ The appropriate dataset name for biomart.
 This function converts Latin species name to a dataset name in biomart to
 query gene and transcript ID.
 }
+\examples{
+species2dataset(species = "Homo sapiens")
+
+}

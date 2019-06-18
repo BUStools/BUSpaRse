@@ -25,9 +25,15 @@ NULL
 #' such as gene symbol and position on the genome. 
 #' Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.
 #' @param use_transcript_version Logical, whether to include version number in
-#' the Ensembl transcript ID. 
+#' the Ensembl transcript ID. To decide whether to
+#' include transcript version number, check whether version numbers are included
+#' in the `transcripts.txt` in the `kallisto` output directory. If that file
+#' includes version numbers, then trannscript version numbers must be included 
+#' here as well. If that file does not include version numbers, then transcript 
+#' version numbers must not be included here. 
 #' @param use_gene_version Logical, whether to include version number in the
-#' Ensembl gene ID.
+#' Ensembl gene ID. Unlike transcript
+#' version number, it's up to you whether to include gene version number.
 #' @param verbose Whether to display progress.
 #' @param \dots Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
 #' such as host and mirror.
@@ -40,6 +46,7 @@ NULL
 #' @export
 #' @examples
 #' tr2g <- tr2g_ensembl(species = "Felis catus", other_attrs = "description")
+#' # This will use plants.ensembl.org as host instead of www.ensembl.org
 #' tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant")
 #' 
 tr2g_ensembl <- function(species, type = "vertebrate", other_attrs = NULL, 
@@ -50,17 +57,17 @@ tr2g_ensembl <- function(species, type = "vertebrate", other_attrs = NULL,
   # Validate arguments
   check_char1(setNames(c(species, type), c("species", "type")))
   if (!type %in% c("vertebrate", "metazoa", "plant", "fungus", "protist")) {
-    stop("type must be one of 'vertebrate', 'metazoa', 'plant', 'fungus', and 'protist'.\n")
+    stop("type must be one of 'vertebrate', 'metazoa', 'plant', 'fungus', and 'protist'.")
   }
   if (!is.null(ensembl_version) && !is.numeric(ensembl_version)) {
-    stop("ensembl_version must be integer.\n")
+    stop("ensembl_version must be integer.")
   }
   if (!is.null(other_attrs) && 
       (!is.atomic(other_attrs) || !is.character(other_attrs))) {
-    stop("other_attrs must be an atomic character vector.\n")
+    stop("other_attrs must be an atomic character vector.")
   }
   if (type != "vertebrate" && (use_transcript_version || use_gene_version)) {
-    message("Version is only available to vertebrates.\n")
+    message("Version is only available to vertebrates.")
     use_transcript_version <- use_gene_version <- FALSE
   }
   ds_name <- species2dataset(species, type)
@@ -136,15 +143,22 @@ tr2g_ensembl <- function(species, type = "vertebrate", other_attrs = NULL,
 #' error if tag indicated in this argument does not exist.
 #' @param gene_name Character vector of length 1. Tag in \code{attribute} 
 #' field corresponding to gene symbols. This argument can be \code{NA} or
-#' \code{NULL} if you are fine with non-human readable gene IDs. 
+#' \code{NULL} if you are fine with non-human readable gene IDs and do not wish
+#' to extract human readable gene symbols.
 #' @param transcript_version Character vector of length 1. Tag in \code{attribute} 
 #' field corresponding to _transcript_ version number. If your GTF file does not
 #' include transcript version numbers, or if you do not wish to include the
-#' version number, then use \code{NULL} for this argument. 
+#' version number, then use \code{NULL} for this argument. To decide whether to
+#' include transcript version number, check whether version numbers are included
+#' in the `transcripts.txt` in the `kallisto` output directory. If that file
+#' includes version numbers, then trannscript version numbers must be included 
+#' here as well. If that file does not include version numbers, then transcript 
+#' version numbers must not be included here. 
 #' @param gene_version Character vector of length 1. Tag in \code{attribute} 
 #' field corresponding to _gene_ version number. If your GTF file does not
 #' include gene version numbers, or if you do not wish to include the
-#' version number, then use \code{NULL} for this argument. 
+#' version number, then use \code{NULL} for this argument. Unlike transcript
+#' version number, it's up to you whether to include gene version number.
 #' @param version_sep Character to separate bewteen the main ID and the version
 #' number. Defaults to ".", as in Ensembl.
 #' @inheritParams tr2g_ensembl
@@ -157,6 +171,14 @@ tr2g_ensembl <- function(species, type = "vertebrate", other_attrs = NULL,
 #' @importFrom S4Vectors mcols
 #' @family functions to retrieve transcript and gene info
 #' @export
+#' @examples 
+#' toy_path <- system.file("testdata", package = "BUSpaRse")
+#' file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
+#' # Default
+#' tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
+#' # Excluding version numbers
+#' tr2g <- tr2g_gtf(file = file_use, transcript_version = NULL,
+#' gene_version = NULL)
 tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
                       gene_id = "gene_id", gene_name = "gene_name",
                       transcript_version = "transcript_version",
@@ -179,8 +201,7 @@ tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
   gr <- gr[!is.na(mcols(gr)[[transcript_id]])]
   gr <- gr[gr$type %in% type_use]
   if (length(gr) == 0) {
-    stop(paste("No entry has types", paste(type_use, collapse = ", "), 
-               "\n"))
+    stop(paste("No entry has types", paste(type_use, collapse = ", ")))
   }
   out <- data.frame(transcript = mcols(gr)[[transcript_id]],
                     gene = mcols(gr)[[gene_id]],
@@ -238,6 +259,14 @@ tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
 #' @importFrom dplyr left_join distinct
 #' @importFrom tidyr unite
 #' @export
+#' @examples 
+#' toy_path <- system.file("testdata", package = "BUSpaRse")
+#' file_use <- paste(toy_path, "gff3_test.gff3", sep = "/")
+#' # Default
+#' tr2g <- tr2g_gff3(file = file_use, verbose = FALSE)
+#' # Excluding version numbers
+#' tr2g <- tr2g_gff3(file = file_use, transcript_version = NULL,
+#' gene_version = NULL)
 tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
                       gene_id = "gene_id", gene_name = "Name",
                       transcript_version = "version",
@@ -261,8 +290,7 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
   gr_tx <- gr[!is.na(mcols(gr)[[transcript_id]])]
   gr_tx <- gr_tx[gr_tx$type %in% type_use]
   if (length(gr_tx) == 0) {
-    stop(paste("No entry has types", paste(type_use, collapse = ", "), 
-               "\n"))
+    stop(paste("No entry has types", paste(type_use, collapse = ", ")))
   }
   genes <- str_split(gr_tx$Parent, ":", simplify = TRUE)[,2]
   out <- data.frame(transcript = mcols(gr_tx)[[transcript_id]],
@@ -338,13 +366,17 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
 #' @importFrom dplyr select
 #' @family functions to retrieve transcript and gene info
 #' @export
+#' @examples 
+#' toy_path <- system.file("testdata", package = "BUSpaRse")
+#' file_use <- paste(toy_path, "fasta_test.fasta", sep = "/")
+#' tr2g <- tr2g_fasta(file = file_use, verbose = FALSE)
 tr2g_fasta <- function(file, use_transcript_version = TRUE,
                        use_gene_version = TRUE,
                        verbose = TRUE) {
   check_char1(setNames(file, "file"))
   file <- normalizePath(file, mustWork = TRUE)
   if (!str_detect(file, "(\\.fasta)|(\\.fa)|(\\.fna)")) {
-    stop("file must be a FASTA file.\n")
+    stop("file must be a FASTA file.")
   }
   file <- normalizePath(file, mustWork = TRUE)
   if (verbose) {
@@ -353,7 +385,7 @@ tr2g_fasta <- function(file, use_transcript_version = TRUE,
   s <- readDNAStringSet(file)
   is_ens <- all(str_detect(names(s), "^ENS[A-Z]*T\\d+"))
   if (!is_ens && (use_transcript_version || use_gene_version)) {
-    message("Version is not applicable to IDs not of the form ENS[species prefix][feature type prefix][a unique eleven digit number].\n")
+    message("Version is not applicable to IDs not of the form ENS[species prefix][feature type prefix][a unique eleven digit number].")
     use_transcript_version <- use_gene_version <- FALSE
   }
   # Avoid R CMD check note
@@ -406,16 +438,20 @@ tr2g_fasta <- function(file, use_transcript_version = TRUE,
 #' @importFrom data.table fread fwrite
 #' @export
 #' @family functions to retrieve transcript and gene info
-#' 
+#' @examples 
+#' toy_path <- system.file("testdata", package = "BUSpaRse")
+#' file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
+#' tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
+#' tr2g <- sort_tr2g(tr2g, kallisto_out_path = toy_path, verbose = FALSE)
 sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
   if (!xor(missing(tr2g), missing(file))) {
-    stop("Exactly one of tr2g and file should be missing.\n")
+    stop("Exactly one of tr2g and file should be missing.")
   }
   kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
   trs_path <- paste(kallisto_out_path, "transcripts.txt", sep = "/")
   if (!file.exists(trs_path)) {
     stop("The file transcripts.txt does not exist in",
-               kallisto_out_path, "\n")
+               kallisto_out_path, "")
   }
   if (missing(tr2g)) {
     tr2g <- fread(file)
@@ -426,12 +462,7 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
   }
   out <- merge(trs, tr2g, by = "transcript", sort = FALSE)
   if (nrow(trs) != nrow(out)) {
-    stop("Some transcripts in the kallisto index are absent from tr2g.\n")
-  }
-  extra_args <- list(...)
-  if (length(extra_args) > 0) {
-    arg_names <- paste(names(extra_args), collapse = ", ")
-    message(paste("Arguments", arg_names, "are ignored."))
+    stop("Some transcripts in the kallisto index are absent from tr2g.")
   }
   out
 }
@@ -460,6 +491,11 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
 #' required by `bustools` with the name and directory specified will be written
 #' to disk.
 #' @export
+#' @examples
+#' toy_path <- system.file("testdata", package = "BUSpaRse")
+#' file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
+#' tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
+#' save_tr2g_bustools(tr2g, file_save = "./tr2g.tsv")
 save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
   file_save <- normalizePath(file_save, mustWork = FALSE)
   fwrite(tr2g[,c("transcript", "gene")], file = file_save, sep = "\t",
@@ -500,24 +536,22 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
 #' @export
 #' @family functions to retrieve transcript and gene info
 #' @examples
-#' \dontrun{
 #' # Download dataset already in BUS format
-#' library(TENxhgmmBUS)
-#' download_hgmm(".", "hgmm100")
+#' library(TENxBUSData)
+#' TENxBUSData(".", dataset = "hgmm100")
 #' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
-#'                         kallisto_out_path = "./out_hgmm100")
-#' }
+#' ensembl_version = 94, kallisto_out_path = "./out_hgmm100")
 #' 
 transcript2gene <- function(species, type, fasta_file, kallisto_out_path, 
                             other_attrs = NULL, ensembl_version = NULL,
                             save = FALSE, file_save = "./tr2g_sorted.csv",
                             verbose = TRUE, ...) {
   if (!xor(missing(species), missing(fasta_file))) {
-    stop("Exactly one of species and fasta_file can be missing.\n")
+    stop("Exactly one of species and fasta_file can be missing.")
   }
   if (missing(fasta_file)) {
     if (length(type) != 1 && length(species) != length(type)) {
-      stop("species and type must have the same length.\n")
+      stop("species and type must have the same length.")
     }
     if (length(type) == 1) {
       type <- rep(type, length(species))
@@ -530,7 +564,7 @@ transcript2gene <- function(species, type, fasta_file, kallisto_out_path,
     return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, verbose = verbose))
   } else {
     if (!is.null(ensembl_version) || length(list(...)) > 0) {
-      message("Arguments related to Ensembl biomart queries are ignored.\n")
+      message("Arguments related to Ensembl biomart queries are ignored.")
     }
     fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose)
     tr2g <- rbindlist(fls)
