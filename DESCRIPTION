@@ -5,7 +5,8 @@ Version: 0.99.0
 Date: 2019-02-12
 Authors@R: 
     person("Lambda", "Moses", email = "dlu2@caltech.edu", 
-    role = c("aut", "cre"))
+    role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0002-7092-9427"))
 Description: 
     This package converts kallisto bus outputs (after processing by bustools), 
     into a sparse matrix that can be used in downstream analysis.
