@@ -17,13 +17,13 @@ NULL
 #' @param ensembl_version Integer version number of Ensembl (e.g. 94 for the
 #' October 2018 release). This argument defaults to \code{NULL}, which will use
 #' the current release of Ensembl. Use 
-#' \code{\link[biomaRt]{listEnsemblArchives}} to see the version number corresponding
+#' \code{\link{listEnsemblArchives}} to see the version number corresponding
 #' to the Ensembl release of a particular date. The version specified here must
 #' match the version of Ensembl where the transcriptome used to build the
 #' kallisto index was downloaded.
 #' @param other_attrs Character vector. Other attributes to get from Ensembl, 
 #' such as gene symbol and position on the genome. 
-#' Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.
+#' Use \code{\link{listAttributes}} to see which attributes are available.
 #' @param use_transcript_version Logical, whether to include version number in
 #' the Ensembl transcript ID. To decide whether to
 #' include transcript version number, check whether version numbers are included
@@ -35,7 +35,7 @@ NULL
 #' Ensembl gene ID. Unlike transcript
 #' version number, it's up to you whether to include gene version number.
 #' @param verbose Whether to display progress.
-#' @param \dots Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
+#' @param \dots Othe arguments to be passed to \code{\link{useEnsembl}},
 #' such as mirror. Note that setting mirrors other than the default, e.g. uswest,
 #' does not work for archived versions.
 #' @importFrom biomaRt useEnsembl getBM
@@ -483,11 +483,11 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
 #' \code{\link{sort_tr2g}}. There must also be no headers. All columns other than
 #' `transcript` and `gene` will be discarded. To save a file with those columns,
 #' directly save the transcript to gene data frame with function like 
-#' \code{\link[utils]{write.table}}, \code{\link[readr]{write_tsv}}, and
-#' \code{\link[data.table]{fwrite}}.
+#' \code{\link{write.table}}, \code{\link{write_tsv}}, and
+#' \code{\link{fwrite}}.
 #' 
 #' @inheritParams sort_tr2g
-#' @param \dots Other arguments passed to \code{\link[data.table]{fwrite}}, such
+#' @param \dots Other arguments passed to \code{\link{fwrite}}, such
 #' as \code{sep}, \code{quote}, and \code{col.names}.
 #' @param file_save File name of the file to be saved. The directory in which
 #' the file is to be saved must exist.
@@ -537,7 +537,7 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
 #' with Ensembl gene and transcript IDs (with version number), in the same order
 #' as in the transcriptome index used in \code{kallisto}.
 #' @param \dots Other arguments passed to `tr2g_ensembl` such as `other_attrs`,
-#' `ensembl_version`, and arguments passed to \code{\link[biomaRt]{useEnsembl}}.
+#' `ensembl_version`, and arguments passed to \code{\link{useEnsembl}}.
 #' @importFrom data.table rbindlist
 #' @export
 #' @family functions to retrieve transcript and gene info
