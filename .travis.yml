@@ -2,10 +2,11 @@
 
 language: R
 r: bioc-devel
+bioc_check: true
 sudo: false
 cache: packages
 r_github_packages:
-  - BUStools/TENxhgmmBUS
+  - BUStools/TENxBUSData
   - Bioconductor/BiocManager
   
 before_script:

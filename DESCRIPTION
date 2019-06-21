@@ -14,9 +14,6 @@ BugReports: https://github.com/BUStools/BUSpaRse/issues
 URL: https://github.com/BUStools/BUSpaRse
 Imports: 
     Rcpp,
-    RcppArmadillo,
-    RcppProgress,
-    BH,
     RcppParallel,
     Matrix,
     biomaRt,
@@ -31,8 +28,7 @@ Imports:
     magrittr,
     S4Vectors,
     methods,
-    devtools,
-    R.utils
+    stats
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress, BH, RcppParallel
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)

@@ -47,7 +47,8 @@ kallisto index was downloaded.}
 \item{verbose}{Whether to display progress.}
 
 \item{\dots}{Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
-such as host and mirror.}
+such as mirror. Note that setting mirrors other than the default, e.g. uswest,
+does not work for archived versions.}
 }
 \value{
 A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}

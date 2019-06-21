@@ -36,7 +36,8 @@ NULL
 #' version number, it's up to you whether to include gene version number.
 #' @param verbose Whether to display progress.
 #' @param \dots Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
-#' such as host and mirror.
+#' such as mirror. Note that setting mirrors other than the default, e.g. uswest,
+#' does not work for archived versions.
 #' @importFrom biomaRt useEnsembl getBM
 #' @importFrom stats setNames
 #' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
@@ -95,7 +96,7 @@ tr2g_ensembl <- function(species, type = "vertebrate", other_attrs = NULL,
     attrs_use[2] <- paste(attrs_use[2], "version", sep = "_")
   }
   out <- getBM(attrs_use, mart = mart)
-  names(out)[1:3] <- c("transcript", "gene", "gene_name")
+  names(out)[seq_len(3)] <- c("transcript", "gene", "gene_name")
   out
 }
 
@@ -361,9 +362,9 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
 #' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
 #' for transcript ID, and \code{gene_name} for gene names. 
 #' @importFrom Biostrings readDNAStringSet
-#' @importFrom stringr str_extract
+#' @importFrom stringr str_extract str_replace
 #' @importFrom tidyr separate
-#' @importFrom dplyr select
+#' @importFrom dplyr select mutate
 #' @family functions to retrieve transcript and gene info
 #' @export
 #' @examples 
@@ -398,6 +399,8 @@ tr2g_fasta <- function(file, use_transcript_version = TRUE,
     distinct()
   # Remove version number
   if (is_ens) {
+    # Prevent R CMD check note of no visible binding for global variable
+    transcript <- gene <- NULL
     if (!use_transcript_version) {
       out <- out %>% 
         mutate(transcript = str_replace(transcript, "\\.\\d+$", ""))
@@ -441,7 +444,8 @@ tr2g_fasta <- function(file, use_transcript_version = TRUE,
 #' @examples 
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
-#' tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
+#' tr2g <- tr2g_gtf(file = file_use, verbose = FALSE, 
+#' transcript_version = NULL)
 #' tr2g <- sort_tr2g(tr2g, kallisto_out_path = toy_path, verbose = FALSE)
 sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
   if (!xor(missing(tr2g), missing(file))) {
@@ -499,7 +503,7 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
 save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
   file_save <- normalizePath(file_save, mustWork = FALSE)
   fwrite(tr2g[,c("transcript", "gene")], file = file_save, sep = "\t",
-         col.name = FALSE)
+         col.names = FALSE)
 }
 
 #' Map Ensembl transcript ID to gene ID
@@ -532,6 +536,8 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
 #' @return A data frame with two columns: \code{gene} and \code{transcript},
 #' with Ensembl gene and transcript IDs (with version number), in the same order
 #' as in the transcriptome index used in \code{kallisto}.
+#' @param \dots Other arguments passed to `tr2g_ensembl` such as `other_attrs`,
+#' `ensembl_version`, and arguments passed to \code{\link[biomaRt]{useEnsembl}}.
 #' @importFrom data.table rbindlist
 #' @export
 #' @family functions to retrieve transcript and gene info
@@ -539,12 +545,10 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
 #' # Download dataset already in BUS format
 #' library(TENxBUSData)
 #' TENxBUSData(".", dataset = "hgmm100")
-#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
+#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), type = "vertebrate",
 #' ensembl_version = 94, kallisto_out_path = "./out_hgmm100")
 #' 
-transcript2gene <- function(species, type, fasta_file, kallisto_out_path, 
-                            other_attrs = NULL, ensembl_version = NULL,
-                            save = FALSE, file_save = "./tr2g_sorted.csv",
+transcript2gene <- function(species, type, fasta_file, kallisto_out_path,
                             verbose = TRUE, ...) {
   if (!xor(missing(species), missing(fasta_file))) {
     stop("Exactly one of species and fasta_file can be missing.")
@@ -557,13 +561,15 @@ transcript2gene <- function(species, type, fasta_file, kallisto_out_path,
       type <- rep(type, length(species))
     }
     kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
+    MoreArgs <- list(...)
     fls <- mapply(tr2g_ensembl, species, type,
-                  other_attrs = other_attrs,
-                  ensembl_version = ensembl_version, verbose = verbose, ...)
+                  verbose = verbose, 
+                  MoreArgs = MoreArgs,
+                  SIMPLIFY = FALSE)
     tr2g <- rbindlist(fls)
     return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, verbose = verbose))
   } else {
-    if (!is.null(ensembl_version) || length(list(...)) > 0) {
+    if (length(list(...)) > 0) {
       message("Arguments related to Ensembl biomart queries are ignored.")
     }
     fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose)
@@ -616,14 +622,13 @@ transcript2gene <- function(species, type, fasta_file, kallisto_out_path,
 #' @importFrom tibble tibble
 #' @export
 #' @examples
-#' \dontrun{
 #' # Download dataset already in BUS format
-#' library(TENxhgmmBUS)
-#' download_hgmm(".", "hgmm100")
-#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
-#'                         kallisto_out_path = "./out_hgmm100")
-#' genes <- EC2gene(tr2g, "./out_hgmm100", ncores = 1, verbose = FALSE)
-#' }
+#' library(TENxBUSData)
+#' TENxBUSData(".", "retina")
+#' tr2g <- transcript2gene(species = "Mus musculus", 
+#'                         type = "vertebrate", ensembl_version = 94,
+#'                         kallisto_out_path = "./out_retina")
+#' genes <- EC2gene(tr2g, "./out_retina", ncores = 1, verbose = FALSE)
 #' 
 EC2gene <- function(tr2g, kallisto_out_path, ncores = 0, verbose = TRUE) {
   kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)

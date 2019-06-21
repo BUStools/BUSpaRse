@@ -55,7 +55,7 @@ expected_mat_full <- Matrix::sparseMatrix(i = c(rowinds, 2), j = c(colinds, 10),
                                           dimnames = list(c("meow", "kitty", "purr"),
                                                           LETTERS[c(1:7, 9:11)]))
 # Save as mtx for unit testing and examples
-writeMM(expected_mat, "./inst/testdata/genes.mtx")
+writeMM(t(expected_mat), "./inst/testdata/genes.mtx")
 writeLines(colnames(expected_mat), "./inst/testdata/genes.barcodes.txt", sep = "\n")
 writeLines(rownames(expected_mat), "./inst/testdata/genes.genes.txt", sep = "\n")
 
@@ -88,4 +88,5 @@ write.table(output_sorted_toy, file = "./inst/testdata/output.sorted.txt",
             quote = FALSE, row.names = FALSE, col.names = FALSE, sep = "\t")
 save(tr2g_toy, whitelist, expected_mat, expected_mat_full, expected_single,
      expected_tcc, expected_tcc_full, EC2g_toy,
-     file = "./inst/testdata/toy_example.RData")
+     file = "./inst/testdata/toy_example.RData",
+     version = 2)

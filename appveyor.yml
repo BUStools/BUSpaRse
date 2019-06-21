@@ -16,10 +16,14 @@ cache:
 # Adapt as necessary starting from here
 environment:
   R_VERSION: devel
+  BIOC_USE_DEVEL: "TRUE"
+  GCC_PATH: mingw_64
+  R_ARCH: x64
+  USE_RTOOLS: true
   
 build_script:
+  - travis-tool.sh install_github BUStools/TENxBUSData
   - travis-tool.sh install_github Bioconductor/BiocManager
-  - travis-tool.sh install_github BUStools/TENxhgmmBUS
   - travis-tool.sh install_deps
   - travis-tool.sh install_bioc_deps
 

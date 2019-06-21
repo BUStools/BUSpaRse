@@ -5,8 +5,7 @@
 \title{Map Ensembl transcript ID to gene ID}
 \usage{
 transcript2gene(species, type, fasta_file, kallisto_out_path,
-  other_attrs = NULL, ensembl_version = NULL, save = FALSE,
-  file_save = "./tr2g_sorted.csv", verbose = TRUE, ...)
+  verbose = TRUE, ...)
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
@@ -23,22 +22,10 @@ used to build the kallisto index. Exactly one of \code{species} and
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
-\item{other_attrs}{Character vector. Other attributes to get from Ensembl,
-such as gene symbol and position on the genome.
-Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.}
-
-\item{ensembl_version}{Integer version number of Ensembl (e.g. 94 for the
-October 2018 release). This argument defaults to \code{NULL}, which will use
-the current release of Ensembl. Use
-\code{\link[biomaRt]{listEnsemblArchives}} to see the version number corresponding
-to the Ensembl release of a particular date. The version specified here must
-match the version of Ensembl where the transcriptome used to build the
-kallisto index was downloaded.}
-
 \item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 
-\item{...}{Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
-such as host and mirror.}
+\item{\dots}{Other arguments passed to \code{tr2g_ensembl} such as \code{other_attrs},
+\code{ensembl_version}, and arguments passed to \code{\link[biomaRt]{useEnsembl}}.}
 }
 \value{
 A data frame with two columns: \code{gene} and \code{transcript},
@@ -62,7 +49,7 @@ downloaded.
 # Download dataset already in BUS format
 library(TENxBUSData)
 TENxBUSData(".", dataset = "hgmm100")
-tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
+tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), type = "vertebrate",
 ensembl_version = 94, kallisto_out_path = "./out_hgmm100")
 
 }

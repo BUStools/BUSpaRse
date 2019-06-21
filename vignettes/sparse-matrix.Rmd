@@ -39,7 +39,7 @@ TENxBUSData(".", dataset = "hgmm100")
 ## Convert to sparse matrix
 First, we map transcripts, as in the `kallisto` index, to the corresponding genes. 
 ```{r}
-tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
+tr2g <- transcript2gene(species = c("Homo sapiens", "Mus musculus"), type = "vertebrate",
                          kallisto_out_path = "./out_hgmm100", ensembl_version = 94)
 ```
 
@@ -122,3 +122,8 @@ qplot(bc_rank$rank, bc_rank$total, geom = "line") +
 tcc <- tcc[, tot_counts > metadata(bc_rank)$inflection]
 dim(tcc)
 ```
+
+```{r}
+sessionInfo()
+```
+

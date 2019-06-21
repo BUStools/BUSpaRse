@@ -74,22 +74,23 @@ Before using the transcript to gene data frame to generate the sparse matrix, it
 
 ```{r}
 # Download kallisto bus example output
-TENxBUSData(".", dataset = "pbmc1k")
-tr2g_hs <- sort_tr2g(tr2g_hs, kallisto_out_path = "./out_pbmc1k")
+TENxBUSData(".", dataset = "retina")
+tr2g_hs <- sort_tr2g(tr2g_mm, kallisto_out_path = "./out_retina")
 ```
 
 ## Mixed species
-The `tr2g_*` family of functions in this package only processes one species at a time. There is a function that processes multiple species at a time, but this only does Ensembl queries and Ensembl FASTA files. This function will also sort the transcripts. This function can be used for one species as well, to do the transcript and gene information extraction and the sorting in one step.
+The `tr2g_*` family of functions in this package only processes one species at a time. There is a function that processes multiple species at a time, but this only does Ensembl queries and Ensembl FASTA files. This function will also sort the transcripts. This function can be used for one species as well, to do the transcript and gene information extraction and the sorting in one step. Alternatively, youo can simply concatenate the tr2g data frames for single species and then sort it.
 ```{r}
 # Download example mixed species output
 TENxBUSData(".", dataset = "hgmm100")
 tr2g_hgmm <- transcript2gene(species = c("Homo sapiens", "Mus musculus"),
+                             type = "vertebrate",
                              ensembl_version = 94,
                              kallisto_out_path = "./out_hgmm100")
 ```
 
 # Save file for `bustools`
-This package can be used to save the transcript to gene data frame to a format required by the `bustools`.
+This package can be used to save the transcript to gene data frame to a format required by the `bustools`. This assumes that the data frame is already properly sorted.
 ```{r}
 save_tr2g_bustools(tr2g_at, file_save = "./tr2g_at.tsv")
 ```

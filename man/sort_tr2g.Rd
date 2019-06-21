@@ -41,7 +41,8 @@ the cleaned up data frame have the same format as those in \code{transcript}
 \examples{
 toy_path <- system.file("testdata", package = "BUSpaRse")
 file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
-tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
+tr2g <- tr2g_gtf(file = file_use, verbose = FALSE, 
+transcript_version = NULL)
 tr2g <- sort_tr2g(tr2g, kallisto_out_path = toy_path, verbose = FALSE)
 }
 \seealso{

@@ -58,22 +58,18 @@ NULL
 #' @importClassesFrom Matrix dgCMatrix
 #' @export
 #' @examples
-#' \dontrun{
 #' # Download dataset already in BUS format
-#' library(TENxhgmmBUS)
+#' library(TENxBUSData)
 #' library(Matrix)
-#' download_hgmm(".", "hgmm100")
-#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
+#' TENxBUSData(".", "hgmm100")
+#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), 
+#'                         type = "vertebrate", ensembl_version = 94,
 #'                         kallisto_out_path = "./out_hgmm100")
 #' res_mat <- make_sparse_matrix("./out_hgmm100/output.sorted.txt",
 #'                               tr2g = tr2g, est_ncells = 3e5, 
 #'                               est_ngenes = nrow(tr2g), gene_count = TRUE,
 #'                               TCC = FALSE)
-#' # Remove empty droplets
-#' tot_counts <- colSums(res_mat)
-#' res_mat <- res_mat[,tot_counts > 500]
-#' }
-
+#' 
 make_sparse_matrix <- function(bus_path, tr2g, est_ncells, 
                                est_ngenes, whitelist = NULL, gene_count = TRUE,
                                TCC = TRUE, single_gene = TRUE, ncores = 0, 

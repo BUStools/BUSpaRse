@@ -62,7 +62,8 @@ check_tag_present <- function(tags_use, tags, error = TRUE) {
 #' @return Error if \code{x} is not a character vector with length 1.
 check_char1 <- function(x) {
   arg_names <- names(x)
-  inds <- sapply(x, function(x) {!is.character(x) | length(x) > 1})
+  inds <- vapply(x, function(x) {!is.character(x) | length(x) > 1},
+                 FUN.VALUE = logical(1))
   if (any(inds)) {
     stop(paste(paste(arg_names[inds], sep = ", "), 
                "must be a character vector with length 1.\n"))
@@ -101,6 +102,7 @@ check_gff <- function(format, file, transcript_id, gene_id, gene_name,
 #' to \code{FALSE}.
 #' @return A dgCMatrix with barcodes as column names and genes as row names.
 #' @importFrom Matrix readMM
+#' @importFrom methods as
 #' @export
 #' @examples 
 #' # Internal toy data used for unit testing
@@ -109,6 +111,7 @@ check_gff <- function(format, file, transcript_id, gene_id, gene_name,
 read_count_output <- function(dir, name, tcc = TRUE) {
   dir <- normalizePath(dir, mustWork = TRUE)
   m <- readMM(paste0(dir, "/", name, ".mtx"))
+  m <- Matrix::t(m)
   m <- as(m, "dgCMatrix")
   # The matrix read has cells in rows
   ge <- if (tcc) ".ec.txt" else ".genes.txt"
