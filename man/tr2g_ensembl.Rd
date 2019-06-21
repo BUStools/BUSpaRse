@@ -22,7 +22,7 @@ For animals absent from www.ensembl.org, try "metazoa".}
 
 \item{other_attrs}{Character vector. Other attributes to get from Ensembl,
 such as gene symbol and position on the genome.
-Use \code{\link[biomaRt]{listAttributes}} to see which attributes are available.}
+Use \code{\link{listAttributes}} to see which attributes are available.}
 
 \item{use_transcript_version}{Logical, whether to include version number in
 the Ensembl transcript ID. To decide whether to
@@ -39,14 +39,14 @@ version number, it's up to you whether to include gene version number.}
 \item{ensembl_version}{Integer version number of Ensembl (e.g. 94 for the
 October 2018 release). This argument defaults to \code{NULL}, which will use
 the current release of Ensembl. Use
-\code{\link[biomaRt]{listEnsemblArchives}} to see the version number corresponding
+\code{\link{listEnsemblArchives}} to see the version number corresponding
 to the Ensembl release of a particular date. The version specified here must
 match the version of Ensembl where the transcriptome used to build the
 kallisto index was downloaded.}
 
 \item{verbose}{Whether to display progress.}
 
-\item{\dots}{Othe arguments to be passed to \code{\link[biomaRt]{useEnsembl}},
+\item{\dots}{Othe arguments to be passed to \code{\link{useEnsembl}},
 such as mirror. Note that setting mirrors other than the default, e.g. uswest,
 does not work for archived versions.}
 }

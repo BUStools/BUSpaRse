@@ -25,7 +25,7 @@ used to build the kallisto index. Exactly one of \code{species} and
 \item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 
 \item{\dots}{Other arguments passed to \code{tr2g_ensembl} such as \code{other_attrs},
-\code{ensembl_version}, and arguments passed to \code{\link[biomaRt]{useEnsembl}}.}
+\code{ensembl_version}, and arguments passed to \code{\link{useEnsembl}}.}
 }
 \value{
 A data frame with two columns: \code{gene} and \code{transcript},
