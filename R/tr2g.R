@@ -483,7 +483,7 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
 #' \code{\link{sort_tr2g}}. There must also be no headers. All columns other than
 #' `transcript` and `gene` will be discarded. To save a file with those columns,
 #' directly save the transcript to gene data frame with function like 
-#' \code{\link{write.table}}, \code{\link{write_tsv}}, and
+#' \code{\link{write.table}}, \code{readr::write_delim}, and
 #' \code{\link{fwrite}}.
 #' 
 #' @inheritParams sort_tr2g
@@ -548,7 +548,8 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
 #' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), type = "vertebrate",
 #' ensembl_version = 94, kallisto_out_path = "./out_hgmm100")
 #' 
-transcript2gene <- function(species, type, fasta_file, kallisto_out_path,
+transcript2gene <- function(species, fasta_file, kallisto_out_path, 
+                            type = "vertebrate",
                             verbose = TRUE, ...) {
   if (!xor(missing(species), missing(fasta_file))) {
     stop("Exactly one of species and fasta_file can be missing.")

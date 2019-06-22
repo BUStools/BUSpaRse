@@ -31,7 +31,7 @@ kallisto index, and this ordering can be ensured by the function
 \code{\link{sort_tr2g}}. There must also be no headers. All columns other than
 \code{transcript} and \code{gene} will be discarded. To save a file with those columns,
 directly save the transcript to gene data frame with function like
-\code{\link{write.table}}, \code{\link{write_tsv}}, and
+\code{\link{write.table}}, \code{readr::write_delim}, and
 \code{\link{fwrite}}.
 }
 \examples{

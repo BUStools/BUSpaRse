@@ -4,23 +4,23 @@
 \alias{transcript2gene}
 \title{Map Ensembl transcript ID to gene ID}
 \usage{
-transcript2gene(species, type, fasta_file, kallisto_out_path,
-  verbose = TRUE, ...)
+transcript2gene(species, fasta_file, kallisto_out_path,
+  type = "vertebrate", verbose = TRUE, ...)
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
 scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.}
-
-\item{type}{A character vector indicating the type of each species. Each
-element must be one of "vertebrate", "metazoa", "plant", "fungus", and
-"protist". If length is 1, then this type will be used for all species specified
-here. Can be missing if \code{fasta_file} is specified.}
 
 \item{fasta_file}{Character vector of paths to the transcriptome FASTA files
 used to build the kallisto index. Exactly one of \code{species} and
 \code{fasta_file} can be missing.}
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
+
+\item{type}{A character vector indicating the type of each species. Each
+element must be one of "vertebrate", "metazoa", "plant", "fungus", and
+"protist". If length is 1, then this type will be used for all species specified
+here. Can be missing if \code{fasta_file} is specified.}
 
 \item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 
