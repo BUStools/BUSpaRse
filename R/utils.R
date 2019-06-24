@@ -121,3 +121,32 @@ read_count_output <- function(dir, name, tcc = TRUE) {
   rownames(m) <- genes
   return(m)
 }
+
+#' Read intronic and exonic matrices into R
+#' 
+#' @param spliced_dir Directory with `mtx` file for UMI counts of spliced
+#' transcripts.
+#' @param unspliced_dir Directory with `mtx` file for UMI counts of unspliced
+#' transcripts.
+#' @param spliced_name The files in the splicedd directory should be 
+#' <spliced_name>.mtx, <spliced_name>.genes.txt, and 
+#' <spliced_name>.barcodes.txt.
+#' @param unspliced_name The files in the unsplicedd directory should be 
+#' <unspliced_name>.mtx, <unspliced_name>.genes.txt, and 
+#' <unspliced_name>.barcodes.txt.
+#' @return A list of two dgCMatrix with barcodes as column names and genes as
+#' row names. The elements of the list will be `spliced` and `unspliced`.
+#' @export
+#' @examples 
+#' # Internal toy data used for unit testing
+#' toy_path <- system.file("testdata", package = "BUSpaRse")
+#' m <- read_velocity_output(toy_path, toypath, 
+#'                           spliced_name = "genes", 
+#'                           unspliced_name = "genes",
+#'                           tcc = FALSE)
+read_velocity_output <- function(spliced_dir, unspliced_dir, spliced_name,
+                                 unspliced_name) {
+  spliced <- read_count_output(spliced_dir, spliced_name, FALSE)
+  unspliced <- read_count_output(unspliced_dir, unspliced_name, FALSE)
+  list(spliced = spliced, unspliced = unspliced)
+}
