@@ -23,7 +23,7 @@ test_that("Correct data set name for biomart", {
   expect_equal(species2dataset("Felis catus"), "fcatus_gene_ensembl")
   expect_equal(species2dataset("Arabidopsis thaliana", "plant"), "athaliana_eg_gene")
   expect_equal(species2dataset("Aspergillus nidulans", "fungus"), "anidulans_eg_gene")
-  expect_error(species2dataset("Mus musculus", "foo"), "type must be one of")
+  expect_error(species2dataset("Mus musculus", "foo"))
   expect_error(species2dataset("cats are so cute"), error_use)
   expect_error(species2dataset("mouse"), error_use)
 })

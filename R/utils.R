@@ -12,10 +12,9 @@ NULL
 #' @examples 
 #' species2dataset(species = "Homo sapiens")
 #' 
-species2dataset <- function(species, type = "vertebrate") { 
-  if (!type %in% c("vertebrate", "metazoa", "plant", "fungus", "protist")) {
-    stop("type must be one of 'vertebrate', 'metazoa', 'plant', 'fungus', and 'protist'.\n")
-  }
+species2dataset <- function(species, type = c("vertebrate", "metazoa", "plant", 
+                                              "fungus", "protist")) { 
+  type <- match.arg(type)
   species <- strsplit(species, " ")[[1]]
   if (length(species) != 2) {
     stop("Please use the Latin binomial convention for species rather than the colloquial name.\n")
