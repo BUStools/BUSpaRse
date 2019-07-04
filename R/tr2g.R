@@ -50,16 +50,16 @@ NULL
 #' # This will use plants.ensembl.org as host instead of www.ensembl.org
 #' tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant")
 #' 
-tr2g_ensembl <- function(species, type = "vertebrate", other_attrs = NULL, 
+tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant", 
+                                           "fungus", "protist"), 
+                         other_attrs = NULL, 
                          use_transcript_version = TRUE,
                          use_gene_version = TRUE,
                          ensembl_version = NULL, 
                          verbose = TRUE, ...) {
   # Validate arguments
   check_char1(setNames(c(species, type), c("species", "type")))
-  if (!type %in% c("vertebrate", "metazoa", "plant", "fungus", "protist")) {
-    stop("type must be one of 'vertebrate', 'metazoa', 'plant', 'fungus', and 'protist'.")
-  }
+  type <- match.arg(type)
   if (!is.null(ensembl_version) && !is.numeric(ensembl_version)) {
     stop("ensembl_version must be integer.")
   }
@@ -327,6 +327,47 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
   distinct(out)
 }
 
+#' Get transcript and gene info from DNAStringSet names
+#' 
+#' Internal use.
+#' 
+#' @inheritParams tr2g_ensembl
+#' @param s A `DNAStringSet` object.
+#' @importFrom stringr str_extract str_replace
+#' @importFrom tidyr separate
+#' @importFrom dplyr select mutate
+tr2g_DNAStringSet <- function(s, use_transcript_version = TRUE,
+                              use_gene_version = TRUE,
+                              verbosse = TRUE) {
+  is_ens <- all(str_detect(names(s), "^ENS[A-Z]*T\\d+"))
+  if (!is_ens && (use_transcript_version || use_gene_version)) {
+    message("Version is not applicable to IDs not of the form ENS[species prefix][feature type prefix][a unique eleven digit number].")
+    use_transcript_version <- use_gene_version <- FALSE
+  }
+  # Avoid R CMD check note
+  g <- gene_name <- NULL
+  out <- tibble(transcript = str_extract(names(s), "^[a-zA-Z\\d-\\.]+"),
+                gene = str_replace(names(s), "^.*gene:", "") %>% 
+                  str_replace("\\s+.*$", ""),
+                gene_name = str_replace(names(s), "^.*gene_symbol:", "") %>% 
+                  str_replace("\\s+.*$", "")) %>% 
+    distinct()
+  # Remove version number
+  if (is_ens) {
+    # Prevent R CMD check note of no visible binding for global variable
+    transcript <- gene <- NULL
+    if (!use_transcript_version) {
+      out <- out %>% 
+        mutate(transcript = str_replace(transcript, "\\.\\d+$", ""))
+    }
+    if (!use_gene_version) {
+      out <- out %>% 
+        mutate(gene = str_replace(gene, "\\.\\d+$", ""))
+    }
+  }
+  out
+}
+
 #' Get transcript and gene info from names in FASTA files
 #' 
 #' FASTA files, such as those for cDNA and ncRNA from Ensembl, might have genome
@@ -362,9 +403,6 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
 #' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
 #' for transcript ID, and \code{gene_name} for gene names. 
 #' @importFrom Biostrings readDNAStringSet
-#' @importFrom stringr str_extract str_replace
-#' @importFrom tidyr separate
-#' @importFrom dplyr select mutate
 #' @family functions to retrieve transcript and gene info
 #' @export
 #' @examples 
@@ -384,33 +422,7 @@ tr2g_fasta <- function(file, use_transcript_version = TRUE,
     message("Reading FASTA file.")
   }
   s <- readDNAStringSet(file)
-  is_ens <- all(str_detect(names(s), "^ENS[A-Z]*T\\d+"))
-  if (!is_ens && (use_transcript_version || use_gene_version)) {
-    message("Version is not applicable to IDs not of the form ENS[species prefix][feature type prefix][a unique eleven digit number].")
-    use_transcript_version <- use_gene_version <- FALSE
-  }
-  # Avoid R CMD check note
-  g <- gene_name <- NULL
-  out <- tibble(transcript = str_extract(names(s), "^[a-zA-Z\\d-\\.]+"),
-                gene = str_replace(names(s), "^.*gene:", "") %>% 
-                  str_replace("\\s+.*$", ""),
-                gene_name = str_replace(names(s), "^.*gene_symbol:", "") %>% 
-                  str_replace("\\s+.*$", "")) %>% 
-    distinct()
-  # Remove version number
-  if (is_ens) {
-    # Prevent R CMD check note of no visible binding for global variable
-    transcript <- gene <- NULL
-    if (!use_transcript_version) {
-      out <- out %>% 
-        mutate(transcript = str_replace(transcript, "\\.\\d+$", ""))
-    }
-    if (!use_gene_version) {
-      out <- out %>% 
-        mutate(gene = str_replace(gene, "\\.\\d+$", ""))
-    }
-  }
-  out
+  tr2g_DNAStringSet(s, use_transcript_version, use_gene_version, verbose)
 }
 
 #' Sort transcripts to the same order as in kallisto index

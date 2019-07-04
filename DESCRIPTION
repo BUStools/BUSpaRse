@@ -13,22 +13,26 @@ Description:
 BugReports: https://github.com/BUStools/BUSpaRse/issues
 URL: https://github.com/BUStools/BUSpaRse
 Imports: 
+    BiocGenerics,
+    biomaRt,
+    Biostrings,
+    BSgenonme,
+    data.table,
+    dplyr,
+    GenomicFeatures,
+    GenomicRanges,
+    magrittr,
+    Matrix,
+    methods,
+    plyranges,
     Rcpp,
     RcppParallel,
-    Matrix,
-    biomaRt,
-    data.table,
-    zeallot,
-    dplyr,
-    tidyr,
-    tibble,
-    plyranges,
-    Biostrings,
-    stringr,
-    magrittr,
     S4Vectors,
-    methods,
-    stats
+    stats,
+    stringr,
+    tibble,
+    tidyr,
+    zeallot
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress, BH, RcppParallel
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
