@@ -100,34 +100,10 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
   out
 }
 
-#' Get transcript and gene info from GTF file
+#' Get transcript and gene info from GRanges
 #' 
-#' This function reads a GTF file and extracts the transcript ID and
-#' corresponding gene ID. This function assumes that the GTF file is properly
-#' formatted. See \url{http://mblab.wustl.edu/GTF2.html} for a detailed
-#' description of proper GTF format. Note that GFF3 files have a somewhat
-#' different and more complicated format in the attribute field, which this
-#' function does not support. See \url{http://gmod.org/wiki/GFF3} for a detailed
-#' description of proper GFF3 format. To extract transcript and gene information
-#' from GFF3 files, see the function \code{\link{tr2g_gff3}} in this package. 
+#' Internal use, for GRanges from GTF files
 #' 
-#' Transcript and gene versions may not be present in all GTF files, so these
-#' arguments are optional. This function has arguments for transcript and gene 
-#' version numbers because Ensembl IDs have version numbers. For Ensembl IDs, we
-#' recommend including the version number, since a change in version number 
-#' signals a change in the entity referred to by the ID after reannotation. If a
-#' version is used, then it will be appended to the ID, separated by 
-#' \code{version_sep}.
-#' 
-#' The transcript and gene IDs are The \code{attribute} field (the last 
-#' field) of GTF files can be complicated and inconsistent across different 
-#' sources. Please check the \code{attribute} tags in your GTF file and consider
-#' the arguments of this function carefully. The defaults are set according to 
-#' Ensembl GTF files; defaults may not work for files from other sources. Due to
-#' the general lack of standards for the \code{attribute} field, you may need to
-#' further clean up the output of this function.
-#' 
-#' @param file Path to a GTF file to be read. The file can remain gzipped.
 #' @param type_use Character vector, the values taken by the \code{type} field 
 #' in the GTF file that denote the desired transcripts. This can be "exon",
 #' "transcript", "mRNA", and etc.
@@ -162,38 +138,14 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
 #' version number, it's up to you whether to include gene version number.
 #' @param version_sep Character to separate bewteen the main ID and the version
 #' number. Defaults to ".", as in Ensembl.
-#' @inheritParams tr2g_ensembl
-#' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
-#' for transcript ID, and \code{gene_name} for gene names. 
-#' @importFrom plyranges read_gff
 #' @importFrom magrittr %>% 
 #' @importFrom stringr str_detect
 #' @importFrom dplyr distinct
 #' @importFrom S4Vectors mcols
-#' @family functions to retrieve transcript and gene info
-#' @export
-#' @examples 
-#' toy_path <- system.file("testdata", package = "BUSpaRse")
-#' file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
-#' # Default
-#' tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
-#' # Excluding version numbers
-#' tr2g <- tr2g_gtf(file = file_use, transcript_version = NULL,
-#' gene_version = NULL)
-tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
-                      gene_id = "gene_id", gene_name = "gene_name",
-                      transcript_version = "transcript_version",
-                      gene_version = "gene_version", version_sep = ".",
-                      verbose = TRUE) {
-  # Validate arguments
-  check_char1(setNames(file, "file"))
-  file <- normalizePath(file, mustWork = TRUE)
-  check_gff("gtf", file, transcript_id, gene_id, gene_name,
-            transcript_version, gene_version, version_sep)
-  if (verbose) {
-    message(paste("Reading GTF file."))
-  }
-  gr <- read_gff(file)
+tr2g_GRanges <- function(gr, type_use = "exon", transcript_id = "transcript_id",
+                         gene_id = "gene_id", gene_name = "gene_name",
+                         transcript_version = "transcript_version",
+                         gene_version = "gene_version", version_sep = ".") {
   tags <- names(mcols(gr))
   check_tag_present(c(transcript_id, gene_id), tags, error = TRUE)
   # Will do nothing if all are NULL
@@ -219,6 +171,67 @@ tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
     out$gene <- paste(out$gene, gv, sep = version_sep)
   }
   distinct(out)
+}
+
+#' Get transcript and gene info from GTF file
+#' 
+#' This function reads a GTF file and extracts the transcript ID and
+#' corresponding gene ID. This function assumes that the GTF file is properly
+#' formatted. See \url{http://mblab.wustl.edu/GTF2.html} for a detailed
+#' description of proper GTF format. Note that GFF3 files have a somewhat
+#' different and more complicated format in the attribute field, which this
+#' function does not support. See \url{http://gmod.org/wiki/GFF3} for a detailed
+#' description of proper GFF3 format. To extract transcript and gene information
+#' from GFF3 files, see the function \code{\link{tr2g_gff3}} in this package. 
+#' 
+#' Transcript and gene versions may not be present in all GTF files, so these
+#' arguments are optional. This function has arguments for transcript and gene 
+#' version numbers because Ensembl IDs have version numbers. For Ensembl IDs, we
+#' recommend including the version number, since a change in version number 
+#' signals a change in the entity referred to by the ID after reannotation. If a
+#' version is used, then it will be appended to the ID, separated by 
+#' \code{version_sep}.
+#' 
+#' The transcript and gene IDs are The \code{attribute} field (the last 
+#' field) of GTF files can be complicated and inconsistent across different 
+#' sources. Please check the \code{attribute} tags in your GTF file and consider
+#' the arguments of this function carefully. The defaults are set according to 
+#' Ensembl GTF files; defaults may not work for files from other sources. Due to
+#' the general lack of standards for the \code{attribute} field, you may need to
+#' further clean up the output of this function.
+#' 
+#' @param file Path to a GTF file to be read. The file can remain gzipped.
+#' @inheritParams tr2g_GRanges
+#' @inheritParams tr2g_ensembl
+#' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
+#' for transcript ID, and \code{gene_name} for gene names. 
+#' @importFrom plyranges read_gff
+#' @family functions to retrieve transcript and gene info
+#' @export
+#' @examples 
+#' toy_path <- system.file("testdata", package = "BUSpaRse")
+#' file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
+#' # Default
+#' tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
+#' # Excluding version numbers
+#' tr2g <- tr2g_gtf(file = file_use, transcript_version = NULL,
+#' gene_version = NULL)
+tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
+                      gene_id = "gene_id", gene_name = "gene_name",
+                      transcript_version = "transcript_version",
+                      gene_version = "gene_version", version_sep = ".",
+                      verbose = TRUE) {
+  # Validate arguments
+  check_char1(setNames(file, "file"))
+  file <- normalizePath(file, mustWork = TRUE)
+  check_gff("gtf", file, transcript_id, gene_id, gene_name,
+            transcript_version, gene_version, version_sep)
+  if (verbose) {
+    message(paste("Reading GTF file."))
+  }
+  gr <- read_gff(file)
+  tr2g_GRanges(gr, type_use, transcript_id, gene_id, gene_name,
+               transcript_version, gene_version, version_sep)
 }
 
 #' Get transcript and gene info from GFF3 file
@@ -327,47 +340,6 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
   distinct(out)
 }
 
-#' Get transcript and gene info from DNAStringSet names
-#' 
-#' Internal use.
-#' 
-#' @inheritParams tr2g_ensembl
-#' @param s A `DNAStringSet` object.
-#' @importFrom stringr str_extract str_replace
-#' @importFrom tidyr separate
-#' @importFrom dplyr select mutate
-tr2g_DNAStringSet <- function(s, use_transcript_version = TRUE,
-                              use_gene_version = TRUE,
-                              verbosse = TRUE) {
-  is_ens <- all(str_detect(names(s), "^ENS[A-Z]*T\\d+"))
-  if (!is_ens && (use_transcript_version || use_gene_version)) {
-    message("Version is not applicable to IDs not of the form ENS[species prefix][feature type prefix][a unique eleven digit number].")
-    use_transcript_version <- use_gene_version <- FALSE
-  }
-  # Avoid R CMD check note
-  g <- gene_name <- NULL
-  out <- tibble(transcript = str_extract(names(s), "^[a-zA-Z\\d-\\.]+"),
-                gene = str_replace(names(s), "^.*gene:", "") %>% 
-                  str_replace("\\s+.*$", ""),
-                gene_name = str_replace(names(s), "^.*gene_symbol:", "") %>% 
-                  str_replace("\\s+.*$", "")) %>% 
-    distinct()
-  # Remove version number
-  if (is_ens) {
-    # Prevent R CMD check note of no visible binding for global variable
-    transcript <- gene <- NULL
-    if (!use_transcript_version) {
-      out <- out %>% 
-        mutate(transcript = str_replace(transcript, "\\.\\d+$", ""))
-    }
-    if (!use_gene_version) {
-      out <- out %>% 
-        mutate(gene = str_replace(gene, "\\.\\d+$", ""))
-    }
-  }
-  out
-}
-
 #' Get transcript and gene info from names in FASTA files
 #' 
 #' FASTA files, such as those for cDNA and ncRNA from Ensembl, might have genome
@@ -403,6 +375,9 @@ tr2g_DNAStringSet <- function(s, use_transcript_version = TRUE,
 #' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
 #' for transcript ID, and \code{gene_name} for gene names. 
 #' @importFrom Biostrings readDNAStringSet
+#' @importFrom stringr str_extract str_replace
+#' @importFrom tidyr separate
+#' @importFrom dplyr select mutate
 #' @family functions to retrieve transcript and gene info
 #' @export
 #' @examples 
@@ -422,7 +397,33 @@ tr2g_fasta <- function(file, use_transcript_version = TRUE,
     message("Reading FASTA file.")
   }
   s <- readDNAStringSet(file)
-  tr2g_DNAStringSet(s, use_transcript_version, use_gene_version, verbose)
+  is_ens <- all(str_detect(names(s), "^ENS[A-Z]*T\\d+"))
+  if (!is_ens && (use_transcript_version || use_gene_version)) {
+    message("Version is not applicable to IDs not of the form ENS[species prefix][feature type prefix][a unique eleven digit number].")
+    use_transcript_version <- use_gene_version <- FALSE
+  }
+  # Avoid R CMD check note
+  g <- gene_name <- NULL
+  out <- tibble(transcript = str_extract(names(s), "^[a-zA-Z\\d-\\.]+"),
+                gene = str_replace(names(s), "^.*gene:", "") %>% 
+                  str_replace("\\s+.*$", ""),
+                gene_name = str_replace(names(s), "^.*gene_symbol:", "") %>% 
+                  str_replace("\\s+.*$", "")) %>% 
+    distinct()
+  # Remove version number
+  if (is_ens) {
+    # Prevent R CMD check note of no visible binding for global variable
+    transcript <- gene <- NULL
+    if (!use_transcript_version) {
+      out <- out %>% 
+        mutate(transcript = str_replace(transcript, "\\.\\d+$", ""))
+    }
+    if (!use_gene_version) {
+      out <- out %>% 
+        mutate(gene = str_replace(gene, "\\.\\d+$", ""))
+    }
+  }
+  out
 }
 
 #' Sort transcripts to the same order as in kallisto index

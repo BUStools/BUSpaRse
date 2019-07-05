@@ -16,7 +16,7 @@ Imports:
     BiocGenerics,
     biomaRt,
     Biostrings,
-    BSgenonme,
+    BSgenome,
     data.table,
     dplyr,
     GenomicFeatures,
@@ -50,6 +50,7 @@ Collate:
     'sparse_matrix.R'
     'tr2g.R'
     'utils.R'
+    'velocity.R'
 Encoding: UTF-8
 License: BSD_2_clause + file LICENSE
 biocViews:

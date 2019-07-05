@@ -135,7 +135,8 @@ get_velocity_files <- function(file, L, genome, transcriptome, out_path,
            start = start(gr),
            strand = strand(gr),
            too_short = width < L - 1,
-           exon_number = as.integer(exon_number)) %>% 
+           exon_number = as.integer(exon_number),
+           exon_number_sort = as.integer(paste0(strand, exon_number))) %>% 
     arrange(transcript_id, exon_number) %>% 
     mutate(next_same = lead(exon_number) != 1, # FALSE for the last exon of a transcript
            next_same = ifelse(is.na(next_same), FALSE, next_same),
@@ -149,8 +150,8 @@ get_velocity_files <- function(file, L, genome, transcriptome, out_path,
              !next_same ~ NA_real_,
              TRUE ~ L - 1
            ),
-           # Lenngth of flannking region by 3' end of the intron
-           flank_end = case_when(
+           # Length of flannking region by 3' end of the intron
+           flank3 = case_when(
              trunc3 ~ L - 1 - lead(width),
              !next_same ~ NA_real_,
              TRUE ~ L - 1
@@ -158,41 +159,37 @@ get_velocity_files <- function(file, L, genome, transcriptome, out_path,
     group_by(transcript_id) %>% 
     mutate(min_start = min(start)) %>% 
     # Sort to be the same order as the intronic ranges.
-    arrange(desc(strand), min_start, transcript_id, desc(exon_number))
-  
-  # Get intronic rannges
+    arrange(desc(strand), min_start, transcript_id, exon_number_sort) %>% 
+    filter(!is.na(flank5), !is.na(flank3)) %>% 
+    mutate(intron_id = paste0(transcript_id, "-I", exon_number)) %>% 
+    dplyr::select(gene_id, intron_id, flank5, flank3)
+    
+  # Get intronic ranges
   txdb <- makeTxDbFromGRanges(gr)
   introns <- intronsByTranscript(txdb, use.names = TRUE)
-  fl5 <- metas$flank5[!is.na(metas$flank5)]
-  fl3 <- metas$flank3[!is.na(metas$flank3)]
-  start(introns) <- ifelse(strand(gr) == "+", start(introns) - fl5,
-                           start(introns) - fl3)
-  end(introns) <- ifelse(strand(gr) == "+", end(introns) + fl3,
-                         end(introns) + fl5)
-  metas <- data.frame(gene_id = names(introns)) %>% 
-    group_by(gene_id) %>% 
-    mutate(intron_number = row_number(gene_id),
-           intron_id = paste0(gene_id, "-I", intron_number))
+  start(introns) <- ifelse(strand(gr) == "+", start(introns) - metas$flank5,
+                           start(introns) - metas$flank3)
+  end(introns) <- ifelse(strand(gr) == "+", end(introns) + metas$flank3,
+                         end(introns) + metas$flank5)
   names(introns) <- metas$intron_id
   
   # Prepare output---------------------------
-  # Get transcriptome
-  if (is.character(transcriptome)) {
-    transcriptome <- readDNAStringSet(transcriptome)
-  }
   intron_seqs <- getSeq(genome, introns)
-  writeXStringSet(c(transcriptome, intron_seqs), 
-                  paste(out_path, "cDNA_introns.fa"))
+  out_fa <- paste(out_path, "cDNA_introns.fa", sep = "/")
+  if (is.character(transcriptome)) {
+    file.copy(transcriptome, out_fa)
+    writeXStringSet(intron_seqs, out_fa, append = TRUE)
+  } else {
+    writeXStringSet(c(transcriptome, intron_seqs), out_fa)
+  }
   writeLines(names(introns), paste(out_path, "introns_tx_to_capture.txt",
                                    sep = "/"))
-  if (use_transcript_version) {
-    tx_regex <- "^[a-zA-Z\\d-\\.]+"
-  } else {
-    tx_regex <- "^[a-zA-Z\\d-]+"
-  }
-  writeLines(str_extract(names(transcriptome), tx_regex),
+  writeLines(unique(gr$transcript_id),
              paste(out_path, "cDNA_tx_to_capture.txt", sep = "/"))
-  tr2g_cdna <- tr2g_DNAStringSet(transcriptome)
+  tr2g_cdna <- tr2g_GRanges(gr, gene_name = NULL, 
+                            transcript_version = transcript_version,
+                            gene_version = gene_version,
+                            version_sep = version_sep)
   tr2g_intron <- setNames(metas[,c("intron_id", "gene_id")], 
                           c("transcript", "gene"))
   fwrite(rbind(tr2g_cdna, tr2g_intron), paste(out_path, "tr2g.txt", sep = "/"),
