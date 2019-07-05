@@ -376,7 +376,6 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
 #' for transcript ID, and \code{gene_name} for gene names. 
 #' @importFrom Biostrings readDNAStringSet
 #' @importFrom stringr str_extract str_replace
-#' @importFrom tidyr separate
 #' @importFrom dplyr select mutate
 #' @family functions to retrieve transcript and gene info
 #' @export

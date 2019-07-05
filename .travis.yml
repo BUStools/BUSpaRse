@@ -5,6 +5,10 @@ r: bioc-devel
 bioc_check: true
 sudo: false
 cache: packages
+jobs:
+  include:
+    - stage: prepare cache
+    - stage: test
 r_github_packages:
   - BUStools/TENxBUSData
   - Bioconductor/BiocManager
