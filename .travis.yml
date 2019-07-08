@@ -8,10 +8,10 @@ cache: packages
 jobs:
   include:
     - stage: prepare cache
+      script: true
     - stage: test
 r_github_packages:
   - BUStools/TENxBUSData
-  - Bioconductor/BiocManager
   
 before_script:
   # ensure bioc-devel is being used
