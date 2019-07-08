@@ -78,8 +78,7 @@ check_char1 <- function(x) {
 #' @param format Whether it's gtf or gff3.
 #' @return Nothing, will throw error if there's a problem.
 
-check_gff <- function(format, file, transcript_id, gene_id, gene_name,
-                      transcript_version, gene_version, version_sep) {
+check_gff <- function(format, file, transcript_id, gene_id) {
   if (is.null(transcript_id)) stop("transcript_id cannot be NULL.\n")
   if (is.null(gene_id)) stop("gene_id cannot be NULL.\n")
   
@@ -139,10 +138,9 @@ read_count_output <- function(dir, name, tcc = TRUE) {
 #' @examples 
 #' # Internal toy data used for unit testing
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
-#' m <- read_velocity_output(toy_path, toypath, 
+#' m <- read_velocity_output(toy_path, toy_path, 
 #'                           spliced_name = "genes", 
-#'                           unspliced_name = "genes",
-#'                           tcc = FALSE)
+#'                           unspliced_name = "genes")
 read_velocity_output <- function(spliced_dir, unspliced_dir, spliced_name,
                                  unspliced_name) {
   spliced <- read_count_output(spliced_dir, spliced_name, FALSE)
