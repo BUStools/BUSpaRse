@@ -10,7 +10,6 @@ jobs:
     - stage: prepare cache
       script: true
     - stage: test
-      script: R -e 'devtools::check(); BiocCheck::BiocCheck()'
 r_github_packages:
   - BUStools/TENxBUSData
   

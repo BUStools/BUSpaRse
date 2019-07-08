@@ -1,8 +1,8 @@
 Package: BUSpaRse
 Type: Package
 Title: Process BUS format in R
-Version: 0.99.5
-Date: 2019-06-21
+Version: 0.99.6
+Date: 2019-07-08
 Authors@R: 
     person("Lambda", "Moses", email = "dlu2@caltech.edu", 
     role = c("aut", "cre"),
