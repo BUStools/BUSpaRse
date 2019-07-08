@@ -139,6 +139,9 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
 #' version number, it's up to you whether to include gene version number.
 #' @param version_sep Character to separate bewteen the main ID and the version
 #' number. Defaults to ".", as in Ensembl.
+#' @return A data frame at least 2 columns: \code{gene} for gene ID, 
+#' \code{transcript} for transcript ID, and optionally, \code{gene_name} for 
+#' gene names. 
 #' @importFrom magrittr %>% 
 #' @importFrom stringr str_detect
 #' @importFrom dplyr distinct
@@ -204,8 +207,9 @@ tr2g_GRanges <- function(gr, type_use = "exon", transcript_id = "transcript_id",
 #' @param file Path to a GTF file to be read. The file can remain gzipped.
 #' @inheritParams tr2g_GRanges
 #' @inheritParams tr2g_ensembl
-#' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
-#' for transcript ID, and \code{gene_name} for gene names. 
+#' @return A data frame at least 2 columns: \code{gene} for gene ID, 
+#' \code{transcript} for transcript ID, and optionally, \code{gene_name} for 
+#' gene names. 
 #' @importFrom plyranges read_gff
 #' @family functions to retrieve transcript and gene info
 #' @export
@@ -265,8 +269,9 @@ tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
 #' further clean up the output of this function.
 #' 
 #' @inheritParams tr2g_gtf
-#' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
-#' for transcript ID, and \code{gene_name} for gene names. 
+#' @return A data frame at least 2 columns: \code{gene} for gene ID, 
+#' \code{transcript} for transcript ID, and optionally, \code{gene_name} for 
+#' gene names. 
 #' @family functions to retrieve transcript and gene info
 #' @importFrom plyranges read_gff3
 #' @importFrom stringr str_split
