@@ -79,7 +79,7 @@ qplot(bc_rank$rank, bc_rank$total, geom = "line") +
            label = c("knee", "inflection"), color = c("blue", "green")) +
   scale_x_log10() +
   scale_y_log10() +
-  labs(x = "Rank", y = "Total reads") +
+  labs(x = "Rank", y = "Total UMI counts") +
   theme_bw()
 ```
 
@@ -114,7 +114,7 @@ qplot(bc_rank$rank, bc_rank$total, geom = "line") +
            label = c("knee", "inflection"), color = c("blue", "green")) +
   scale_x_log10() +
   scale_y_log10() +
-  labs(x = "Rank", y = "Total reads") +
+  labs(x = "Rank", y = "Total UMI counts") +
   theme_bw()
 ```
 
