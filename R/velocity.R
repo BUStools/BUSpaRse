@@ -85,7 +85,7 @@
 #' genome <- Biostrings::readDNAStringSet(paste0(toy_path, "/velocity_genome.fa"))
 #' transcriptome <- paste0(toy_path, "/velocity_tx.fa")
 #' get_velocity_files(file, 11, genome, transcriptome, ".",
-#'                    geen_version = NULL, transcript_version = NULL)
+#'                    gene_version = NULL, transcript_version = NULL)
 get_velocity_files <- function(file, L, genome, transcriptome, out_path,
                                short_exon_action = c("truncate", "include"),
                                isoform_action = c("separate", "collapse"),
