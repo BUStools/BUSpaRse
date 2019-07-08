@@ -52,13 +52,10 @@ matrices, such as when finding species-specific ECs in mixed species datasets
 and identifying ECs mapped to known marker genes of cell types.
 }
 \examples{
-# Download dataset already in BUS format
-library(TENxBUSData)
-TENxBUSData(".", "retina")
-tr2g <- transcript2gene(species = "Mus musculus", 
-                        type = "vertebrate", ensembl_version = 94,
-                        kallisto_out_path = "./out_retina")
-genes <- EC2gene(tr2g, "./out_retina", ncores = 1, verbose = FALSE)
+# Load toy example for testing
+toy_path <- system.file("testdata", package = "BUSpaRse")
+load(paste(toy_path, "toy_example.RData", sep = "/"))
+EC2gene(tr2g_toy, toy_path, verbose = FALSE, ncores = 1)
 
 }
 \seealso{

@@ -555,9 +555,9 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
 #' @examples
 #' # Download dataset already in BUS format
 #' library(TENxBUSData)
-#' TENxBUSData(".", dataset = "hgmm100")
-#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), type = "vertebrate",
-#' ensembl_version = 94, kallisto_out_path = "./out_hgmm100")
+#' TENxBUSData(".", dataset = "retina")
+#' tr2g <- transcript2gene("Mus musculus", type = "vertebrate",
+#' ensembl_version = 94, kallisto_out_path = "./out_retina")
 #' 
 transcript2gene <- function(species, fasta_file, kallisto_out_path, 
                             type = "vertebrate",
@@ -634,13 +634,10 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
 #' @importFrom tibble tibble
 #' @export
 #' @examples
-#' # Download dataset already in BUS format
-#' library(TENxBUSData)
-#' TENxBUSData(".", "retina")
-#' tr2g <- transcript2gene(species = "Mus musculus", 
-#'                         type = "vertebrate", ensembl_version = 94,
-#'                         kallisto_out_path = "./out_retina")
-#' genes <- EC2gene(tr2g, "./out_retina", ncores = 1, verbose = FALSE)
+#' # Load toy example for testing
+#' toy_path <- system.file("testdata", package = "BUSpaRse")
+#' load(paste(toy_path, "toy_example.RData", sep = "/"))
+#' EC2gene(tr2g_toy, toy_path, verbose = FALSE, ncores = 1)
 #' 
 EC2gene <- function(tr2g, kallisto_out_path, ncores = 0, verbose = TRUE) {
   kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)

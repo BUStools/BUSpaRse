@@ -58,18 +58,14 @@ NULL
 #' @importClassesFrom Matrix dgCMatrix
 #' @export
 #' @examples
-#' # Download dataset already in BUS format
-#' library(TENxBUSData)
-#' library(Matrix)
-#' TENxBUSData(".", "hgmm100")
-#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), 
-#'                         type = "vertebrate", ensembl_version = 94,
-#'                         kallisto_out_path = "./out_hgmm100")
-#' res_mat <- make_sparse_matrix("./out_hgmm100/output.sorted.txt",
-#'                               tr2g = tr2g, est_ncells = 3e5, 
-#'                               est_ngenes = nrow(tr2g), gene_count = TRUE,
-#'                               TCC = FALSE)
-#' 
+#' # Load toy example for testing
+#' toy_path <- system.file("testdata", package = "BUSpaRse")
+#' load(paste(toy_path, "toy_example.RData", sep = "/"))
+#' out_fn <- paste0(toy_path, "/output.sorted.txt")
+#' # With whitelist
+#' m <- make_sparse_matrix(out_fn, tr2g_toy, 10, 3, whitelist = whitelist,
+#'                         gene_count = TRUE, TCC = FALSE, single_gene = TRUE,
+#'                         verbose = FALSE)
 make_sparse_matrix <- function(bus_path, tr2g, est_ncells, 
                                est_ngenes, whitelist = NULL, gene_count = TRUE,
                                TCC = TRUE, single_gene = TRUE, ncores = 0, 

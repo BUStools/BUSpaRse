@@ -48,9 +48,9 @@ downloaded.
 \examples{
 # Download dataset already in BUS format
 library(TENxBUSData)
-TENxBUSData(".", dataset = "hgmm100")
-tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), type = "vertebrate",
-ensembl_version = 94, kallisto_out_path = "./out_hgmm100")
+TENxBUSData(".", dataset = "retina")
+tr2g <- transcript2gene("Mus musculus", type = "vertebrate",
+ensembl_version = 94, kallisto_out_path = "./out_retina")
 
 }
 \seealso{
