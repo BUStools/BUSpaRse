@@ -241,3 +241,6 @@ get_velocity_files <- function(file, L, genome, transcriptome, out_path,
   fwrite(rbind(tr2g_cdna, tr2g_intron), paste(out_path, "tr2g.tsv", sep = "/"),
          quote = FALSE, sep = "\t", col.names = FALSE)
 }
+
+# To do: Write method for TxDb as that's a more convenient way to get gene
+# annotation than GTF files.
