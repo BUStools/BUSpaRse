@@ -4,8 +4,7 @@
 \alias{check_gff}
 \title{Check inputs to tr2g_gtf and tr2g_gff3}
 \usage{
-check_gff(format, file, transcript_id, gene_id, gene_name,
-  transcript_version, gene_version, version_sep)
+check_gff(format, file, transcript_id, gene_id)
 }
 \arguments{
 \item{format}{Whether it's gtf or gff3.}
@@ -24,30 +23,6 @@ symbols, which do not have to be unique. This can be Ensembl or Entrez IDs.
 However, if the gene symbols are in fact unique for each gene, you may
 supply the tag for human readable gene symbols to this argument. Will throw
 error if tag indicated in this argument does not exist.}
-
-\item{gene_name}{Character vector of length 1. Tag in \code{attribute}
-field corresponding to gene symbols. This argument can be \code{NA} or
-\code{NULL} if you are fine with non-human readable gene IDs and do not wish
-to extract human readable gene symbols.}
-
-\item{transcript_version}{Character vector of length 1. Tag in \code{attribute}
-field corresponding to \emph{transcript} version number. If your GTF file does not
-include transcript version numbers, or if you do not wish to include the
-version number, then use \code{NULL} for this argument. To decide whether to
-include transcript version number, check whether version numbers are included
-in the \code{transcripts.txt} in the \code{kallisto} output directory. If that file
-includes version numbers, then trannscript version numbers must be included
-here as well. If that file does not include version numbers, then transcript
-version numbers must not be included here.}
-
-\item{gene_version}{Character vector of length 1. Tag in \code{attribute}
-field corresponding to \emph{gene} version number. If your GTF file does not
-include gene version numbers, or if you do not wish to include the
-version number, then use \code{NULL} for this argument. Unlike transcript
-version number, it's up to you whether to include gene version number.}
-
-\item{version_sep}{Character to separate bewteen the main ID and the version
-number. Defaults to ".", as in Ensembl.}
 }
 \value{
 Nothing, will throw error if there's a problem.
