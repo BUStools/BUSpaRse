@@ -477,7 +477,7 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
   }
   out <- merge(trs, tr2g, by = "transcript", sort = FALSE)
   if (nrow(trs) != nrow(out)) {
-    stop("Some transcripts in the kallisto index are absent from tr2g.")
+    warning("Some transcripts in the kallisto index are absent from tr2g.")
   }
   out
 }
