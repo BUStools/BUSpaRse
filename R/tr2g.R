@@ -104,6 +104,7 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
 #' 
 #' Internal use, for GRanges from GTF files
 #' 
+#' @param gr A \code{\link{GRanges}} object.
 #' @param type_use Character vector, the values taken by the \code{type} field 
 #' in the GTF file that denote the desired transcripts. This can be "exon",
 #' "transcript", "mRNA", and etc.
@@ -224,8 +225,7 @@ tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
   # Validate arguments
   check_char1(setNames(file, "file"))
   file <- normalizePath(file, mustWork = TRUE)
-  check_gff("gtf", file, transcript_id, gene_id, gene_name,
-            transcript_version, gene_version, version_sep)
+  check_gff("gtf", file, transcript_id, gene_id)
   if (verbose) {
     message(paste("Reading GTF file."))
   }
@@ -289,8 +289,7 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
   # Validate arguments
   check_char1(setNames(file, "file"))
   file <- normalizePath(file, mustWork = TRUE)
-  check_gff("gff3", file, transcript_id, gene_id, gene_name,
-            transcript_version, gene_version, version_sep)
+  check_gff("gff3", file, transcript_id, gene_id)
   if (verbose) {
     message(paste("Reading GFF3 file."))
   }
