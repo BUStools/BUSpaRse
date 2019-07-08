@@ -4,7 +4,8 @@
 \alias{tr2g_ensembl}
 \title{Get transcript and gene info from Ensembl}
 \usage{
-tr2g_ensembl(species, type = "vertebrate", other_attrs = NULL,
+tr2g_ensembl(species, type = c("vertebrate", "metazoa", "plant",
+  "fungus", "protist"), other_attrs = NULL,
   use_transcript_version = TRUE, use_gene_version = TRUE,
   ensembl_version = NULL, verbose = TRUE, ...)
 }

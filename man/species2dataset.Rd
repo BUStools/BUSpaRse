@@ -4,7 +4,8 @@
 \alias{species2dataset}
 \title{Convert Latin species name to dataset name}
 \usage{
-species2dataset(species, type = "vertebrate")
+species2dataset(species, type = c("vertebrate", "metazoa", "plant",
+  "fungus", "protist"))
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
