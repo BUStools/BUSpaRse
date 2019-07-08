@@ -132,5 +132,6 @@ toy_path <- system.file("testdata", package = "BUSpaRse")
 file <- paste0(toy_path, "/velocity_annot.gtf")
 genome <- Biostrings::readDNAStringSet(paste0(toy_path, "/velocity_genome.fa"))
 transcriptome <- paste0(toy_path, "/velocity_tx.fa")
-get_velocity_files(file, 11, genome, transcriptome, ".")
+get_velocity_files(file, 11, genome, transcriptome, ".",
+                   geen_version = NULL, transcript_version = NULL)
 }

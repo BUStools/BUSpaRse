@@ -53,6 +53,11 @@ version number, it's up to you whether to include gene version number.}
 \item{version_sep}{Character to separate bewteen the main ID and the version
 number. Defaults to ".", as in Ensembl.}
 }
+\value{
+A data frame at least 2 columns: \code{gene} for gene ID,
+\code{transcript} for transcript ID, and optionally, \code{gene_name} for
+gene names.
+}
 \description{
 Internal use, for GRanges from GTF files
 }

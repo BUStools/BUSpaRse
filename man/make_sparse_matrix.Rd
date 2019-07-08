@@ -87,7 +87,6 @@ out_fn <- paste0(toy_path, "/output.sorted.txt")
 m <- make_sparse_matrix(out_fn, tr2g_toy, 10, 3, whitelist = whitelist,
                         gene_count = TRUE, TCC = FALSE, single_gene = TRUE,
                         verbose = FALSE)
-                        
 }
 \seealso{
 \code{\link{EC2gene}}

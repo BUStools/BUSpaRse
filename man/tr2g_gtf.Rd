@@ -56,8 +56,9 @@ number. Defaults to ".", as in Ensembl.}
 \item{verbose}{Whether to display progress.}
 }
 \value{
-A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
-for transcript ID, and \code{gene_name} for gene names.
+A data frame at least 2 columns: \code{gene} for gene ID,
+\code{transcript} for transcript ID, and optionally, \code{gene_name} for
+gene names.
 }
 \description{
 This function reads a GTF file and extracts the transcript ID and
