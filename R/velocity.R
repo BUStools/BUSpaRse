@@ -117,10 +117,13 @@ get_velocity_files <- function(file, L, genome, transcriptome, out_path,
   isoform_action <- match.arg(isoform_action)
   
   # Process GTF file to get intronic ranges-----------------
-  gr <- read_gff(file)
+  gr <- plyranges::read_gff(file)
   check_gff("gtf", file, transcript_id, gene_id)
   fields <- names(mcols(gr))
   check_tag_present(exon_number, fields, error = TRUE)
+  if (isoform_action == "collapse") {
+    check_tag_present(exon_id, fields, error = TRUE)
+  }
   # I need this anyway and this will validate the GTF file.
   tr2g_cdna <- tr2g_GRanges(gr, gene_name = NULL, 
                             transcript_version = transcript_version,
