@@ -13,7 +13,7 @@ Description:
 BugReports: https://github.com/BUStools/BUSpaRse/issues
 URL: https://github.com/BUStools/BUSpaRse
 Imports: 
-    BiocGenerics,
+    AnnotationDbi,
     biomaRt,
     Biostrings,
     BSgenome,
@@ -43,14 +43,18 @@ Suggests:
     BiocStyle,
     TENxBUSData,
     DropletUtils,
-    ggplot2
+    ggplot2,
+    TxDb.Hsapiens.UCSC.hg38.knownGene,
+    BSgenome.Hsapiens.UCSC.hg38
 VignetteBuilder: knitr
 Collate: 
     'RcppExports.R'
+    'extract_tx.R'
     'sparse_matrix.R'
     'tr2g.R'
     'utils.R'
     'velocity.R'
+    'velocity_methods.R'
 Encoding: UTF-8
 License: BSD_2_clause + file LICENSE
 biocViews:

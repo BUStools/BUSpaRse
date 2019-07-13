@@ -10,7 +10,8 @@ tr2g_GRanges(gr, type_use = "exon", transcript_id = "transcript_id",
   gene_version = "gene_version", version_sep = ".")
 }
 \arguments{
-\item{gr}{A \code{\link{GRanges}} object.}
+\item{gr}{A \code{\link{GRanges}} object. The metadata columns should be
+atomic vectors, not lists.}
 
 \item{type_use}{Character vector, the values taken by the \code{type} field
 in the GTF file that denote the desired transcripts. This can be "exon",

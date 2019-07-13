@@ -104,7 +104,8 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
 #' 
 #' Internal use, for GRanges from GTF files
 #' 
-#' @param gr A \code{\link{GRanges}} object.
+#' @param gr A \code{\link{GRanges}} object. The metadata columns should be
+#' atomic vectors, not lists.
 #' @param type_use Character vector, the values taken by the \code{type} field 
 #' in the GTF file that denote the desired transcripts. This can be "exon",
 #' "transcript", "mRNA", and etc.
@@ -427,6 +428,36 @@ tr2g_fasta <- function(file, use_transcript_version = TRUE,
     }
   }
   out
+}
+
+#' Get transcript and gene info from TxDb objects
+#' 
+#' The genome and gene annotations of some species can be conveniently obtained 
+#' from Bioconductor packages. This is more convenient than downloading GTF
+#' files from Ensembl and reading it into R. In these packages, the gene 
+#' annotation is stored in a \code{\link{TxDb}} object, which has standardized
+#' names for gene IDs, transcript IDs, exon IDs, and so on, which are stored in
+#' the metadata fields in GTF and GFF3 files, which are not standardized. 
+#' This function extracts transcript and corresponding gene information from
+#' gene annotation stored in a \code{\link{TxDb}} object. 
+#' 
+#' @param txdb A \code{\link{TxDb}} object with gene annotation.
+#' @return A data frame with 2 columns: \code{gene} for gene ID, \code{transcript}
+#' for transcript ID. For TxDb packages from Bioconductor, gene ID is Entrez ID,
+#' while transcript IDs can be Ensembl IDs in some cases.
+#' @importFrom AnnotationDbi columns keys keytypes
+#' @importFrom stats complete.cases
+#' @export
+#' @examples 
+#' library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+#' tr2g_TxDb(TxDb.Hsapiens.UCSC.hg38.knownGene)
+tr2g_TxDb <- function(txdb) {
+  df <- AnnotationDbi::select(txdb, AnnotationDbi::keys(txdb, keytype = "GENEID"),
+                              keytype = "GENEID",
+                              columns = c("TXNAME", "GENEID"))
+  names(df) <- c("gene", "transcript")
+  df <- df[complete.cases(df), c("transcript", "gene")]
+  df
 }
 
 #' Sort transcripts to the same order as in kallisto index

@@ -1,6 +1,6 @@
 ##gff-version 2
 ##source-version rtracklayer 1.45.1
-##date 2019-07-08
+##date 2019-07-12
 chr1	rtracklayer	exon	5	30	.	+	.	gene_id "A"; transcript_id "A1"; exon_number 1; exon_id "A1-1"
 chr1	rtracklayer	exon	61	90	.	+	.	gene_id "A"; transcript_id "A1"; exon_number 2; exon_id "A1-2"
 chr1	rtracklayer	exon	141	160	.	+	.	gene_id "A"; transcript_id "A1"; exon_number 3; exon_id "A1-3"

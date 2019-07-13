@@ -1,12 +1,15 @@
 context("Test for correct files output for RNA velocity")
 
 library(Biostrings)
+library(GenomicFeatures)
+library(plyranges)
 
 # Load toy examples
 toy_path <- system.file("testdata", package = "BUSpaRse")
 toy_genome <- readDNAStringSet(paste(toy_path, "velocity_genome.fa",
                                      sep = "/"))
 L <- 11
+txdb <- makeTxDbFromGFF(paste(toy_path, "velocity_annot.gtf", sep = "/"))
 
 # Some functions just for these tests
 test_fasta <- function(toy_path, out_path, 
@@ -104,6 +107,96 @@ test_that("Truncate short exons, collapse isoforms", {
   get_velocity_files(paste(toy_path, "velocity_annot.gtf", sep = "/"), L = L,
                      genome = toy_genome, 
                      transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
+                     out_path = out_path,
+                     short_exon_action = "truncate",
+                     isoform_action = "collapse",
+                     transcript_version = NULL,
+                     gene_version = NULL)
+  # fasta file
+  test_fasta(toy_path, out_path, "coll")
+  # tr2g
+  test_tr2g(toy_path, out_path, "coll")
+  # transcript to capture
+  test_tx_capture(toy_path, out_path)
+  # introns to capture
+  test_intron_capture(toy_path, out_path, "coll")
+  unlink(out_path, recursive = TRUE)
+})
+
+test_that("TxDb, Truncate short exons, keep isoforms separate", {
+  out_path <- "./trunc_sep"
+  get_velocity_files(txdb, L = L,
+                     genome = toy_genome, 
+                     transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
+                     out_path = out_path,
+                     short_exon_action = "truncate",
+                     isoform_action = "separate")
+  # fasta file
+  test_fasta(toy_path, out_path, "trunc")
+  # tr2g
+  test_tr2g(toy_path, out_path, "trunc")
+  # transcript to capture
+  test_tx_capture(toy_path, out_path)
+  # introns to capture
+  test_intron_capture(toy_path, out_path, "trunc")
+  unlink(out_path, recursive = TRUE)
+})
+
+test_that("TxDb, bypass short exons, keep isoforms separate", {
+  out_path <- "./inc_sep"
+  get_velocity_files(txdb, L = L,
+                     genome = toy_genome, 
+                     transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
+                     out_path = out_path,
+                     short_exon_action = "include",
+                     isoform_action = "separate")
+  # fasta file
+  test_fasta(toy_path, out_path, "inc")
+  # tr2g
+  test_tr2g(toy_path, out_path, "inc")
+  # transcript to capture
+  test_tx_capture(toy_path, out_path)
+  # introns to capture
+  test_intron_capture(toy_path, out_path, "inc")
+  unlink(out_path, recursive = TRUE)
+})
+
+test_that("TxDb, truncate short exons, collapse isoforms", {
+  out_path <- "./trunc_coll"
+  get_velocity_files(txdb, L = L,
+                     genome = toy_genome, 
+                     transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
+                     out_path = out_path,
+                     short_exon_action = "truncate",
+                     isoform_action = "collapse")
+  # fasta file
+  test_fasta(toy_path, out_path, "coll")
+  # tr2g
+  test_tr2g(toy_path, out_path, "coll")
+  # transcript to capture
+  test_tx_capture(toy_path, out_path)
+  # introns to capture
+  test_intron_capture(toy_path, out_path, "coll")
+  unlink(out_path, recursive = TRUE)
+})
+
+test_that("Extract transcriptome from genome (TxDb)", {
+  tx <- extract_tx(toy_genome, txdb)
+  tx_expected <- readDNAStringSet(paste0(toy_path, "/velocity_tx.fa"))
+  expect_equivalent(tx[names(tx_expected)],tx_expected)
+})
+
+test_that("Extract transcriptome from genome (GRanges)", {
+  gr <- read_gff(paste0(toy_path, "/velocity_annot.gtf"))
+  tx <- extract_tx(toy_genome, gr)
+  tx_expected <- readDNAStringSet(paste0(toy_path, "/velocity_tx.fa"))
+  expect_equivalent(tx[names(tx_expected)],tx_expected)
+})
+
+test_that("When transcriptome is missing", {
+  out_path <- "./trunc_coll"
+  get_velocity_files(paste(toy_path, "velocity_annot.gtf", sep = "/"), L = L,
+                     genome = toy_genome, 
                      out_path = out_path,
                      short_exon_action = "truncate",
                      isoform_action = "collapse",
