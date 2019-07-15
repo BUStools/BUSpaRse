@@ -174,6 +174,7 @@ setMethod("get_velocity_files", "GRanges",
                    gene_version = "gene_version", 
                    version_sep = ".", exon_number = "exon_number",
                    exon_id = "exon_id") {
+            X <- subset_annot(genome, X)
             if (missing(transcriptome)) {
               transcriptome <- extract_tx(genome, X)
             }
@@ -200,6 +201,7 @@ setMethod("get_velocity_files", "character",
             file <- normalizePath(X, mustWork = TRUE)
             check_gff("gtf", file, transcript_id, gene_id)
             gr <- plyranges::read_gff(file)
+            gr <- subset_annot(genome,gr)
             if (missing(transcriptome)) {
               transcriptome <- extract_tx(genome, gr)
             }
@@ -222,6 +224,7 @@ setMethod("get_velocity_files", "TxDb",
                    isoform_action = c("separate", "collapse")) {
             short_exon_action <- match.arg(short_exon_action)
             isoform_action <- match.arg(isoform_action)
+            X <- subset_annot(genome, X)
             if (missing(transcriptome)) {
               transcriptome <- extract_tx(genome, X)
             }
