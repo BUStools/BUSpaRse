@@ -3,21 +3,15 @@
 \docType{methods}
 \name{subset_annot}
 \alias{subset_annot}
-\alias{subset_annot,DNAStringSet,GRanges-method}
-\alias{subset_annot,DNAStringSet,TxDb-method}
-\alias{subset_annot,BSgenome,GRanges-method}
-\alias{subset_annot,BSgenome,TxDb-method}
+\alias{subset_annot,DNAStringSet-method}
+\alias{subset_annot,BSgenome-method}
 \title{Subset genome annotation}
 \usage{
 subset_annot(genome, annot)
 
-\S4method{subset_annot}{DNAStringSet,GRanges}(genome, annot)
+\S4method{subset_annot}{DNAStringSet}(genome, annot)
 
-\S4method{subset_annot}{DNAStringSet,TxDb}(genome, annot)
-
-\S4method{subset_annot}{BSgenome,GRanges}(genome, annot)
-
-\S4method{subset_annot}{BSgenome,TxDb}(genome, annot)
+\S4method{subset_annot}{BSgenome}(genome, annot)
 }
 \arguments{
 \item{genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
