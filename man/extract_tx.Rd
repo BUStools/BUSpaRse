@@ -3,23 +3,16 @@
 \docType{methods}
 \name{extract_tx}
 \alias{extract_tx}
-\alias{extract_tx,DNAStringSet,GRanges-method}
-\alias{extract_tx,DNAStringSet,TxDb-method}
-\alias{extract_tx,BSgenome,GRanges-method}
-\alias{extract_tx,BSgenome,TxDb-method}
+\alias{extract_tx,ANY,GRanges-method}
+\alias{extract_tx,ANY,TxDb-method}
 \title{Extract transcriptomic sequences from genome}
 \usage{
 extract_tx(genome, annot, ...)
 
-\S4method{extract_tx}{DNAStringSet,GRanges}(genome, annot,
+\S4method{extract_tx}{ANY,GRanges}(genome, annot,
   transcript_id = "transcript_id")
 
-\S4method{extract_tx}{DNAStringSet,TxDb}(genome, annot)
-
-\S4method{extract_tx}{BSgenome,GRanges}(genome, annot,
-  transcript_id = "transcript_id")
-
-\S4method{extract_tx}{BSgenome,TxDb}(genome, annot)
+\S4method{extract_tx}{ANY,TxDb}(genome, annot)
 }
 \arguments{
 \item{genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}

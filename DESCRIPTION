@@ -19,6 +19,7 @@ Imports:
     BSgenome,
     data.table,
     dplyr,
+    GenomeInfoDb,
     GenomicFeatures,
     GenomicRanges,
     magrittr,
