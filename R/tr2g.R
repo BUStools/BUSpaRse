@@ -444,7 +444,8 @@ tr2g_fasta <- function(file, use_transcript_version = TRUE,
 #' @param txdb A \code{\link{TxDb}} object with gene annotation.
 #' @return A data frame with 2 columns: \code{gene} for gene ID, \code{transcript}
 #' for transcript ID. For TxDb packages from Bioconductor, gene ID is Entrez ID,
-#' while transcript IDs can be Ensembl IDs in some cases.
+#' while transcript IDs are Ensembl IDs with version numbers for 
+#' `TxDb.Hsapiens.UCSC.hg38.knownGene`.
 #' @importFrom AnnotationDbi columns keys keytypes
 #' @importFrom stats complete.cases
 #' @export

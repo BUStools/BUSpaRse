@@ -25,10 +25,12 @@ annotation, e.g. consistently use 1 for chromosome 1 or consistently use chr1.}
 \item{transcriptome}{Either a \code{\link{XStringSet}} or a path to a fasta
 file (can be gzipped) of the transcriptome, which contains sequences of
 spliced transcripts. This will be concatenated with the intronic sequences
-to give one fasta file. For the exported function
-\code{\link{get_velocity_files}}, this argument can be missing. If it is
-missing, then the transriptome sequences will be extracted from the genome
-given the gene annotation.}
+to give one fasta file. The type of transcript ID in the transcriptome must
+match that in the gene annotation supplied via argumennt \code{X}. When \code{X} is a
+\code{TxDb} object, check the column \code{TXNAME} rather than \code{TXID}. For the
+exported function \code{\link{get_velocity_files}}, this argument can be
+missing. If it is missing, then the transriptome sequences will be extracted
+from the genome given the gene annotation.}
 
 \item{out_path}{Directory to save the outputs written to disk. If this
 directory does not exist, then it will be created.}

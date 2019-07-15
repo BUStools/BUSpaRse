@@ -18,10 +18,12 @@
 #' @param transcriptome Either a \code{\link{XStringSet}} or a path to a fasta
 #' file (can be gzipped) of the transcriptome, which contains sequences of
 #' spliced transcripts. This will be concatenated with the intronic sequences
-#' to give one fasta file. For the exported function 
-#' \code{\link{get_velocity_files}}, this argument can be missing. If it is
-#' missing, then the transriptome sequences will be extracted from the genome
-#' given the gene annotation. 
+#' to give one fasta file. The type of transcript ID in the transcriptome must 
+#' match that in the gene annotation supplied via argumennt `X`. When `X` is a
+#' `TxDb` object, check the column `TXNAME` rather than `TXID`. For the 
+#' exported function \code{\link{get_velocity_files}}, this argument can be 
+#' missing. If it is missing, then the transriptome sequences will be extracted 
+#' from the genome given the gene annotation. 
 #' @param out_path Directory to save the outputs written to disk. If this
 #' directory does not exist, then it will be created.
 #' @param short_exon_action Character, indicating action to take with exons
@@ -68,14 +70,8 @@
   isoform_action <- match.arg(isoform_action)
   fields <- names(mcols(gr))
   check_tag_present(exon_number, fields, error = TRUE)
-  # I need this anyway and this will validate the GTF file.
-  tr2g_cdna <- tr2g_GRanges(gr, gene_name = NULL, gene_id = gene_id,
-                            transcript_id = transcript_id,
-                            transcript_version = transcript_version,
-                            gene_version = gene_version,
-                            version_sep = version_sep)
-  gr <- gr[gr$type == "exon" & (as.vector(strand(gr)) %in% c("+", "-"))]
   gr <- standardize_tags(gr, gene_id, transcript_id, exon_number)
+  gr <- gr[gr$type == "exon" & (as.vector(strand(gr)) %in% c("+", "-"))]
   if (!is.null(gene_version)) {
     names(mcols(gr))[fields == gene_version] <- "gene_version"
     gr$gene_id <- paste(gr$gene_id, gr$gene_version, sep = version_sep)
@@ -85,6 +81,24 @@
     gr$transcript_id <- paste(gr$transcript_id, gr$transcript_version,
                               sep = version_sep)
   }
+  # Check that transcript IDs in GRanges match those in the transcriptome
+  if (is(transcriptome, "DNAStringSet")) {
+    tx_overlap <- intersect(gr$transcript_id, names(transcriptome))
+    if (length(tx_overlap) == 0) {
+      stop("Transcripts in gene annotation do not overlap with those in the ",
+           "transcriptome. Consider checking the type of transcript ID used ",
+           "or whether version number is included.")
+    }
+    len_diff <- length(unique(gr$transcript_id)) - length(tx_overlap)
+    if (len_diff > 0) {
+      message("There are ", len_diff, " transcripts in the gene annotation is ",
+              "absent from the transcriptome. These transcripts are removed.")
+    }
+    gr <- gr[gr$transcript_id %in% tx_overlap]
+  }
+  tr2g_cdna <- tr2g_GRanges(gr, gene_name = NULL, 
+                            transcript_version = NULL,
+                            gene_version = NULL) # version already added
   if (isoform_action == "collapse") {
     gr <- collapse_isoforms(gr)
   }

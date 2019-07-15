@@ -12,7 +12,8 @@ tr2g_TxDb(txdb)
 \value{
 A data frame with 2 columns: \code{gene} for gene ID, \code{transcript}
 for transcript ID. For TxDb packages from Bioconductor, gene ID is Entrez ID,
-while transcript IDs can be Ensembl IDs in some cases.
+while transcript IDs are Ensembl IDs with version numbers for
+\code{TxDb.Hsapiens.UCSC.hg38.knownGene}.
 }
 \description{
 The genome and gene annotations of some species can be conveniently obtained
