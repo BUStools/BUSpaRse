@@ -107,7 +107,7 @@ styles <- c("annotation", "genome", "other",
   # Get intronic ranges
   introns <- get_flanked_introns(gr, L)
   write_velocity_output(out_path, introns, Genome, Transcriptome, 
-                        isoform_action, tr2g_cdna)
+                        isoform_action, tr2g_cdna, compress_fa, width)
 }
 
 #' Get files required for RNA velocity with bustools
@@ -278,7 +278,8 @@ setMethod("get_velocity_files", "TxDb",
             introns <- get_flanked_introns(gr, L)
             tr2g_cdna <- tr2g_cdna[,c("transcript", "gene")]
             write_velocity_output(out_path, introns, Genome, Transcriptome, 
-                                  isoform_action, tr2g_cdna)
+                                  isoform_action, tr2g_cdna, compress_fa,
+                                  width)
           }
 )
 
@@ -359,5 +360,6 @@ setMethod("get_velocity_files", "EnsDb",
             }
             introns <- get_flanked_introns(gr, L)
             write_velocity_output(out_path, introns, Genome, Transcriptome, 
-                                  isoform_action, tr2g_cdna)
+                                  isoform_action, tr2g_cdna, compress_fa,
+                                  width)
           })
