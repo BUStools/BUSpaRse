@@ -72,6 +72,7 @@ styles <- c("annotation", "genome", "other",
   fields <- names(mcols(gr))
   gr <- standardize_tags(gr, gene_id, transcript_id)
   gr <- gr[gr$type == "exon" & (as.vector(strand(gr)) %in% c("+", "-"))]
+  gr <- sort(gr)
   c(Genome, gr) %<-% match_style(Genome, gr, style)
   gr <- subset_annot(Genome, gr)
   c(Genome, gr) %<-% annot_circular(Genome, gr)
@@ -85,10 +86,7 @@ styles <- c("annotation", "genome", "other",
     gr$transcript_id <- paste(gr$transcript_id, gr$transcript_version,
                               sep = version_sep)
   }
-  if (is.null(Transcriptome)) {
-    message("Extracting transcriptome from genome")
-    Transcriptome <- extract_tx(Genome, gr)
-  } else if (is(Transcriptome, "DNAStringSet")) {
+  if (is(Transcriptome, "DNAStringSet")) {
     # Check that transcript IDs in GRanges match those in the transcriptome
     tx_overlap <- check_tx(gr$transcript_id, names(Transcriptome))
     gr <- gr[gr$transcript_id %in% tx_overlap]
@@ -99,13 +97,25 @@ styles <- c("annotation", "genome", "other",
                             transcript_version = NULL,
                             gene_version = NULL) # version already added
   if (isoform_action == "collapse") {
-    gr <- GenomicRanges::split(gr, gr$gene_id)
-    gr <- GenomicRanges::reduce(gr)
+    message("Collapsing gene isoforms")
+    grl <- GenomicRanges::split(gr, gr$gene_id)
+    grl <- GenomicRanges::reduce(grl)
   } else {
-    gr <- GenomicRanges::split(gr, gr$transcript_id)
+    # gr is already sorted
+    grl <- GenomicRanges::split(gr, gr$transcript_id)
   }
+  if (is.null(Transcriptome)) {
+    message("Extracting transcriptome from genome")
+    if (isoform_action != "collapse") {
+      Transcriptome <- extractTranscriptSeqs(Genome, grl)
+    } else {
+      # To distinguish from grl, which is split at gene level
+      grt <- GenomicRanges::split(gr, gr$transcript_id)
+      Transcriptome <- extractTranscriptSeqs(Genome, grt)
+    }
+  } 
   # Get intronic ranges
-  introns <- get_flanked_introns(gr, L)
+  introns <- get_flanked_introns(grl, L)
   write_velocity_output(out_path, introns, Genome, Transcriptome, 
                         isoform_action, tr2g_cdna, compress_fa, width)
 }
@@ -256,6 +266,7 @@ setMethod("get_velocity_files", "TxDb",
               Transcriptome <- tx_path
             }
             if (isoform_action == "collapse") {
+              message("Collapsing gene isoforms")
               gr <- exonsBy(X, by = "gene")
               gr <- GenomicRanges::reduce(gr)
             } else {
@@ -331,6 +342,7 @@ setMethod("get_velocity_files", "EnsDb",
             }
             # extractTranscriptSeqs does not use transcript version numbers
             if (isoform_action == "collapse") {
+              message("Collapsing gene isoforms")
               filter_use <- AnnotationFilterList(SeqNameFilter(chrs_use))
               gr <- exonsBy(X, by = "gene", filter = filter_use)
               # Add version number if used
