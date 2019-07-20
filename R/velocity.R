@@ -121,21 +121,6 @@ setMethod("subset_annot", signature = c("BSgenome", "ANY"),
             return(annot)
           })
 
-#' Extract transcriptomic sequences from genome
-#' 
-#' This is a thin wrapper around \code{\link{extractTranscriptSeqs}}. This 
-#' wrapper takes care of object type of the genome.
-#' 
-#' @inheritParams subset_annot
-#' @param annot A `GRanges` object.
-#' @return A `DNAStringSet` object with transcript sequences, whose names are
-#' the transcript IDs. 
-extract_tx <- function(Genome, annot) {
-  gr <- sort(annot[annot$type == "exon"])
-  gr <- GenomicRanges::split(gr, gr$transcript_id)
-  extractTranscriptSeqs(Genome, gr)
-}
-
 #' Transfer information about circular chromosomes between genome and annotation
 #' 
 #' Internal use, called after calling \code{\link{subset_annot}}. 
@@ -176,7 +161,7 @@ check_tx <- function(tx_annot, tx) {
   }
   len_diff <- length(unique(tx_annot)) - length(tx_overlap)
   if (len_diff > 0) {
-    message("There are ", len_diff, " transcripts in the gene annotation is ",
+    message("There are ", len_diff, " transcripts in the gene annotation ",
             "absent from the transcriptome. These transcripts are removed.")
   }
   return(tx_overlap)
