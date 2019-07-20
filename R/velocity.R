@@ -198,7 +198,7 @@ standardize_tags <- function(gr, gene_id, transcript_id) {
 #' @param L Read length.
 #' @return A `GRangesList` object with ranges for flanked intronic regions.
 #' Each element of the list is for a transcript or a gene.
-#' @importFrom GenomicRanges resize setdiff
+#' @importFrom GenomicRanges resize setdiff width
 #' @importFrom GenomicFeatures intronsByTranscript
 #' @importFrom S4Vectors elementNROWS
 get_flanked_introns <- function(gr, L) {
@@ -217,7 +217,7 @@ get_flanked_introns <- function(gr, L) {
 #' 
 #' Write the files for RNA velocity to disk, in the specified output directory.
 #' 
-#' @inheritParams get_flanked_introns
+#' @inheritParams get_velocity_files
 #' @param out_path Directory to save the outputs written to disk. If this
 #' directory does not exist, then it will be created.
 #' @param introns Intronic ranges plus flanking region, returned by 

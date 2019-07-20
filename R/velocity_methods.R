@@ -4,7 +4,7 @@
 #' @importFrom GenomeInfoDb genomeStyles
 "styles"
 styles <- c("annotation", "genome", "other",
-            unique(unlist(sapply(genomeStyles(), function(x) names(x)[-1:-3]))))
+            unique(unlist(lapply(genomeStyles(), function(x) names(x)[-seq_len(3)]))))
 
 #' Generate RNA velocity files for GRanges
 #' 
@@ -38,6 +38,23 @@ styles <- c("annotation", "genome", "other",
 #' @param out_path Directory to save the outputs written to disk. If this
 #' directory does not exist, then it will be created. Defaults to the current
 #' working directory.
+#' @param style Formatting of chromosome names. Check `BUSpaRse::styles` for a 
+#' quick list of allowed values for this argument. Use 
+#' \code{\link{genomeStyles}} to check which styles are supported for your
+#' organism of interest and what those styles look like. This can also be a 
+#' style supported for your organism different from the style used by the 
+#' annotation and the genome. Then this style will be used for both the 
+#' annotation and the genome. Can take the following values:
+#' \describe{
+#' \item{annotation}{If style of the annnotation is different from that of the
+#' genome, then the style of the annotation will be used.}
+#' \item{genome}{If style of the annnotation is different from that of the
+#' genome, then the style of the genome will be used.}
+#' \item{other}{Custom style, need to manually ensure that the style in
+#' annotation matches that of the genome.}
+#' \item{Ensembl}{Or `UCSC` or `NCBI` or any specified style supported for your 
+#' organism.}
+#' }
 #' @param isoform_action Character, indicating action to take with different
 #' transcripts of the same gene. Must be one of the following:
 #' \describe{
@@ -51,8 +68,8 @@ styles <- c("annotation", "genome", "other",
 #' @param width Maximum number of letters per line of sequence in the output
 #' fasta file. Must be an integer.
 #' @return See \code{\link{get_velocity_files}}
-#' @importFrom GenomicRanges seqnames
-#' @importFrom GenomicFeatures makeTxDbFromGRanges
+#' @importFrom GenomicRanges seqnames strand
+#' @importFrom GenomicFeatures extractTranscriptSeqs 
 .get_velocity_files <- function(gr, L, Genome, Transcriptome = NULL, 
                                 out_path = ".", style = styles,
                                 isoform_action = c("separate", "collapse"),
@@ -62,6 +79,7 @@ styles <- c("annotation", "genome", "other",
                                 gene_version = "gene_version", 
                                 version_sep = ".", 
                                 compress_fa = FALSE, width = 80L) {
+  tx_path <- NULL
   c(out_path, tx_path) %<-% validate_velocity_input(L, Genome, Transcriptome, 
                                                     out_path, compress_fa,
                                                     width)
@@ -143,23 +161,6 @@ styles <- c("annotation", "genome", "other",
 #' such as from the Bioconductor package 
 #' \code{TxDb.Hsapiens.UCSC.hg38.knownGene}. It can also be a 
 #' \code{\link{EnsDb}} object.
-#' @param style Formatting of chromosome names. Check `BUSpaRse::styles` for a 
-#' quick list of allowed values for this argument. Use 
-#' \code{\link{genomeStyles}} to check which styles are supported for your
-#' organism of interest and what those styles look like. This can also be a 
-#' style supported for your organism different from the style used by the 
-#' annotation and the genome. Then this style will be used for both the 
-#' annotation and the genome. Can take the following values:
-#' \describe{
-#' \item{annotation}{If style of the annnotation is different from that of the
-#' genome, then the style of the annotation will be used.}
-#' \item{genome}{If style of the annnotation is different from that of the
-#' genome, then the style of the genome will be used.}
-#' \item{other}{Custom style, need to manually ensure that the style in
-#' annotation matches that of the genome.}
-#' \item{Ensembl}{Or `UCSC` or `NCBI` or any specified style supported for your 
-#' organism.}
-#' }
 #' @param use_transcript_version Logical, whether to include version number in
 #' the Ensembl transcript ID.
 #' @param \dots Extra arguments for methods.
@@ -238,6 +239,7 @@ setMethod("get_velocity_files", "character",
 )
 
 #' @rdname get_velocity_files
+#' @importFrom GenomicFeatures exonsBy
 #' @export
 setMethod("get_velocity_files", "TxDb",
           function(X, L, Genome, Transcriptome, out_path, style = styles,
@@ -250,6 +252,7 @@ setMethod("get_velocity_files", "TxDb",
               names(gr) <- tx[match(names(gr), tx_id)]
               gr
             }
+            tx_path <- NULL
             c(out_path, tx_path) %<-% validate_velocity_input(L, Genome, 
                                                               Transcriptome, 
                                                               out_path, 
@@ -299,6 +302,7 @@ setMethod("get_velocity_files", "TxDb",
 
 #' @rdname get_velocity_files
 #' @importFrom AnnotationFilter AnnotationFilterList SeqNameFilter TxIdFilter
+#' @importFrom ensembldb exonsBy
 #' @export
 setMethod("get_velocity_files", "EnsDb",
           function(X, L, Genome, Transcriptome, out_path, style = styles,
@@ -323,6 +327,7 @@ setMethod("get_velocity_files", "EnsDb",
               }
               gr
             }
+            tx_path <- NULL
             c(out_path, tx_path) %<-% validate_velocity_input(L, Genome, 
                                                               Transcriptome, 
                                                               out_path,

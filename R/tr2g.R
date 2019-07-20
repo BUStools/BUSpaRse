@@ -493,15 +493,21 @@ tr2g_TxDb <- function(txdb) {
 #' species are available on Ensembl biomart than on `AnnotationHub`.
 #' 
 #' @inheritParams tr2g_ensembl
+#' @param ensdb Ann `EnsDb` object, such as from `AnnotationHub` or 
+#' `EnsDb.Hsapiens.v86`.
 #' @param other_attrs Character vector. Other attributes to get from the `EnsDb`
 #' object, such as gene symbol and position on the genome. 
 #' Use \code{\link{columns}} to see which attributes are available.
+#' @return A data frame with at least 2 columns: \code{gene} for gene ID, 
+#' \code{transcript} for transcript ID, and optionally \code{gene_name}
+#' for gene names. If \code{other_attrs} has been specified, then those will 
+#' also be columns in the data frame returned.
 #' @family functions to retrieve transcript and gene info
 #' @export
 #' @examples
 #' library(EnsDb.Hsapiens.v86)
 #' tr2g_EnsDb(EnsDb.Hsapiens.v86, use_transcript_version = FALSE,
-#'            use_transcript_version = FALSE)
+#'            use_gene_version = FALSE)
 
 tr2g_EnsDb <- function(ensdb, other_attrs = NULL, use_gene_name = TRUE,
                        use_transcript_version = TRUE,

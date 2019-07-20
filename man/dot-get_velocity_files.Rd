@@ -46,6 +46,24 @@ supplied via argument \code{X}.}
 directory does not exist, then it will be created. Defaults to the current
 working directory.}
 
+\item{style}{Formatting of chromosome names. Check \code{BUSpaRse::styles} for a
+quick list of allowed values for this argument. Use
+\code{\link{genomeStyles}} to check which styles are supported for your
+organism of interest and what those styles look like. This can also be a
+style supported for your organism different from the style used by the
+annotation and the genome. Then this style will be used for both the
+annotation and the genome. Can take the following values:
+\describe{
+\item{annotation}{If style of the annnotation is different from that of the
+genome, then the style of the annotation will be used.}
+\item{genome}{If style of the annnotation is different from that of the
+genome, then the style of the genome will be used.}
+\item{other}{Custom style, need to manually ensure that the style in
+annotation matches that of the genome.}
+\item{Ensembl}{Or \code{UCSC} or \code{NCBI} or any specified style supported for your
+organism.}
+}}
+
 \item{isoform_action}{Character, indicating action to take with different
 transcripts of the same gene. Must be one of the following:
 \describe{

@@ -8,6 +8,9 @@ tr2g_EnsDb(ensdb, other_attrs = NULL, use_gene_name = TRUE,
   use_transcript_version = TRUE, use_gene_version = TRUE)
 }
 \arguments{
+\item{ensdb}{Ann \code{EnsDb} object, such as from \code{AnnotationHub} or
+\code{EnsDb.Hsapiens.v86}.}
+
 \item{other_attrs}{Character vector. Other attributes to get from the \code{EnsDb}
 object, such as gene symbol and position on the genome.
 Use \code{\link{columns}} to see which attributes are available.}
@@ -26,6 +29,12 @@ version numbers must not be included here.}
 Ensembl gene ID. Unlike transcript
 version number, it's up to you whether to include gene version number.}
 }
+\value{
+A data frame with at least 2 columns: \code{gene} for gene ID,
+\code{transcript} for transcript ID, and optionally \code{gene_name}
+for gene names. If \code{other_attrs} has been specified, then those will
+also be columns in the data frame returned.
+}
 \description{
 Bioconductor provides Ensembl genome annotation in \code{AnnotationHub}; older
 versions of Ensembl annotation can be obtained from packages like
@@ -38,7 +47,7 @@ species are available on Ensembl biomart than on \code{AnnotationHub}.
 \examples{
 library(EnsDb.Hsapiens.v86)
 tr2g_EnsDb(EnsDb.Hsapiens.v86, use_transcript_version = FALSE,
-           use_transcript_version = FALSE)
+           use_gene_version = FALSE)
 }
 \seealso{
 Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},

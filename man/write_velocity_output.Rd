@@ -14,8 +14,41 @@ directory does not exist, then it will be created.}
 \item{introns}{Intronic ranges plus flanking region, returned by
 \code{\link{get_flanked_introns}}.}
 
+\item{Genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
+object of genomic sequences, where the intronic sequences will be extracted
+from. Use \code{\link{genomeStyles}} to check which styles are supported for
+your organism of interest; supported styles can be interconverted. If the
+style in your genome or annotation is not supported, then the style of
+chromosome names in the genome and annotation should be manually set to be
+consistent.}
+
+\item{Transcriptome}{A \code{\link{XStringSet}}, a path to a fasta
+file (can be gzipped) of the transcriptome which contains sequences of
+spliced transcripts, or \code{NULL}. The transcriptome here will be concatenated
+with the intronic sequences to give one fasta file. When \code{NULL}, the
+transriptome sequences will be extracted from the genome
+given the gene annotation, so it will be guaranteed that transcript IDs in
+the transcriptome and in the annotation match. Otherwise, the type of
+transcript ID in the transcriptome must match that in the gene annotation
+supplied via argument \code{X}.}
+
+\item{isoform_action}{Character, indicating action to take with different
+transcripts of the same gene. Must be one of the following:
+\describe{
+\item{separate}{Introns from different transcripts will be kept separate.}
+\item{collapse}{First, the union of all exons of different transcripts of a
+gene will be taken. Then the introns will be inferred from this union.}
+}}
+
 \item{tr2g_cdna}{A data frame with columns \code{transcript} and \code{gene} that maps
 transcripts to genes for spliced transcripts.}
+
+\item{compress_fa}{Logical, whether to compress the output fasta file of
+transcriptome and flanked intronic sequenncess. If \code{TRUE}, then the fasta
+file will be gzipped.}
+
+\item{width}{Maximum number of letters per line of sequence in the output
+fasta file. Must be an integer.}
 }
 \value{
 Nothing into the R session. The files are written to disk.
