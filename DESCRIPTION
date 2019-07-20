@@ -1,7 +1,7 @@
 Package: BUSpaRse
 Type: Package
 Title: Process BUS format in R
-Version: 0.99.14
+Version: 0.99.15
 Date: 2019-07-19
 Authors@R: 
     person("Lambda", "Moses", email = "dlu2@caltech.edu", 
@@ -53,7 +53,6 @@ Suggests:
 VignetteBuilder: knitr
 Collate: 
     'RcppExports.R'
-    'extract_tx.R'
     'sparse_matrix.R'
     'tr2g.R'
     'utils.R'
