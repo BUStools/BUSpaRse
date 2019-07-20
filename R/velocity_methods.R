@@ -167,8 +167,11 @@ styles <- c("annotation", "genome", "other",
 #' `out_path`:
 #' \describe{
 #' \item{cDNA_introns.fa}{A fasta file containing both the spliced transcripts
-#' and the flanked intronic sequences. This will be used to build the `kallisto`
-#' index.}
+#' and the flanked intronic sequences. The intronic sequences are flanked by L-1
+#' nt of exonic sequences to capture reads from nascent transcript partially
+#' mapping to exons. If the exon is shorter than 2*(L-1) nt, then the entire 
+#' exon will be included in the intronic sequence. This will be used to build 
+#' the `kallisto` index.}
 #' \item{cDNA_tx_to_capture.txt}{A text file of transcript IDs of spliced
 #' transcripts.}
 #' \item{introns_tx_to_capture.txt}{A text file of IDs of introns. The names 
@@ -209,8 +212,8 @@ setMethod("get_velocity_files", "GRanges",
                    gene_version = "gene_version", version_sep = ".", 
                    compress_fa = FALSE, width = 80L) {
             .get_velocity_files(X, L, Genome, Transcriptome, out_path, style,
-                                isoform_action, transcript_id, gene_id,
-                                transcript_version, gene_version, version_sep,
+                                isoform_action, transcript_id, gene_id, 
+                                transcript_version, gene_version, version_sep, 
                                 compress_fa, width)
           }
 )
@@ -227,9 +230,9 @@ setMethod("get_velocity_files", "character",
             file <- normalizePath(X, mustWork = TRUE)
             check_gff("gtf", file, transcript_id, gene_id)
             gr <- plyranges::read_gff(file)
-            .get_velocity_files(gr, L, Genome, Transcriptome, out_path,
+            .get_velocity_files(gr, L, Genome, Transcriptome, out_path, style,
                                 isoform_action, transcript_id, gene_id, 
-                                transcript_version, gene_version, version_sep,
+                                transcript_version, gene_version, version_sep, 
                                 compress_fa, width)
           }
 )
