@@ -12,21 +12,26 @@ L <- 11
 txdb <- makeTxDbFromGFF(paste(toy_path, "velocity_annot.gtf", sep = "/"))
 
 # Some functions just for these tests
-test_fasta <- function(toy_path, out_path, 
-                       option = c("trunc", "inc", "coll")) {
-  option <- match.arg(option)
-  expected_fa <- readDNAStringSet(paste0(toy_path, "/velocity_introns_",
-                                         option, ".fa"))
+test_fasta <- function(toy_path, out_path, collapse = FALSE) {
+  if (collapse) {
+    fa_fn <- "/velocity_introns_coll.fa"
+  } else {
+    fa_fn <- "/velocity_introns.fa"
+  }
+  expected_fa <- readDNAStringSet(paste0(toy_path, fa_fn))
   actual_fa <- readDNAStringSet(paste(out_path, "cDNA_introns.fa", sep = "/"))
   # sort
   actual_fa <- actual_fa[names(expected_fa)]
   expect_equivalent(actual_fa, expected_fa)
 }
 
-test_tr2g <- function(toy_path, out_path,
-                      option = c("trunc", "inc", "coll")) {
-  option <- match.arg(option)
-  expected_tr2g <- read.table(paste0(toy_path, "/velocity_tr2g_", option, ".tsv"),
+test_tr2g <- function(toy_path, out_path, collapse = FALSE) {
+  if (collapse) {
+    tr2g_fn <- "/velocity_tr2g_coll.tsv"
+  } else {
+    tr2g_fn <- "/velocity_tr2g.tsv"
+  }
+  expected_tr2g <- read.table(paste0(toy_path, tr2g_fn),
                               header = FALSE, sep = "\t",
                               col.names = c("transcript", "gene"),
                               stringsAsFactors = FALSE)
@@ -47,12 +52,13 @@ test_tx_capture <- function(toy_path, out_path) {
   expect_equal(actual_tx_capture, expected_tx_capture)
 }
 
-test_intron_capture <- function(toy_path, out_path,
-                                option = c("trunc", "inc", "coll")) {
-  option <- match.arg(option)
-  expected_intron_capture <- readLines(paste0(toy_path, 
-                                             "/velocity_introns_", option,
-                                             "_capture.txt"))
+test_intron_capture <- function(toy_path, out_path, collapse = FALSE) {
+  if (collapse) {
+    ins_fn <- "/velocity_introns_coll_capture.txt"
+  } else {
+    ins_fn <- "/velocity_introns_capture.txt"
+  }
+  expected_intron_capture <- readLines(paste0(toy_path, ins_fn))
   actual_intron_capture <- readLines(paste(out_path, 
                                            "introns_tx_to_capture.txt",
                                            sep = "/"))
@@ -60,155 +66,97 @@ test_intron_capture <- function(toy_path, out_path,
   expect_equal(actual_intron_capture, expected_intron_capture)
 }
 
-test_that("Truncate short exons, keep isoforms separate", {
+test_that("GRanges, keep isoforms separate", {
   out_path <- "./trunc_sep"
   get_velocity_files(paste(toy_path, "velocity_annot.gtf", sep = "/"), L = L,
-                     genome = toy_genome, 
-                     transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
+                     Genome = toy_genome, 
+                     Transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
                      out_path = out_path,
-                     short_exon_action = "truncate",
                      isoform_action = "separate",
                      transcript_version = NULL,
                      gene_version = NULL)
   # fasta file
-  test_fasta(toy_path, out_path, "trunc")
+  test_fasta(toy_path, out_path)
   # tr2g
-  test_tr2g(toy_path, out_path, "trunc")
+  test_tr2g(toy_path, out_path)
   # transcript to capture
   test_tx_capture(toy_path, out_path)
   # introns to capture
-  test_intron_capture(toy_path, out_path, "trunc")
+  test_intron_capture(toy_path, out_path)
   unlink(out_path, recursive = TRUE)
 })
 
-test_that("Bypass short exons, keep isoforms separate", {
-  out_path <- "./inc_sep"
-  get_velocity_files(paste(toy_path, "velocity_annot.gtf", sep = "/"), L = L,
-                     genome = toy_genome, 
-                     transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
-                     out_path = out_path,
-                     short_exon_action = "include",
-                     isoform_action = "separate",
-                     transcript_version = NULL,
-                     gene_version = NULL)
-  # fasta file
-  test_fasta(toy_path, out_path, "inc")
-  # tr2g
-  test_tr2g(toy_path, out_path, "inc")
-  # transcript to capture
-  test_tx_capture(toy_path, out_path)
-  # introns to capture
-  test_intron_capture(toy_path, out_path, "inc")
-  unlink(out_path, recursive = TRUE)
-})
-
-test_that("Truncate short exons, collapse isoforms", {
+test_that("GRanges, collapse isoforms", {
   out_path <- "./trunc_coll"
   get_velocity_files(paste(toy_path, "velocity_annot.gtf", sep = "/"), L = L,
-                     genome = toy_genome, 
-                     transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
+                     Genome = toy_genome, 
+                     Transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
                      out_path = out_path,
-                     short_exon_action = "truncate",
                      isoform_action = "collapse",
                      transcript_version = NULL,
                      gene_version = NULL)
   # fasta file
-  test_fasta(toy_path, out_path, "coll")
+  test_fasta(toy_path, out_path, TRUE)
   # tr2g
-  test_tr2g(toy_path, out_path, "coll")
+  test_tr2g(toy_path, out_path, TRUE)
   # transcript to capture
   test_tx_capture(toy_path, out_path)
   # introns to capture
-  test_intron_capture(toy_path, out_path, "coll")
+  test_intron_capture(toy_path, out_path, TRUE)
   unlink(out_path, recursive = TRUE)
 })
 
-test_that("TxDb, Truncate short exons, keep isoforms separate", {
+test_that("TxDb, keep isoforms separate", {
   out_path <- "./trunc_sep"
   get_velocity_files(txdb, L = L,
-                     genome = toy_genome, 
-                     transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
+                     Genome = toy_genome, 
+                     Transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
                      out_path = out_path,
-                     short_exon_action = "truncate",
                      isoform_action = "separate")
   # fasta file
-  test_fasta(toy_path, out_path, "trunc")
+  test_fasta(toy_path, out_path)
   # tr2g
-  test_tr2g(toy_path, out_path, "trunc")
+  test_tr2g(toy_path, out_path)
   # transcript to capture
   test_tx_capture(toy_path, out_path)
   # introns to capture
-  test_intron_capture(toy_path, out_path, "trunc")
+  test_intron_capture(toy_path, out_path)
   unlink(out_path, recursive = TRUE)
 })
 
-test_that("TxDb, bypass short exons, keep isoforms separate", {
-  out_path <- "./inc_sep"
-  get_velocity_files(txdb, L = L,
-                     genome = toy_genome, 
-                     transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
-                     out_path = out_path,
-                     short_exon_action = "include",
-                     isoform_action = "separate")
-  # fasta file
-  test_fasta(toy_path, out_path, "inc")
-  # tr2g
-  test_tr2g(toy_path, out_path, "inc")
-  # transcript to capture
-  test_tx_capture(toy_path, out_path)
-  # introns to capture
-  test_intron_capture(toy_path, out_path, "inc")
-  unlink(out_path, recursive = TRUE)
-})
-
-test_that("TxDb, truncate short exons, collapse isoforms", {
+test_that("TxDb, collapse isoforms", {
   out_path <- "./trunc_coll"
   get_velocity_files(txdb, L = L,
-                     genome = toy_genome, 
-                     transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
+                     Genome = toy_genome, 
+                     Transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
                      out_path = out_path,
-                     short_exon_action = "truncate",
                      isoform_action = "collapse")
   # fasta file
-  test_fasta(toy_path, out_path, "coll")
+  test_fasta(toy_path, out_path, TRUE)
   # tr2g
-  test_tr2g(toy_path, out_path, "coll")
+  test_tr2g(toy_path, out_path, TRUE)
   # transcript to capture
   test_tx_capture(toy_path, out_path)
   # introns to capture
-  test_intron_capture(toy_path, out_path, "coll")
+  test_intron_capture(toy_path, out_path, TRUE)
   unlink(out_path, recursive = TRUE)
-})
-
-test_that("Extract transcriptome from genome (TxDb)", {
-  tx <- extract_tx(toy_genome, txdb)
-  tx_expected <- readDNAStringSet(paste0(toy_path, "/velocity_tx.fa"))
-  expect_equivalent(tx[names(tx_expected)],tx_expected)
-})
-
-test_that("Extract transcriptome from genome (GRanges)", {
-  gr <- read_gff(paste0(toy_path, "/velocity_annot.gtf"))
-  tx <- extract_tx(toy_genome, gr)
-  tx_expected <- readDNAStringSet(paste0(toy_path, "/velocity_tx.fa"))
-  expect_equivalent(tx[names(tx_expected)],tx_expected)
 })
 
 test_that("When transcriptome is missing", {
   out_path <- "./trunc_coll"
   get_velocity_files(paste(toy_path, "velocity_annot.gtf", sep = "/"), L = L,
-                     genome = toy_genome, 
+                     Genome = toy_genome, 
                      out_path = out_path,
-                     short_exon_action = "truncate",
                      isoform_action = "collapse",
                      transcript_version = NULL,
                      gene_version = NULL)
   # fasta file
-  test_fasta(toy_path, out_path, "coll")
+  test_fasta(toy_path, out_path, TRUE)
   # tr2g
-  test_tr2g(toy_path, out_path, "coll")
+  test_tr2g(toy_path, out_path, TRUE)
   # transcript to capture
   test_tx_capture(toy_path, out_path)
   # introns to capture
-  test_intron_capture(toy_path, out_path, "coll")
+  test_intron_capture(toy_path, out_path, TRUE)
   unlink(out_path, recursive = TRUE)
 })

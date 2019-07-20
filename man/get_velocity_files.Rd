@@ -161,8 +161,11 @@ The following files will be written to disk in the directory
 \code{out_path}:
 \describe{
 \item{cDNA_introns.fa}{A fasta file containing both the spliced transcripts
-and the flanked intronic sequences. This will be used to build the \code{kallisto}
-index.}
+and the flanked intronic sequences. The intronic sequences are flanked by L-1
+nt of exonic sequences to capture reads from nascent transcript partially
+mapping to exons. If the exon is shorter than 2*(L-1) nt, then the entire
+exon will be included in the intronic sequence. This will be used to build
+the \code{kallisto} index.}
 \item{cDNA_tx_to_capture.txt}{A text file of transcript IDs of spliced
 transcripts.}
 \item{introns_tx_to_capture.txt}{A text file of IDs of introns. The names
