@@ -4,13 +4,12 @@
 \alias{.get_velocity_files}
 \title{Generate RNA velocity files for GRanges}
 \usage{
-.get_velocity_files(gr, L, genome, transcriptome, out_path,
-  short_exon_action = c("truncate", "include"),
-  isoform_action = c("separate", "collapse"),
-  transcript_id = "transcript_id", gene_id = "gene_id",
+.get_velocity_files(gr, L, Genome, Transcriptome = NULL,
+  out_path = ".", style = styles, isoform_action = c("separate",
+  "collapse"), transcript_id = "transcript_id", gene_id = "gene_id",
   transcript_version = "transcript_version",
   gene_version = "gene_version", version_sep = ".",
-  exon_number = "exon_number", exon_id = "exon_id")
+  compress_fa = FALSE, width = 80L)
 }
 \arguments{
 \item{gr}{A \code{GRanges} object for gene annotation.}
@@ -25,35 +24,27 @@ with \code{\link{str_length}} in R or \code{echo -n <the sequence> | wc -c} in
 \code{bash}. Which file corresponds to biological reads depends on the particular
 technology.}
 
-\item{genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
+\item{Genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
 object of genomic sequences, where the intronic sequences will be extracted
-from. Naming convention of chromosomes in the genome must match that in the
-annotation, e.g. consistently use 1 for chromosome 1 or consistently use chr1.}
+from. Use \code{\link{genomeStyles}} to check which styles are supported for
+your organism of interest; supported styles can be interconverted. If the
+style in your genome or annotation is not supported, then the style of
+chromosome names in the genome and annotation should be manually set to be
+consistent.}
 
-\item{transcriptome}{Either a \code{\link{XStringSet}} or a path to a fasta
-file (can be gzipped) of the transcriptome, which contains sequences of
-spliced transcripts. This will be concatenated with the intronic sequences
-to give one fasta file. The type of transcript ID in the transcriptome must
-match that in the gene annotation supplied via argumennt \code{X}. When \code{X} is a
-\code{TxDb} object, check the column \code{TXNAME} rather than \code{TXID}. For the
-exported function \code{\link{get_velocity_files}}, this argument can be
-missing. If it is missing, then the transriptome sequences will be extracted
-from the genome given the gene annotation.}
+\item{Transcriptome}{A \code{\link{XStringSet}}, a path to a fasta
+file (can be gzipped) of the transcriptome which contains sequences of
+spliced transcripts, or \code{NULL}. The transcriptome here will be concatenated
+with the intronic sequences to give one fasta file. When \code{NULL}, the
+transriptome sequences will be extracted from the genome
+given the gene annotation, so it will be guaranteed that transcript IDs in
+the transcriptome and in the annotation match. Otherwise, the type of
+transcript ID in the transcriptome must match that in the gene annotation
+supplied via argument \code{X}.}
 
 \item{out_path}{Directory to save the outputs written to disk. If this
-directory does not exist, then it will be created.}
-
-\item{short_exon_action}{Character, indicating action to take with exons
-that are shorter than L-1. Must be one of the following:
-\describe{
-\item{truncate}{The flanking region involving this exon will be truncated;
-the entire exon will be included in the flanking region, but not the intron
-on the other side of this exon.}
-\item{include}{The short exon will be included as part of the intronic
-sequence between the surrounding exons. Note that if the short exon is the
-first or the last exon of the transcript, then the flanking region in this
-exon will always be truncated to not include intergenic regions.}
-}}
+directory does not exist, then it will be created. Defaults to the current
+working directory.}
 
 \item{isoform_action}{Character, indicating action to take with different
 transcripts of the same gene. Must be one of the following:
@@ -95,14 +86,12 @@ version number, it's up to you whether to include gene version number.}
 \item{version_sep}{Character to separate bewteen the main ID and the version
 number. Defaults to ".", as in Ensembl.}
 
-\item{exon_number}{Character vector of length 1. Tag in \code{attribute}
-field corresponding to exon numbers, namely the order of exons from 5' to 3'
-on the transcript. Must be coercable to integer.}
+\item{compress_fa}{Logical, whether to compress the output fasta file of
+transcriptome and flanked intronic sequenncess. If \code{TRUE}, then the fasta
+file will be gzipped.}
 
-\item{exon_id}{Character vector of length 1. Tag in \code{attribute}
-field corresponding to exon ID. If the specified tag does not exist in the
-GTF file, then a new metadata column that can uniquely identify exons will
-be created.}
+\item{width}{Maximum number of letters per line of sequence in the output
+fasta file. Must be an integer.}
 }
 \value{
 See \code{\link{get_velocity_files}}

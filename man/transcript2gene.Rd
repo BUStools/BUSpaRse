@@ -25,7 +25,10 @@ here. Can be missing if \code{fasta_file} is specified.}
 \item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 
 \item{\dots}{Other arguments passed to \code{tr2g_ensembl} such as \code{other_attrs},
-\code{ensembl_version}, and arguments passed to \code{\link{useEnsembl}}.}
+\code{ensembl_version}, and arguments passed to \code{\link{useEnsembl}}. If
+\code{fasta_files} is supplied instead of \code{species}, then this will be extra
+argumennts to \code{\link{tr2g_fasta}}, such as \code{use_transcript_version} and
+\code{use_gene_version}.}
 }
 \value{
 A data frame with two columns: \code{gene} and \code{transcript},
@@ -55,6 +58,7 @@ ensembl_version = 94, kallisto_out_path = "./out_retina")
 }
 \seealso{
 Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
+  \code{\link{tr2g_EnsDb}}, \code{\link{tr2g_TxDb}},
   \code{\link{tr2g_ensembl}}, \code{\link{tr2g_fasta}},
   \code{\link{tr2g_gff3}}, \code{\link{tr2g_gtf}}
 }

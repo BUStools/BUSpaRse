@@ -4,16 +4,18 @@
 \alias{get_flanked_introns}
 \title{Get flanked intronic ranges}
 \usage{
-get_flanked_introns(txdb, metas)
+get_flanked_introns(gr, L)
 }
 \arguments{
-\item{txdb}{A \code{TxDb} object with exonic annotations.}
+\item{gr}{Exon \code{GRangesList}, each element of which is for a transcript or a
+gene.}
 
-\item{metas}{The data frame returned by \code{\link{get_flank_lengths}}.}
+\item{L}{Read length.}
 }
 \value{
-A \code{GRanges} object with ranges for flanked intronic regions.
+A \code{GRangesList} object with ranges for flanked intronic regions.
+Each element of the list is for a transcript or a gene.
 }
 \description{
-Get flanked intronic ranges
+Adapted from Julien Roux.
 }

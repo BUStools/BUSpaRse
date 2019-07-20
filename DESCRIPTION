@@ -1,8 +1,8 @@
 Package: BUSpaRse
 Type: Package
 Title: Process BUS format in R
-Version: 0.99.13
-Date: 2019-07-15
+Version: 0.99.14
+Date: 2019-07-19
 Authors@R: 
     person("Lambda", "Moses", email = "dlu2@caltech.edu", 
     role = c("aut", "cre"),
@@ -14,11 +14,13 @@ BugReports: https://github.com/BUStools/BUSpaRse/issues
 URL: https://github.com/BUStools/BUSpaRse
 Imports: 
     AnnotationDbi,
+    AnnotationFilter,
     biomaRt,
     Biostrings,
     BSgenome,
     data.table,
     dplyr,
+    ensembldb,
     GenomeInfoDb,
     GenomicFeatures,
     GenomicRanges,
@@ -46,7 +48,8 @@ Suggests:
     DropletUtils,
     ggplot2,
     TxDb.Hsapiens.UCSC.hg38.knownGene,
-    BSgenome.Hsapiens.UCSC.hg38
+    BSgenome.Hsapiens.UCSC.hg38,
+    EnsDb.Hsapiens.v86
 VignetteBuilder: knitr
 Collate: 
     'RcppExports.R'

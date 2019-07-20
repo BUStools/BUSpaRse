@@ -4,7 +4,8 @@
 \alias{validate_velocity_input}
 \title{Validate input to get_velocity_files}
 \usage{
-validate_velocity_input(L, genome, transcriptome, out_path)
+validate_velocity_input(L, Genome, Transcriptome, out_path, compress_fa,
+  width)
 }
 \arguments{
 \item{L}{Length of the biological read. For instance, 10xv1: 98 nt,
@@ -17,26 +18,39 @@ with \code{\link{str_length}} in R or \code{echo -n <the sequence> | wc -c} in
 \code{bash}. Which file corresponds to biological reads depends on the particular
 technology.}
 
-\item{genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
+\item{Genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
 object of genomic sequences, where the intronic sequences will be extracted
-from. Naming convention of chromosomes in the genome must match that in the
-annotation, e.g. consistently use 1 for chromosome 1 or consistently use chr1.}
+from. Use \code{\link{genomeStyles}} to check which styles are supported for
+your organism of interest; supported styles can be interconverted. If the
+style in your genome or annotation is not supported, then the style of
+chromosome names in the genome and annotation should be manually set to be
+consistent.}
 
-\item{transcriptome}{Either a \code{\link{XStringSet}} or a path to a fasta
-file (can be gzipped) of the transcriptome, which contains sequences of
-spliced transcripts. This will be concatenated with the intronic sequences
-to give one fasta file. The type of transcript ID in the transcriptome must
-match that in the gene annotation supplied via argumennt \code{X}. When \code{X} is a
-\code{TxDb} object, check the column \code{TXNAME} rather than \code{TXID}. For the
-exported function \code{\link{get_velocity_files}}, this argument can be
-missing. If it is missing, then the transriptome sequences will be extracted
-from the genome given the gene annotation.}
+\item{Transcriptome}{A \code{\link{XStringSet}}, a path to a fasta
+file (can be gzipped) of the transcriptome which contains sequences of
+spliced transcripts, or \code{NULL}. The transcriptome here will be concatenated
+with the intronic sequences to give one fasta file. When \code{NULL}, the
+transriptome sequences will be extracted from the genome
+given the gene annotation, so it will be guaranteed that transcript IDs in
+the transcriptome and in the annotation match. Otherwise, the type of
+transcript ID in the transcriptome must match that in the gene annotation
+supplied via argument \code{X}.}
 
 \item{out_path}{Directory to save the outputs written to disk. If this
-directory does not exist, then it will be created.}
+directory does not exist, then it will be created. Defaults to the current
+working directory.}
+
+\item{compress_fa}{Logical, whether to compress the output fasta file of
+transcriptome and flanked intronic sequenncess. If \code{TRUE}, then the fasta
+file will be gzipped.}
+
+\item{width}{Maximum number of letters per line of sequence in the output
+fasta file. Must be an integer.}
 }
 \value{
-Nothing. Will throw error if validation fails.
+Will throw error if validation fails. Returns a named list whose
+first element is the normalized path to output directory, and whose second
+element is the normalized path to the transcriptome file if specified.
 }
 \description{
 Validate input to get_velocity_files

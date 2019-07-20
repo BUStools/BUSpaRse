@@ -1,3 +1,11 @@
+#' List of all possible chromosome naming styles
+#' 
+#' @format A character vector
+#' @importFrom GenomeInfoDb genomeStyles
+"styles"
+styles <- c("annotation", "genome", "other",
+            unique(unlist(sapply(genomeStyles(), function(x) names(x)[-1:-3]))))
+
 #' Generate RNA velocity files for GRanges
 #' 
 #' @inheritParams tr2g_gtf
@@ -11,32 +19,25 @@
 #' with \code{\link{str_length}} in R or `echo -n <the sequence> | wc -c` in 
 #' `bash`. Which file corresponds to biological reads depends on the particular 
 #' technology.
-#' @param genome Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
+#' @param Genome Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
 #' object of genomic sequences, where the intronic sequences will be extracted
-#' from. Naming convention of chromosomes in the genome must match that in the
-#' annotation, e.g. consistently use 1 for chromosome 1 or consistently use chr1.
-#' @param transcriptome Either a \code{\link{XStringSet}} or a path to a fasta
-#' file (can be gzipped) of the transcriptome, which contains sequences of
-#' spliced transcripts. This will be concatenated with the intronic sequences
-#' to give one fasta file. The type of transcript ID in the transcriptome must 
-#' match that in the gene annotation supplied via argumennt `X`. When `X` is a
-#' `TxDb` object, check the column `TXNAME` rather than `TXID`. For the 
-#' exported function \code{\link{get_velocity_files}}, this argument can be 
-#' missing. If it is missing, then the transriptome sequences will be extracted 
-#' from the genome given the gene annotation. 
+#' from. Use \code{\link{genomeStyles}} to check which styles are supported for 
+#' your organism of interest; supported styles can be interconverted. If the 
+#' style in your genome or annotation is not supported, then the style of 
+#' chromosome names in the genome and annotation should be manually set to be 
+#' consistent.
+#' @param Transcriptome A \code{\link{XStringSet}}, a path to a fasta
+#' file (can be gzipped) of the transcriptome which contains sequences of
+#' spliced transcripts, or `NULL`. The transcriptome here will be concatenated 
+#' with the intronic sequences to give one fasta file. When `NULL`, the 
+#' transriptome sequences will be extracted from the genome 
+#' given the gene annotation, so it will be guaranteed that transcript IDs in 
+#' the transcriptome and in the annotation match. Otherwise, the type of 
+#' transcript ID in the transcriptome must match that in the gene annotation 
+#' supplied via argument `X`.
 #' @param out_path Directory to save the outputs written to disk. If this
-#' directory does not exist, then it will be created.
-#' @param short_exon_action Character, indicating action to take with exons
-#' that are shorter than L-1. Must be one of the following:
-#' \describe{
-#' \item{truncate}{The flanking region involving this exon will be truncated;
-#' the entire exon will be included in the flanking region, but not the intron
-#' on the other side of this exon.}
-#' \item{include}{The short exon will be included as part of the intronic 
-#' sequence between the surrounding exons. Note that if the short exon is the
-#' first or the last exon of the transcript, then the flanking region in this
-#' exon will always be truncated to not include intergenic regions.}
-#' }
+#' directory does not exist, then it will be created. Defaults to the current
+#' working directory.
 #' @param isoform_action Character, indicating action to take with different
 #' transcripts of the same gene. Must be one of the following:
 #' \describe{
@@ -44,34 +45,37 @@
 #' \item{collapse}{First, the union of all exons of different transcripts of a
 #' gene will be taken. Then the introns will be inferred from this union.}
 #' }
-#' @param exon_number Character vector of length 1. Tag in \code{attribute} 
-#' field corresponding to exon numbers, namely the order of exons from 5' to 3'
-#' on the transcript. Must be coercable to integer.
-#' @param exon_id Character vector of length 1. Tag in \code{attribute} 
-#' field corresponding to exon ID. If the specified tag does not exist in the
-#' GTF file, then a new metadata column that can uniquely identify exons will
-#' be created.
+#' @param compress_fa Logical, whether to compress the output fasta file of 
+#' transcriptome and flanked intronic sequenncess. If `TRUE`, then the fasta
+#' file will be gzipped.
+#' @param width Maximum number of letters per line of sequence in the output
+#' fasta file. Must be an integer.
 #' @return See \code{\link{get_velocity_files}}
 #' @importFrom GenomicRanges seqnames
 #' @importFrom GenomicFeatures makeTxDbFromGRanges
-
-.get_velocity_files <- function(gr, L, genome, transcriptome, out_path,
-                                short_exon_action = c("truncate", "include"),
+.get_velocity_files <- function(gr, L, Genome, Transcriptome = NULL, 
+                                out_path = ".", style = styles,
                                 isoform_action = c("separate", "collapse"),
                                 transcript_id = "transcript_id",
                                 gene_id = "gene_id", 
                                 transcript_version = "transcript_version",
                                 gene_version = "gene_version", 
-                                version_sep = ".", exon_number = "exon_number",
-                                exon_id = "exon_id") {
+                                version_sep = ".", 
+                                compress_fa = FALSE, width = 80L) {
+  c(out_path, tx_path) %<-% validate_velocity_input(L, Genome, Transcriptome, 
+                                                    out_path, compress_fa,
+                                                    width)
   L <- as.integer(L)
-  validate_velocity_input(L, genome, transcriptome, out_path)
-  short_exon_action <- match.arg(short_exon_action)
+  width <- as.integer(width)
   isoform_action <- match.arg(isoform_action)
+  style <- match.arg(style)
   fields <- names(mcols(gr))
-  check_tag_present(exon_number, fields, error = TRUE)
-  gr <- standardize_tags(gr, gene_id, transcript_id, exon_number)
+  gr <- standardize_tags(gr, gene_id, transcript_id)
   gr <- gr[gr$type == "exon" & (as.vector(strand(gr)) %in% c("+", "-"))]
+  c(Genome, gr) %<-% match_style(Genome, gr, style)
+  gr <- subset_annot(Genome, gr)
+  c(Genome, gr) %<-% annot_circular(Genome, gr)
+  genome(gr) <- genome(Genome)[seqlevels(gr)]
   if (!is.null(gene_version)) {
     names(mcols(gr))[fields == gene_version] <- "gene_version"
     gr$gene_id <- paste(gr$gene_id, gr$gene_version, sep = version_sep)
@@ -81,44 +85,29 @@
     gr$transcript_id <- paste(gr$transcript_id, gr$transcript_version,
                               sep = version_sep)
   }
-  # Check that transcript IDs in GRanges match those in the transcriptome
-  if (is(transcriptome, "DNAStringSet")) {
-    tx_overlap <- intersect(gr$transcript_id, names(transcriptome))
-    if (length(tx_overlap) == 0) {
-      stop("Transcripts in gene annotation do not overlap with those in the ",
-           "transcriptome. Consider checking the type of transcript ID used ",
-           "or whether version number is included.")
-    }
-    len_diff <- length(unique(gr$transcript_id)) - length(tx_overlap)
-    if (len_diff > 0) {
-      message("There are ", len_diff, " transcripts in the gene annotation is ",
-              "absent from the transcriptome. These transcripts are removed.")
-    }
+  if (is.null(Transcriptome)) {
+    message("Extracting transcriptome from genome")
+    Transcriptome <- extract_tx(Genome, gr)
+  } else if (is(Transcriptome, "DNAStringSet")) {
+    # Check that transcript IDs in GRanges match those in the transcriptome
+    tx_overlap <- check_tx(gr$transcript_id, names(Transcriptome))
     gr <- gr[gr$transcript_id %in% tx_overlap]
+  } else {
+    Transcriptome <- tx_path
   }
   tr2g_cdna <- tr2g_GRanges(gr, gene_name = NULL, 
                             transcript_version = NULL,
                             gene_version = NULL) # version already added
   if (isoform_action == "collapse") {
-    gr <- collapse_isoforms(gr)
+    gr <- GenomicRanges::split(gr, gr$gene_id)
+    gr <- GenomicRanges::reduce(gr)
+  } else {
+    gr <- GenomicRanges::split(gr, gr$transcript_id)
   }
-  if (short_exon_action == "include") {
-    gr <- exclude_short_exons(gr, L, exon_id = exon_id)
-  }
-  # Calculate the appropriate flanking lengths
-  metas <- mcols(gr) %>% 
-    as.data.frame() %>% 
-    mutate(width = width(gr),
-           start = start(gr),
-           strand = as.vector(strand(gr)),
-           chr = as.vector(seqnames(gr)))
-  metas <- get_flank_lengths(metas, L)
-  
   # Get intronic ranges
-  txdb <- makeTxDbFromGRanges(gr)
-  introns <- get_flanked_introns(txdb, metas)
-  write_velocity_output(out_path, introns, genome, transcriptome, tr2g_cdna,
-                        metas)
+  introns <- get_flanked_introns(gr, L)
+  write_velocity_output(out_path, introns, Genome, Transcriptome, 
+                        isoform_action, tr2g_cdna)
 }
 
 #' Get files required for RNA velocity with bustools
@@ -128,19 +117,42 @@
 #' function extracts intronic sequences flanked by L-1 bases of exonic sequences
 #' where L is the biological read length of the single cell technology of 
 #' interest. The flanking exonic sequences are included for reads partially
-#' mapping to an intron and an exon.
+#' mapping to an intron and an exon. This function is partially adapted from
+#' Julien Roux's implementation in response to 
+#' [this GitHub issue](https://github.com/pachterlab/kallisto-transcriptome-indices/issues/2#issuecomment-510833194).
 #' 
 #' @inheritParams .get_velocity_files
+#' @inheritParams tr2g_EnsDb
 #' @param X Gene annotation with transcript and exon information. It can be a 
 #' path to a GTF file with annotation of exon coordinates of 
-#' transcripts, preferably from Ensembl. The file must be formatted as in Ensembl.
-#' In the metadata, the following fields are required: type (e.g. whether the 
-#' range of interest is a gene or transcript or exon or CDS), gene ID, 
-#' transcript ID, and exon number. These fields need not to have standard names,
-#' as long as their names are specified in arguments of this function. It can
-#' also be a \code{\link{TxDb}} object, such as from the Bioconductor package
-#' \code{TxDb.Hsapiens.UCSC.hg38.knownGene}.
-#' @param \dots Extra parameters for methods.
+#' transcripts, preferably from Ensembl. In the metadata, the following fields 
+#' are required: type (e.g. whether the range of interest is a gene or 
+#' transcript or exon or CDS), gene ID, and transcript ID. These
+#' fields need not to have standard names, as long as their names are specified 
+#' in arguments of this function. It can also be a \code{\link{TxDb}} object, 
+#' such as from the Bioconductor package 
+#' \code{TxDb.Hsapiens.UCSC.hg38.knownGene}. It can also be a 
+#' \code{\link{EnsDb}} object.
+#' @param style Formatting of chromosome names. Check `BUSpaRse::styles` for a 
+#' quick list of allowed values for this argument. Use 
+#' \code{\link{genomeStyles}} to check which styles are supported for your
+#' organism of interest and what those styles look like. This can also be a 
+#' style supported for your organism different from the style used by the 
+#' annotation and the genome. Then this style will be used for both the 
+#' annotation and the genome. Can take the following values:
+#' \describe{
+#' \item{annotation}{If style of the annnotation is different from that of the
+#' genome, then the style of the annotation will be used.}
+#' \item{genome}{If style of the annnotation is different from that of the
+#' genome, then the style of the genome will be used.}
+#' \item{other}{Custom style, need to manually ensure that the style in
+#' annotation matches that of the genome.}
+#' \item{Ensembl}{Or `UCSC` or `NCBI` or any specified style supported for your 
+#' organism.}
+#' }
+#' @param use_transcript_version Logical, whether to include version number in
+#' the Ensembl transcript ID.
+#' @param \dots Extra arguments for methods.
 #' @return The following files will be written to disk in the directory 
 #' `out_path`:
 #' \describe{
@@ -153,11 +165,12 @@
 #' will have the pattern <transcript ID>-Ix, where x is a number differentiating
 #' between introns of the same transcript. If all transcripts of the same gene
 #' are collapsed before inferring intronic sequences, gene ID will be used in
-#' place of transcript ID.}
+#' place of transcript ID. Here x will always be ordered from 5' to 3' on the
+#' plus strand.}
 #' \item{tr2g.txt}{A text file with two columns matching transcripts and introns
 #' to genes. The first column is transcript or intron ID, and the second column
 #' is the corresponding gene ID. The part for transcripts are generated from
-#' the GTF file.}
+#' the gene annotation supplied.}
 #' }
 #' Nothing is returned into the R session.
 #' @export
@@ -170,122 +183,181 @@
 #' get_velocity_files(file, 11, genome, transcriptome, ".",
 #'                    gene_version = NULL, transcript_version = NULL)
 setGeneric("get_velocity_files", 
-           function(X, L, genome, transcriptome, out_path,
-                    short_exon_action = c("truncate", "include"),
-                    isoform_action = c("separate", "collapse"), ...) 
+           function(X, L, Genome, Transcriptome = NULL, out_path = ".", 
+                    style = styles, isoform_action = c("separate", "collapse"),
+                    compress_fa = FALSE, width = 80L, ...) 
              standardGeneric("get_velocity_files"),
            signature = "X")
 
 #' @rdname get_velocity_files
 #' @export
 setMethod("get_velocity_files", "GRanges",
-          function(X, L, genome, transcriptome, out_path,
-                   short_exon_action = c("truncate", "include"),
-                   isoform_action = c("separate", "collapse"),
-                   transcript_id = "transcript_id",
-                   gene_id = "gene_id", 
+          function(X, L, Genome, Transcriptome = NULL, out_path = ".", 
+                   style = styles, isoform_action = c("separate", "collapse"),
+                   transcript_id = "transcript_id", gene_id = "gene_id", 
                    transcript_version = "transcript_version",
-                   gene_version = "gene_version", 
-                   version_sep = ".", exon_number = "exon_number",
-                   exon_id = "exon_id") {
-            X <- subset_annot(genome, X)
-            if (missing(transcriptome)) {
-              transcriptome <- extract_tx(genome, X)
-            }
-            .get_velocity_files(X, L, genome, transcriptome, out_path,
-                                short_exon_action, isoform_action, 
-                                transcript_id, gene_id, 
-                                transcript_version, gene_version, version_sep, 
-                                exon_number, exon_id)
+                   gene_version = "gene_version", version_sep = ".", 
+                   compress_fa = FALSE, width = 80L) {
+            .get_velocity_files(X, L, Genome, Transcriptome, out_path, style,
+                                isoform_action, transcript_id, gene_id,
+                                transcript_version, gene_version, version_sep,
+                                compress_fa, width)
           }
 )
 
 #' @rdname get_velocity_files
 #' @export
 setMethod("get_velocity_files", "character",
-          function(X, L, genome, transcriptome, out_path,
-                   short_exon_action = c("truncate", "include"),
-                   isoform_action = c("separate", "collapse"),
-                   transcript_id = "transcript_id",
-                   gene_id = "gene_id", 
+          function(X, L, Genome, Transcriptome = NULL, out_path = ".", 
+                   style = styles, isoform_action = c("separate", "collapse"),
+                   transcript_id = "transcript_id", gene_id = "gene_id", 
                    transcript_version = "transcript_version",
-                   gene_version = "gene_version", 
-                   version_sep = ".", exon_number = "exon_number",
-                   exon_id = "exon_id") {
+                   gene_version = "gene_version", version_sep = ".", 
+                   compress_fa = FALSE, width = 80L) {
             file <- normalizePath(X, mustWork = TRUE)
             check_gff("gtf", file, transcript_id, gene_id)
             gr <- plyranges::read_gff(file)
-            gr <- subset_annot(genome,gr)
-            if (missing(transcriptome)) {
-              transcriptome <- extract_tx(genome, gr)
-            }
-            .get_velocity_files(gr, L, genome, transcriptome, out_path,
-                                short_exon_action, isoform_action, 
-                                transcript_id, gene_id, 
-                                transcript_version, gene_version, version_sep, 
-                                exon_number, exon_id)
+            .get_velocity_files(gr, L, Genome, Transcriptome, out_path,
+                                isoform_action, transcript_id, gene_id, 
+                                transcript_version, gene_version, version_sep,
+                                compress_fa, width)
           }
 )
 
 #' @rdname get_velocity_files
-#' @importFrom AnnotationDbi keys
-#' @importFrom GenomicFeatures exons
-#' @importFrom dplyr inner_join
 #' @export
 setMethod("get_velocity_files", "TxDb",
-          function(X, L, genome, transcriptome, out_path,
-                   short_exon_action = c("truncate", "include"),
-                   isoform_action = c("separate", "collapse")) {
-            short_exon_action <- match.arg(short_exon_action)
+          function(X, L, Genome, Transcriptome, out_path, style = styles,
+                   isoform_action = c("separate", "collapse"),
+                   compress_fa = FALSE, width = 80L) {
+            exons_by_tx <- function(X, tx_id, tx) {
+              gr <- exonsBy(X, by = "tx") # Will be numbers
+              # Remove transcripts that aren't mapped to genes
+              gr <- gr[names(gr) %in% tx_id]
+              names(gr) <- tx[match(names(gr), tx_id)]
+              gr
+            }
+            c(out_path, tx_path) %<-% validate_velocity_input(L, Genome, 
+                                                              Transcriptome, 
+                                                              out_path, 
+                                                              compress_fa,
+                                                              width)
+            L <- as.integer(L)
+            width <- as.integer(width)
             isoform_action <- match.arg(isoform_action)
-            X <- subset_annot(genome, X)
-            if (missing(transcriptome)) {
-              transcriptome <- extract_tx(genome, X)
+            style <- match.arg(style)
+            c(Genome, X) %<-% match_style(Genome, X, style)
+            X <- subset_annot(Genome, X)
+            tr2g_cdna <- tr2g_TxDb(X)
+            if (is(Transcriptome, "DNAStringSet")) {
+              tx_overlap <- check_tx(tr2g_cdna$transcript, names(Transcriptome))
+              tr2g_cdna <- tr2g_cdna[tr2g_cdna$transcript %in% tx_overlap,]
+            } else if (is.character(Transcriptome)) {
+              Transcriptome <- tx_path
             }
-            if (short_exon_action == "include" || isoform_action == "collapse") {
-              gr <- exons(X, columns = c("TXNAME", "GENEID", "EXONRANK", 
-                                         "EXONID"))
-              gr$type <- "exon"
-              gr$TXNAME <- unlist(gr$TXNAME)
-              gr$GENEID <- unlist(gr$GENEID)
-              gr$EXONRANK <- unlist(gr$EXONRANK)
-              .get_velocity_files(gr, L, genome, transcriptome, out_path,
-                                  short_exon_action, isoform_action, 
-                                  transcript_id = "TXNAME", gene_id = "GENEID", 
-                                  transcript_version = NULL, 
-                                  gene_version = NULL,
-                                  exon_number = "EXONRANK",
-                                  exon_id = "EXONID")
+            if (isoform_action == "collapse") {
+              gr <- exonsBy(X, by = "gene")
+              gr <- GenomicRanges::reduce(gr)
             } else {
-              if (length(L) > 1 || L %% 1 > sqrt(.Machine$double.eps) || !is.atomic(L)) {
-                stop("L must be an integer vector with length 1.")
-              }
-              L <- as.integer(L)
-              out_path <- normalizePath(out_path, mustWork = FALSE)
-              if (!dir.exists(out_path)) {
-                dir.create(out_path)
-              }
-              tr2g_cdna <- tr2g_TxDb(X)
-              metas <- AnnotationDbi::select(X, keys = keys(X, keytype = "EXONID"),
-                                             keytype = "EXONID",
-                                             columns = c("EXONCHROM", "EXONSTART",
-                                                         "EXONEND", "EXONSTRAND",
-                                                         "EXONRANK",
-                                                         "GENEID", "TXNAME"))
-              metas <- metas[complete.cases(metas),]
-              names_use <- data.frame(txdb = c("EXONID", "EXONCHROM", 
-                                               "EXONSTART", "EXONEND", 
-                                               "EXONSTRAND", "EXONRANK",
-                                               "GENEID", "TXNAME"),
-                                      wanted = c("exon_id", "chr", "start", 
-                                                 "end", "strand", "exon_number",
-                                                 "gene_id", "transcript_id"))
-              names(metas) <- names_use$wanted[match(names(metas), names_use$txdb)]
-              metas$width <- metas$end - metas$start + 1L
-              metas <- get_flank_lengths(metas, L)
-              introns <- get_flanked_introns(X, metas)
-              write_velocity_output(out_path, introns, genome, transcriptome, 
-                                    tr2g_cdna, metas)
+              # tr2g_cdna has already been filtered if it needs to be filtered
+              gr <- exons_by_tx(X, tr2g_cdna$tx_id, tr2g_cdna$transcript)
             }
+            c(Genome, gr) %<-% annot_circular(Genome, gr)
+            genome(gr) <- genome(Genome)[seqlevels(gr)]
+            if (is.null(Transcriptome)) {
+              message("Extracting transcriptome from genome")
+              if (isoform_action != "collapse") {
+                Transcriptome <- extractTranscriptSeqs(Genome, gr)
+              } else {
+                grt <- exons_by_tx(X, tr2g_cdna$tx_id, tr2g_cdna$transcript)
+                c(Genome, grt) %<-% annot_circular(Genome, grt)
+                genome(grt) <- genome(Genome)[seqlevels(grt)]
+                Transcriptome <- extractTranscriptSeqs(Genome, grt)
+              }
+            }
+            introns <- get_flanked_introns(gr, L)
+            tr2g_cdna <- tr2g_cdna[,c("transcript", "gene")]
+            write_velocity_output(out_path, introns, Genome, Transcriptome, 
+                                  isoform_action, tr2g_cdna)
           }
 )
+
+#' @rdname get_velocity_files
+#' @importFrom AnnotationFilter AnnotationFilterList SeqNameFilter TxIdFilter
+#' @export
+setMethod("get_velocity_files", "EnsDb",
+          function(X, L, Genome, Transcriptome, out_path, style = styles,
+                   isoform_action = c("separate", "collapse"), 
+                   use_transcript_version = TRUE, use_gene_version = TRUE,
+                   compress_fa = FALSE, width = 80L) {
+            exons_by_tx <- function(X, tx, chrs_use, use_transcript_version) {
+              if (use_transcript_version) {
+                # tr2g_cdna has already been filtered if it needs to be filtered
+                tx_nv <- str_remove(tx, "\\.\\d+$")
+                filter_use <- AnnotationFilterList(SeqNameFilter(chrs_use),
+                                                   TxIdFilter(tx_nv))
+              } else {
+                filter_use <- AnnotationFilterList(SeqNameFilter(chrs_use),
+                                                   TxIdFilter(tx))
+              }
+              gr <- exonsBy(X, by = "tx", filter = filter_use)
+              seqlevels(gr) <- seqlevelsInUse(gr)
+              if (use_transcript_version) {
+                # Add transcript version
+                names(gr) <- tx[match(names(gr), tx_nv)]
+              }
+              gr
+            }
+            c(out_path, tx_path) %<-% validate_velocity_input(L, Genome, 
+                                                              Transcriptome, 
+                                                              out_path,
+                                                              compress_fa,
+                                                              width)
+            L <- as.integer(L)
+            width <- as.integer(width)
+            isoform_action <- match.arg(isoform_action)
+            style <- match.arg(style)
+            c(Genome, X) %<-% match_style(Genome, X, style)
+            chrs_use <- intersect(seqlevels(X), seqlevels(Genome))
+            tr2g_cdna <- tr2g_EnsDb(X, use_gene_name = FALSE, 
+                                    use_transcript_version = use_transcript_version,
+                                    use_gene_version = use_gene_version)
+            if (is(Transcriptome, "DNAStringSet")) {
+              tx_overlap <- check_tx(tr2g_cdna$transcript, names(Transcriptome))
+              tr2g_cdna <- tr2g_cdna[tr2g_cdna$transcript %in% tx_overlap,]
+            } else if (is.character(Transcriptome)) {
+              Transcriptome <- tx_path
+            }
+            # extractTranscriptSeqs does not use transcript version numbers
+            if (isoform_action == "collapse") {
+              filter_use <- AnnotationFilterList(SeqNameFilter(chrs_use))
+              gr <- exonsBy(X, by = "gene", filter = filter_use)
+              # Add version number if used
+              if (use_gene_version) {
+                g_nv <- str_remove(tr2g_cdna$gene, "\\.\\d+$")
+              }
+              names(gr) <- tr2g_cdna$gene[match(names(gr), g_nv)]
+              gr <- GenomicRanges::reduce(gr)
+              seqlevels(gr) <- seqlevelsInUse(gr)
+            } else {
+              gr <- exons_by_tx(X, tr2g_cdna$transcript, chrs_use,
+                                use_transcript_version)
+            }
+            c(Genome, gr) %<-% annot_circular(Genome, gr)
+            genome(gr) <- genome(Genome)[seqlevels(gr)]
+            if (is.null(Transcriptome)) {
+              message("Extracting transcriptome from genome")
+              if (isoform_action != "collapse") {
+                Transcriptome <- extractTranscriptSeqs(Genome, gr)
+              } else {
+                grt <- exons_by_tx(X, tr2g_cdna$transcript, chrs_use,
+                                   use_transcript_version)
+                c(Genome, grt) %<-% annot_circular(Genome, grt)
+                genome(grt) <- genome(Genome)[seqlevels(grt)]
+                Transcriptome <- extractTranscriptSeqs(Genome, grt)
+              }
+            }
+            introns <- get_flanked_introns(gr, L)
+            write_velocity_output(out_path, introns, Genome, Transcriptome, 
+                                  isoform_action, tr2g_cdna)
+          })

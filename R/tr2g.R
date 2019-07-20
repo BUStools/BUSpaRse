@@ -24,6 +24,7 @@ NULL
 #' @param other_attrs Character vector. Other attributes to get from Ensembl, 
 #' such as gene symbol and position on the genome. 
 #' Use \code{\link{listAttributes}} to see which attributes are available.
+#' @param use_gene_name Logical, whether to get gene names.
 #' @param use_transcript_version Logical, whether to include version number in
 #' the Ensembl transcript ID. To decide whether to
 #' include transcript version number, check whether version numbers are included
@@ -40,9 +41,10 @@ NULL
 #' does not work for archived versions.
 #' @importFrom biomaRt useEnsembl getBM
 #' @importFrom stats setNames
-#' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
-#' for transcript ID, and \code{gene_name} for gene names. If \code{other_attrs}
-#' has been specified, then those will also be columns in the data frame returned.
+#' @return A data frame with at least 2 columns: \code{gene} for gene ID, 
+#' \code{transcript} for transcript ID, and optionally \code{gene_name}
+#' for gene names. If \code{other_attrs} has been specified, then those will 
+#' also be columns in the data frame returned.
 #' @family functions to retrieve transcript and gene info
 #' @export
 #' @examples
@@ -53,6 +55,7 @@ NULL
 tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant", 
                                            "fungus", "protist"), 
                          other_attrs = NULL, 
+                         use_gene_name = TRUE,
                          use_transcript_version = TRUE,
                          use_gene_version = TRUE,
                          ensembl_version = NULL, 
@@ -87,8 +90,10 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
   }
   mart <- useEnsembl(biomart = mart_use, dataset = ds_name, host = host_use,
                      version = ensembl_version, ...)
-  attrs_use <- c("ensembl_transcript_id", "ensembl_gene_id",
-                 "external_gene_name", other_attrs)
+  attrs_use <- c("ensembl_transcript_id", "ensembl_gene_id", other_attrs)
+  if (use_gene_name) {
+    attrs_use <- c(attrs_use, "external_gene_name")
+  }
   if (use_transcript_version) {
     attrs_use[1] <- paste(attrs_use[1], "version", sep = "_")
   }
@@ -96,7 +101,8 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
     attrs_use[2] <- paste(attrs_use[2], "version", sep = "_")
   }
   out <- getBM(attrs_use, mart = mart)
-  names(out)[seq_len(3)] <- c("transcript", "gene", "gene_name")
+  names(out)[seq_len(2)] <- c("transcript", "gene")
+  names(out)[names(out) == "external_gene_name"] <- "gene_name"
   out
 }
 
@@ -377,10 +383,11 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
 #' 
 #' @inheritParams tr2g_ensembl
 #' @param file Path to the FASTA file to be read. The file can remain gzipped.
-#' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
-#' for transcript ID, and \code{gene_name} for gene names. 
+#' @return A data frame with at least 2 columns: \code{gene} for gene ID, 
+#' \code{transcript} for transcript ID, and optionally \code{gene_name} for gene
+#' names. 
 #' @importFrom Biostrings readDNAStringSet
-#' @importFrom stringr str_extract str_replace
+#' @importFrom stringr str_extract str_remove str_replace
 #' @importFrom dplyr select mutate
 #' @family functions to retrieve transcript and gene info
 #' @export
@@ -388,7 +395,8 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' file_use <- paste(toy_path, "fasta_test.fasta", sep = "/")
 #' tr2g <- tr2g_fasta(file = file_use, verbose = FALSE)
-tr2g_fasta <- function(file, use_transcript_version = TRUE,
+tr2g_fasta <- function(file, use_gene_name = TRUE,
+                       use_transcript_version = TRUE,
                        use_gene_version = TRUE,
                        verbose = TRUE) {
   check_char1(setNames(file, "file"))
@@ -410,21 +418,23 @@ tr2g_fasta <- function(file, use_transcript_version = TRUE,
   g <- gene_name <- NULL
   out <- tibble(transcript = str_extract(names(s), "^[a-zA-Z\\d-\\.]+"),
                 gene = str_replace(names(s), "^.*gene:", "") %>% 
-                  str_replace("\\s+.*$", ""),
-                gene_name = str_replace(names(s), "^.*gene_symbol:", "") %>% 
-                  str_replace("\\s+.*$", "")) %>% 
-    distinct()
+                  str_replace("\\s+.*$", ""))
+  if (use_gene_name) {
+    out$gene_name <- str_replace(names(s), "^.*gene_symbol:", "") %>% 
+      str_replace("\\s+.*$", "")
+  }
+  out <- distinct(out)
   # Remove version number
   if (is_ens) {
     # Prevent R CMD check note of no visible binding for global variable
     transcript <- gene <- NULL
     if (!use_transcript_version) {
       out <- out %>% 
-        mutate(transcript = str_replace(transcript, "\\.\\d+$", ""))
+        mutate(transcript = str_remove(transcript, "\\.\\d+$"))
     }
     if (!use_gene_version) {
       out <- out %>% 
-        mutate(gene = str_replace(gene, "\\.\\d+$", ""))
+        mutate(gene = str_remove(gene, "\\.\\d+$"))
     }
   }
   out
@@ -442,22 +452,79 @@ tr2g_fasta <- function(file, use_transcript_version = TRUE,
 #' gene annotation stored in a \code{\link{TxDb}} object. 
 #' 
 #' @param txdb A \code{\link{TxDb}} object with gene annotation.
-#' @return A data frame with 2 columns: \code{gene} for gene ID, \code{transcript}
-#' for transcript ID. For TxDb packages from Bioconductor, gene ID is Entrez ID,
-#' while transcript IDs are Ensembl IDs with version numbers for 
-#' `TxDb.Hsapiens.UCSC.hg38.knownGene`.
+#' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
+#' for transcript ID, and \code{tx_id} for internal transcript IDs used to avoid
+#' duplicate transcript names. For TxDb packages from Bioconductor, gene ID is 
+#' Entrez ID, while transcript IDs are Ensembl IDs with version numbers for 
+#' `TxDb.Hsapiens.UCSC.hg38.knownGene`. In some cases, the transcript ID
+#' have duplicates, and this is resolved by adding numbers to make the IDs 
+#' unique. 
 #' @importFrom AnnotationDbi columns keys keytypes
 #' @importFrom stats complete.cases
+#' @family functions to retrieve transcript and gene info
+#' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
+#' for transcript ID, and \code{gene_name} for gene names. If \code{other_attrs}
+#' has been specified, then those will also be columns in the data frame returned.
+#' @family functions to retrieve transcript and gene info
 #' @export
 #' @examples 
 #' library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 #' tr2g_TxDb(TxDb.Hsapiens.UCSC.hg38.knownGene)
 tr2g_TxDb <- function(txdb) {
-  df <- AnnotationDbi::select(txdb, AnnotationDbi::keys(txdb, keytype = "GENEID"),
-                              keytype = "GENEID",
-                              columns = c("TXNAME", "GENEID"))
-  names(df) <- c("gene", "transcript")
-  df <- df[complete.cases(df), c("transcript", "gene")]
+  df <- AnnotationDbi::select(txdb, AnnotationDbi::keys(txdb, keytype = "TXID"),
+                              keytype = "TXID",
+                              columns = c("TXNAME", "GENEID", "TXID"))
+  if (anyDuplicated(df$TXNAME)) {
+    df$TXNAME <- make.unique(df$TXNAME, sep = "_")
+  }
+  df <- df[complete.cases(df), c("TXNAME", "GENEID", "TXID")]
+  names(df) <- c("transcript", "gene", "tx_id")
+  df
+}
+
+#' Get transcript and gene info from EnsDb objects
+#' 
+#' Bioconductor provides Ensembl genome annotation in `AnnotationHub`; older
+#' versions of Ensembl annotation can be obtained from packages like 
+#' `EnsDb.Hsapiens.v86`. This is an alternative to querying Ensembl with 
+#' biomart; Ensembl's server seems to be less stable than that of Bioconductor.
+#' `AnnotationHub` also caches the annotation, while querying biomart will 
+#' download the annotation anew every time. However, more information and 
+#' species are available on Ensembl biomart than on `AnnotationHub`.
+#' 
+#' @inheritParams tr2g_ensembl
+#' @param other_attrs Character vector. Other attributes to get from the `EnsDb`
+#' object, such as gene symbol and position on the genome. 
+#' Use \code{\link{columns}} to see which attributes are available.
+#' @family functions to retrieve transcript and gene info
+#' @export
+#' @examples
+#' library(EnsDb.Hsapiens.v86)
+#' tr2g_EnsDb(EnsDb.Hsapiens.v86, use_transcript_version = FALSE,
+#'            use_transcript_version = FALSE)
+
+tr2g_EnsDb <- function(ensdb, other_attrs = NULL, use_gene_name = TRUE,
+                       use_transcript_version = TRUE,
+                       use_gene_version = TRUE) {
+  attrs_use <- c("TXID", "GENEID", other_attrs)
+  if (use_gene_name) {
+    attrs_use <- c(attrs_use, "GENENAME")
+  }
+  if (use_transcript_version) {
+    attrs_use[1] <- "TXIDVERSION"
+  }
+  if (use_gene_version) {
+    attrs_use[2] <- "GENEIDVERSION"
+  }
+  df <- AnnotationDbi::select(ensdb, AnnotationDbi::keys(ensdb, keytype = "TXID"),
+                              keytype = "TXID",
+                              columns = attrs_use)
+  if (use_transcript_version) {
+    df$TXID <- NULL
+  }
+  names(df)[str_detect(names(df), "^TXID")] <- "transcript"
+  names(df)[str_detect(names(df), "^GENEID")] <- "gene"
+  names(df)[names(df) == "GENENAME"] <- "gene_name"
   df
 }
 
@@ -585,7 +652,10 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
 #' with Ensembl gene and transcript IDs (with version number), in the same order
 #' as in the transcriptome index used in \code{kallisto}.
 #' @param \dots Other arguments passed to `tr2g_ensembl` such as `other_attrs`,
-#' `ensembl_version`, and arguments passed to \code{\link{useEnsembl}}.
+#' `ensembl_version`, and arguments passed to \code{\link{useEnsembl}}. If
+#' `fasta_files` is supplied instead of `species`, then this will be extra
+#' argumennts to \code{\link{tr2g_fasta}}, such as `use_transcript_version` and 
+#' `use_gene_version`.
 #' @importFrom data.table rbindlist
 #' @export
 #' @family functions to retrieve transcript and gene info
@@ -618,10 +688,7 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
     tr2g <- rbindlist(fls)
     return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, verbose = verbose))
   } else {
-    if (length(list(...)) > 0) {
-      message("Arguments related to Ensembl biomart queries are ignored.")
-    }
-    fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose)
+    fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose, ...)
     tr2g <- rbindlist(fls)
     # Just to be safe, to make sure that the transcripts are in the right order
     return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, 

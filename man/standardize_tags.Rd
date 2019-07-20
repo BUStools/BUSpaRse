@@ -4,7 +4,7 @@
 \alias{standardize_tags}
 \title{Standardize GRanges field names}
 \usage{
-standardize_tags(gr, gene_id, transcript_id, exon_number)
+standardize_tags(gr, gene_id, transcript_id)
 }
 \arguments{
 \item{gr}{A \code{GRanges} object.}
@@ -12,12 +12,10 @@ standardize_tags(gr, gene_id, transcript_id, exon_number)
 \item{gene_id}{Name of the metadata field for gene ID.}
 
 \item{transcript_id}{Name of the metadata field for transcript ID.}
-
-\item{exon_number}{Name of the metadata field for exon number.}
 }
 \value{
 A \code{GRanges} object with standardized names: gene ID as \code{gene_id},
-transcript ID as \code{transcript_id}, and exon number as \code{exon_number}.
+and transcript ID as \code{transcript_id}.
 }
 \description{
 To avoid introducing rlang as another dependency for tidyeval. This function

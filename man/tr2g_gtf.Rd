@@ -98,6 +98,7 @@ gene_version = NULL)
 }
 \seealso{
 Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
+  \code{\link{tr2g_EnsDb}}, \code{\link{tr2g_TxDb}},
   \code{\link{tr2g_ensembl}}, \code{\link{tr2g_fasta}},
   \code{\link{tr2g_gff3}}, \code{\link{transcript2gene}}
 }

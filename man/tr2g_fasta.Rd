@@ -4,11 +4,13 @@
 \alias{tr2g_fasta}
 \title{Get transcript and gene info from names in FASTA files}
 \usage{
-tr2g_fasta(file, use_transcript_version = TRUE,
+tr2g_fasta(file, use_gene_name = TRUE, use_transcript_version = TRUE,
   use_gene_version = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{file}{Path to the FASTA file to be read. The file can remain gzipped.}
+
+\item{use_gene_name}{Logical, whether to get gene names.}
 
 \item{use_transcript_version}{Logical, whether to include version number in
 the Ensembl transcript ID. To decide whether to
@@ -25,8 +27,9 @@ version number, it's up to you whether to include gene version number.}
 \item{verbose}{Whether to display progress.}
 }
 \value{
-A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
-for transcript ID, and \code{gene_name} for gene names.
+A data frame with at least 2 columns: \code{gene} for gene ID,
+\code{transcript} for transcript ID, and optionally \code{gene_name} for gene
+names.
 }
 \description{
 FASTA files, such as those for cDNA and ncRNA from Ensembl, might have genome
@@ -62,6 +65,7 @@ tr2g <- tr2g_fasta(file = file_use, verbose = FALSE)
 }
 \seealso{
 Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
+  \code{\link{tr2g_EnsDb}}, \code{\link{tr2g_TxDb}},
   \code{\link{tr2g_ensembl}}, \code{\link{tr2g_gff3}},
   \code{\link{tr2g_gtf}}, \code{\link{transcript2gene}}
 }

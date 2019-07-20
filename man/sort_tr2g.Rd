@@ -46,7 +46,8 @@ transcript_version = NULL)
 tr2g <- sort_tr2g(tr2g, kallisto_out_path = toy_path, verbose = FALSE)
 }
 \seealso{
-Other functions to retrieve transcript and gene info: \code{\link{tr2g_ensembl}},
+Other functions to retrieve transcript and gene info: \code{\link{tr2g_EnsDb}},
+  \code{\link{tr2g_TxDb}}, \code{\link{tr2g_ensembl}},
   \code{\link{tr2g_fasta}}, \code{\link{tr2g_gff3}},
   \code{\link{tr2g_gtf}}, \code{\link{transcript2gene}}
 }

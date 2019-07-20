@@ -5,7 +5,7 @@
 \title{Get transcript and gene info from Ensembl}
 \usage{
 tr2g_ensembl(species, type = c("vertebrate", "metazoa", "plant",
-  "fungus", "protist"), other_attrs = NULL,
+  "fungus", "protist"), other_attrs = NULL, use_gene_name = TRUE,
   use_transcript_version = TRUE, use_gene_version = TRUE,
   ensembl_version = NULL, verbose = TRUE, ...)
 }
@@ -24,6 +24,8 @@ For animals absent from www.ensembl.org, try "metazoa".}
 \item{other_attrs}{Character vector. Other attributes to get from Ensembl,
 such as gene symbol and position on the genome.
 Use \code{\link{listAttributes}} to see which attributes are available.}
+
+\item{use_gene_name}{Logical, whether to get gene names.}
 
 \item{use_transcript_version}{Logical, whether to include version number in
 the Ensembl transcript ID. To decide whether to
@@ -52,9 +54,10 @@ such as mirror. Note that setting mirrors other than the default, e.g. uswest,
 does not work for archived versions.}
 }
 \value{
-A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
-for transcript ID, and \code{gene_name} for gene names. If \code{other_attrs}
-has been specified, then those will also be columns in the data frame returned.
+A data frame with at least 2 columns: \code{gene} for gene ID,
+\code{transcript} for transcript ID, and optionally \code{gene_name}
+for gene names. If \code{other_attrs} has been specified, then those will
+also be columns in the data frame returned.
 }
 \description{
 This function queries Ensembl biomart to convert transcript IDs to gene IDs.
@@ -67,6 +70,7 @@ tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant")
 }
 \seealso{
 Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
+  \code{\link{tr2g_EnsDb}}, \code{\link{tr2g_TxDb}},
   \code{\link{tr2g_fasta}}, \code{\link{tr2g_gff3}},
   \code{\link{tr2g_gtf}}, \code{\link{transcript2gene}}
 }

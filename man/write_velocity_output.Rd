@@ -4,8 +4,8 @@
 \alias{write_velocity_output}
 \title{Write the files for RNA velocity to disk}
 \usage{
-write_velocity_output(out_path, introns, genome, transcriptome, tr2g_cdna,
-  metas)
+write_velocity_output(out_path, introns, Genome, Transcriptome,
+  isoform_action, tr2g_cdna, compress_fa, width)
 }
 \arguments{
 \item{out_path}{Directory to save the outputs written to disk. If this
@@ -14,20 +14,8 @@ directory does not exist, then it will be created.}
 \item{introns}{Intronic ranges plus flanking region, returned by
 \code{\link{get_flanked_introns}}.}
 
-\item{genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
-object of genomic sequences, where the intronic sequences will be extracted
-from. Naming convention of chromosomes in the genome must match that in the
-GTF file, e.g. consistently use 1 for chromosome 1 or consistently use chr1.}
-
-\item{transcriptome}{Either a \code{\link{XStringSet}} or a path to a fasta
-file (can be gzipped) of the transcriptome, which contains sequences of
-spliced transcripts. This will be concatenated with the intronic sequences
-to give one fasta file.}
-
 \item{tr2g_cdna}{A data frame with columns \code{transcript} and \code{gene} that maps
 transcripts to genes for spliced transcripts.}
-
-\item{metas}{The data frame returned by \code{\link{get_flank_lengths}}.}
 }
 \value{
 Nothing into the R session. The files are written to disk.
