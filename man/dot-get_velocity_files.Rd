@@ -5,8 +5,9 @@
 \title{Generate RNA velocity files for GRanges}
 \usage{
 .get_velocity_files(gr, L, Genome, Transcriptome = NULL,
-  out_path = ".", style = styles, isoform_action = c("separate",
-  "collapse"), transcript_id = "transcript_id", gene_id = "gene_id",
+  out_path = ".", style = c("annotation", "genome", "Ensembl", "UCSC",
+  "NCBI", "other"), isoform_action = c("separate", "collapse"),
+  transcript_id = "transcript_id", gene_id = "gene_id",
   transcript_version = "transcript_version",
   gene_version = "gene_version", version_sep = ".",
   compress_fa = FALSE, width = 80L)
@@ -46,8 +47,7 @@ supplied via argument \code{X}.}
 directory does not exist, then it will be created. Defaults to the current
 working directory.}
 
-\item{style}{Formatting of chromosome names. Check \code{BUSpaRse::styles} for a
-quick list of allowed values for this argument. Use
+\item{style}{Formatting of chromosome names. Use
 \code{\link{genomeStyles}} to check which styles are supported for your
 organism of interest and what those styles look like. This can also be a
 style supported for your organism different from the style used by the
@@ -60,8 +60,8 @@ genome, then the style of the annotation will be used.}
 genome, then the style of the genome will be used.}
 \item{other}{Custom style, need to manually ensure that the style in
 annotation matches that of the genome.}
-\item{Ensembl}{Or \code{UCSC} or \code{NCBI} or any specified style supported for your
-organism.}
+\item{Ensembl}{Or \code{UCSC} or \code{NCBI}, whichever is supported by your species
+of interest.}
 }}
 
 \item{isoform_action}{Character, indicating action to take with different

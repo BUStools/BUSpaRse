@@ -18,8 +18,7 @@ consistent.}
 \item{annot}{Genome annotation, an object of a class with a
 \code{\link{seqlevels}} method, such as \code{GRanges}, \code{TxDb}, and \code{EnsDb}.}
 
-\item{style}{Formatting of chromosome names. Check \code{BUSpaRse::styles} for a
-quick list of allowed values for this argument. Use
+\item{style}{Formatting of chromosome names. Use
 \code{\link{genomeStyles}} to check which styles are supported for your
 organism of interest and what those styles look like. This can also be a
 style supported for your organism different from the style used by the
@@ -32,8 +31,8 @@ genome, then the style of the annotation will be used.}
 genome, then the style of the genome will be used.}
 \item{other}{Custom style, need to manually ensure that the style in
 annotation matches that of the genome.}
-\item{Ensembl}{Or \code{UCSC} or \code{NCBI} or any specified style supported for your
-organism.}
+\item{Ensembl}{Or \code{UCSC} or \code{NCBI}, whichever is supported by your species
+of interest.}
 }}
 }
 \value{

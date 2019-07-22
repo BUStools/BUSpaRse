@@ -1,11 +1,3 @@
-#' List of all possible chromosome naming styles
-#' 
-#' @format A character vector
-#' @importFrom GenomeInfoDb genomeStyles
-"styles"
-styles <- c("annotation", "genome", "other",
-            unique(unlist(lapply(genomeStyles(), function(x) names(x)[-seq_len(3)]))))
-
 #' Generate RNA velocity files for GRanges
 #' 
 #' @inheritParams tr2g_gtf
@@ -38,8 +30,7 @@ styles <- c("annotation", "genome", "other",
 #' @param out_path Directory to save the outputs written to disk. If this
 #' directory does not exist, then it will be created. Defaults to the current
 #' working directory.
-#' @param style Formatting of chromosome names. Check `BUSpaRse::styles` for a 
-#' quick list of allowed values for this argument. Use 
+#' @param style Formatting of chromosome names. Use 
 #' \code{\link{genomeStyles}} to check which styles are supported for your
 #' organism of interest and what those styles look like. This can also be a 
 #' style supported for your organism different from the style used by the 
@@ -52,8 +43,8 @@ styles <- c("annotation", "genome", "other",
 #' genome, then the style of the genome will be used.}
 #' \item{other}{Custom style, need to manually ensure that the style in
 #' annotation matches that of the genome.}
-#' \item{Ensembl}{Or `UCSC` or `NCBI` or any specified style supported for your 
-#' organism.}
+#' \item{Ensembl}{Or `UCSC` or `NCBI`, whichever is supported by your species
+#' of interest.}
 #' }
 #' @param isoform_action Character, indicating action to take with different
 #' transcripts of the same gene. Must be one of the following:
@@ -71,7 +62,10 @@ styles <- c("annotation", "genome", "other",
 #' @importFrom GenomicRanges seqnames strand
 #' @importFrom GenomicFeatures extractTranscriptSeqs 
 .get_velocity_files <- function(gr, L, Genome, Transcriptome = NULL, 
-                                out_path = ".", style = styles,
+                                out_path = ".", style = c("annotation", 
+                                                          "genome", "Ensembl",
+                                                          "UCSC", "NCBI",
+                                                          "other"),
                                 isoform_action = c("separate", "collapse"),
                                 transcript_id = "transcript_id",
                                 gene_id = "gene_id", 
@@ -198,7 +192,9 @@ styles <- c("annotation", "genome", "other",
 #'                    gene_version = NULL, transcript_version = NULL)
 setGeneric("get_velocity_files", 
            function(X, L, Genome, Transcriptome = NULL, out_path = ".", 
-                    style = styles, isoform_action = c("separate", "collapse"),
+                    style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
+                              "other"), 
+                    isoform_action = c("separate", "collapse"),
                     compress_fa = FALSE, width = 80L, ...) 
              standardGeneric("get_velocity_files"),
            signature = "X")
@@ -207,7 +203,9 @@ setGeneric("get_velocity_files",
 #' @export
 setMethod("get_velocity_files", "GRanges",
           function(X, L, Genome, Transcriptome = NULL, out_path = ".", 
-                   style = styles, isoform_action = c("separate", "collapse"),
+                   style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
+                             "other"), 
+                   isoform_action = c("separate", "collapse"),
                    transcript_id = "transcript_id", gene_id = "gene_id", 
                    transcript_version = "transcript_version",
                    gene_version = "gene_version", version_sep = ".", 
@@ -223,7 +221,9 @@ setMethod("get_velocity_files", "GRanges",
 #' @export
 setMethod("get_velocity_files", "character",
           function(X, L, Genome, Transcriptome = NULL, out_path = ".", 
-                   style = styles, isoform_action = c("separate", "collapse"),
+                   style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
+                             "other"), 
+                   isoform_action = c("separate", "collapse"),
                    transcript_id = "transcript_id", gene_id = "gene_id", 
                    transcript_version = "transcript_version",
                    gene_version = "gene_version", version_sep = ".", 
@@ -242,7 +242,9 @@ setMethod("get_velocity_files", "character",
 #' @importFrom GenomicFeatures exonsBy
 #' @export
 setMethod("get_velocity_files", "TxDb",
-          function(X, L, Genome, Transcriptome, out_path, style = styles,
+          function(X, L, Genome, Transcriptome, out_path, 
+                   style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
+                             "other"),
                    isoform_action = c("separate", "collapse"),
                    compress_fa = FALSE, width = 80L) {
             exons_by_tx <- function(X, tx_id, tx) {
@@ -305,7 +307,9 @@ setMethod("get_velocity_files", "TxDb",
 #' @importFrom ensembldb exonsBy
 #' @export
 setMethod("get_velocity_files", "EnsDb",
-          function(X, L, Genome, Transcriptome, out_path, style = styles,
+          function(X, L, Genome, Transcriptome, out_path, 
+                   style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
+                             "other"),
                    isoform_action = c("separate", "collapse"), 
                    use_transcript_version = TRUE, use_gene_version = TRUE,
                    compress_fa = FALSE, width = 80L) {
