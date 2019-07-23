@@ -40,9 +40,8 @@ Bioconductor provides Ensembl genome annotation in \code{AnnotationHub}; older
 versions of Ensembl annotation can be obtained from packages like
 \code{EnsDb.Hsapiens.v86}. This is an alternative to querying Ensembl with
 biomart; Ensembl's server seems to be less stable than that of Bioconductor.
-\code{AnnotationHub} also caches the annotation, while querying biomart will
-download the annotation anew every time. However, more information and
-species are available on Ensembl biomart than on \code{AnnotationHub}.
+However, more information and species are available on Ensembl biomart than
+on \code{AnnotationHub}.
 }
 \examples{
 library(EnsDb.Hsapiens.v86)

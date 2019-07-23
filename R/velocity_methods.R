@@ -224,10 +224,10 @@ setMethod("get_velocity_files", "character",
                    style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
                              "other"), 
                    isoform_action = c("separate", "collapse"),
+                   compress_fa = FALSE, width = 80L,
                    transcript_id = "transcript_id", gene_id = "gene_id", 
                    transcript_version = "transcript_version",
-                   gene_version = "gene_version", version_sep = ".", 
-                   compress_fa = FALSE, width = 80L) {
+                   gene_version = "gene_version", version_sep = ".") {
             file <- normalizePath(X, mustWork = TRUE)
             check_gff("gtf", file, transcript_id, gene_id)
             gr <- plyranges::read_gff(file)
@@ -311,8 +311,8 @@ setMethod("get_velocity_files", "EnsDb",
                    style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
                              "other"),
                    isoform_action = c("separate", "collapse"), 
-                   use_transcript_version = TRUE, use_gene_version = TRUE,
-                   compress_fa = FALSE, width = 80L) {
+                   compress_fa = FALSE, width = 80L,
+                   use_transcript_version = TRUE, use_gene_version = TRUE) {
             exons_by_tx <- function(X, tx, chrs_use, use_transcript_version) {
               if (use_transcript_version) {
                 # tr2g_cdna has already been filtered if it needs to be filtered
