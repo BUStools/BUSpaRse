@@ -360,8 +360,8 @@ setMethod("get_velocity_files", "EnsDb",
               # Add version number if used
               if (use_gene_version) {
                 g_nv <- str_remove(tr2g_cdna$gene, "\\.\\d+$")
+                names(gr) <- tr2g_cdna$gene[match(names(gr), g_nv)]
               }
-              names(gr) <- tr2g_cdna$gene[match(names(gr), g_nv)]
               gr <- GenomicRanges::reduce(gr)
               seqlevels(gr) <- seqlevelsInUse(gr)
             } else {

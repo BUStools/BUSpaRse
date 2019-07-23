@@ -488,9 +488,8 @@ tr2g_TxDb <- function(txdb) {
 #' versions of Ensembl annotation can be obtained from packages like 
 #' `EnsDb.Hsapiens.v86`. This is an alternative to querying Ensembl with 
 #' biomart; Ensembl's server seems to be less stable than that of Bioconductor.
-#' `AnnotationHub` also caches the annotation, while querying biomart will 
-#' download the annotation anew every time. However, more information and 
-#' species are available on Ensembl biomart than on `AnnotationHub`.
+#' However, more information and species are available on Ensembl biomart than 
+#' on `AnnotationHub`.
 #' 
 #' @inheritParams tr2g_ensembl
 #' @param ensdb Ann `EnsDb` object, such as from `AnnotationHub` or 
