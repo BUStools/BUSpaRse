@@ -206,10 +206,10 @@ setMethod("get_velocity_files", "GRanges",
                    style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
                              "other"), 
                    isoform_action = c("separate", "collapse"),
+                   compress_fa = FALSE, width = 80L,
                    transcript_id = "transcript_id", gene_id = "gene_id", 
                    transcript_version = "transcript_version",
-                   gene_version = "gene_version", version_sep = ".", 
-                   compress_fa = FALSE, width = 80L) {
+                   gene_version = "gene_version", version_sep = ".") {
             .get_velocity_files(X, L, Genome, Transcriptome, out_path, style,
                                 isoform_action, transcript_id, gene_id, 
                                 transcript_version, gene_version, version_sep, 

@@ -17,11 +17,10 @@ get_velocity_files(X, L, Genome, Transcriptome = NULL, out_path = ".",
 \S4method{get_velocity_files}{GRanges}(X, L, Genome,
   Transcriptome = NULL, out_path = ".", style = c("annotation",
   "genome", "Ensembl", "UCSC", "NCBI", "other"),
-  isoform_action = c("separate", "collapse"),
-  transcript_id = "transcript_id", gene_id = "gene_id",
+  isoform_action = c("separate", "collapse"), compress_fa = FALSE,
+  width = 80L, transcript_id = "transcript_id", gene_id = "gene_id",
   transcript_version = "transcript_version",
-  gene_version = "gene_version", version_sep = ".",
-  compress_fa = FALSE, width = 80L)
+  gene_version = "gene_version", version_sep = ".")
 
 \S4method{get_velocity_files}{character}(X, L, Genome,
   Transcriptome = NULL, out_path = ".", style = c("annotation",
