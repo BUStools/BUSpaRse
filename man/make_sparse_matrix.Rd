@@ -85,8 +85,8 @@ load(paste(toy_path, "toy_example.RData", sep = "/"))
 out_fn <- paste0(toy_path, "/output.sorted.txt")
 # With whitelist
 m <- make_sparse_matrix(out_fn, tr2g_toy, 10, 3, whitelist = whitelist,
-                        gene_count = TRUE, TCC = FALSE, single_gene = TRUE,
-                        verbose = FALSE)
+    gene_count = TRUE, TCC = FALSE, single_gene = TRUE,
+    verbose = FALSE)
 }
 \seealso{
 \code{\link{EC2gene}}

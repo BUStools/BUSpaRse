@@ -66,7 +66,6 @@ This function queries Ensembl biomart to convert transcript IDs to gene IDs.
 tr2g <- tr2g_ensembl(species = "Felis catus", other_attrs = "description")
 # This will use plants.ensembl.org as host instead of www.ensembl.org
 tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant")
-
 }
 \seealso{
 Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},

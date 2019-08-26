@@ -19,44 +19,44 @@ library(stringi)
 
 # Make toy genomic ranges---------------------
 gr_df <- tribble(
-  ~seqnames, ~start, ~end, ~strand, ~gene_id, ~transcript_id, ~exon_number,
-  "chr1",    5,      30,   "+",     "A",      "A1",           1,
-  "chr1",    61,     90,   "+",     "A",      "A1",           2,
-  "chr1",    141,    160,  "+",     "A",      "A1",           3,
-  "chr1",    205,    230,  "+",     "Aa",     "A1a",          1,
-  "chr1",    261,    290,  "+",     "Aa",     "A1a",          2,
-  "chr1",    341,    360,  "+",     "Aa",     "A1a",          3,
-  "chr2",    5,      30,   "+",     "B",      "B1",           1,
-  "chr2",    61,     65,   "+",     "B",      "B1",           2,
-  "chr2",    141,    160,  "+",     "B",      "B1",           3,
-  "chr3",    5,      30,   "+",     "C",      "C1",           1,
-  "chr3",    61,     90,   "+",     "C",      "C1",           2,
-  "chr3",    141,    145,  "+",     "C",      "C1",           3,
-  "chr4",    5,      90,   "+",     "D",      "D1",           1,
-  "chr5",    5,      30,   "+",     "E",      "E1",           1,
-  "chr5",    61,     65,   "+",     "E",      "E1",           2,
-  "chr5",    85,     90,   "+",     "E",      "E1",           3,
-  "chr5",    141,    160,  "+",     "E",      "E1",           4,
-  "chr6",    5,      30,   "+",     "F",      "F1",           1,
-  "chr6",    61,     90,   "+",     "F",      "F1",           2,
-  "chr6",    141,    160,  "+",     "F",      "F1",           3,
-  "chr6",    5,      30,   "+",     "F",      "F2",           1,
-  "chr6",    141,    160,  "+",     "F",      "F2",           2,
-  "chr7",    5,      30,   "+",     "G",      "G1",           1,
-  "chr7",    61,     90,   "+",     "G",      "G1",           2,
-  "chr7",    141,    160,  "+",     "G",      "G1",           3,
-  "chr7",    5,      20,   "+",     "G",      "G2",           1,
-  "chr7",    61,     90,   "+",     "G",      "G2",           2,
-  "chr7",    141,    160,  "+",     "G",      "G2",           3,
-  "chr8",    5,      30,   "+",     "H",      "H1",           1,
-  "chr8",    61,     90,   "+",     "H",      "H1",           2,
-  "chr8",    141,    160,  "+",     "H",      "H1",           3,
-  "chr8",    61,     90,   "+",     "H",      "H2",           1,
-  "chr8",    141,    160,  "+",     "H",      "H2",           2
+    ~seqnames, ~start, ~end, ~strand, ~gene_id, ~transcript_id, ~exon_number,
+    "chr1",    5,      30,   "+",     "A",      "A1",           1,
+    "chr1",    61,     90,   "+",     "A",      "A1",           2,
+    "chr1",    141,    160,  "+",     "A",      "A1",           3,
+    "chr1",    205,    230,  "+",     "Aa",     "A1a",          1,
+    "chr1",    261,    290,  "+",     "Aa",     "A1a",          2,
+    "chr1",    341,    360,  "+",     "Aa",     "A1a",          3,
+    "chr2",    5,      30,   "+",     "B",      "B1",           1,
+    "chr2",    61,     65,   "+",     "B",      "B1",           2,
+    "chr2",    141,    160,  "+",     "B",      "B1",           3,
+    "chr3",    5,      30,   "+",     "C",      "C1",           1,
+    "chr3",    61,     90,   "+",     "C",      "C1",           2,
+    "chr3",    141,    145,  "+",     "C",      "C1",           3,
+    "chr4",    5,      90,   "+",     "D",      "D1",           1,
+    "chr5",    5,      30,   "+",     "E",      "E1",           1,
+    "chr5",    61,     65,   "+",     "E",      "E1",           2,
+    "chr5",    85,     90,   "+",     "E",      "E1",           3,
+    "chr5",    141,    160,  "+",     "E",      "E1",           4,
+    "chr6",    5,      30,   "+",     "F",      "F1",           1,
+    "chr6",    61,     90,   "+",     "F",      "F1",           2,
+    "chr6",    141,    160,  "+",     "F",      "F1",           3,
+    "chr6",    5,      30,   "+",     "F",      "F2",           1,
+    "chr6",    141,    160,  "+",     "F",      "F2",           2,
+    "chr7",    5,      30,   "+",     "G",      "G1",           1,
+    "chr7",    61,     90,   "+",     "G",      "G1",           2,
+    "chr7",    141,    160,  "+",     "G",      "G1",           3,
+    "chr7",    5,      20,   "+",     "G",      "G2",           1,
+    "chr7",    61,     90,   "+",     "G",      "G2",           2,
+    "chr7",    141,    160,  "+",     "G",      "G2",           3,
+    "chr8",    5,      30,   "+",     "H",      "H1",           1,
+    "chr8",    61,     90,   "+",     "H",      "H1",           2,
+    "chr8",    141,    160,  "+",     "H",      "H1",           3,
+    "chr8",    61,     90,   "+",     "H",      "H2",           1,
+    "chr8",    141,    160,  "+",     "H",      "H2",           2
 )
 
-gr_df <- gr_df %>% 
-  mutate(exon_id = paste(transcript_id, exon_number, sep = "-"))
+gr_df <- gr_df %>%
+    mutate(exon_id = paste(transcript_id, exon_number, sep = "-"))
 gr <- makeGRangesFromDataFrame(gr_df, keep.extra.columns = TRUE)
 
 # Minus strand
@@ -69,10 +69,10 @@ gr_full <- c(gr, gr_minus)
 gr_full$type <- "exon"
 # Save GTF file
 write_gff(gr_full, "./inst/testdata/velocity_annot.gtf")
-tr2g_tx <- mcols(gr_full) %>% 
-  as.data.frame() %>% 
-  dplyr::select(transcript = transcript_id, gene = gene_id) %>% 
-  distinct()
+tr2g_tx <- mcols(gr_full) %>%
+    as.data.frame() %>%
+    dplyr::select(transcript = transcript_id, gene = gene_id) %>%
+    distinct()
 
 # Make toy genome--------------------------
 set.seed(123)
@@ -86,17 +86,17 @@ intron1 <- rep("T", 30)
 exon2 <- rep("C", 30)
 intron2 <- rep("T", 50)
 exon3 <- rep("G", 20)
-chr1 <- paste(c(flank5p, exon1, intron1, exon2, intron2, exon3, 
-                intergene, exon1, intron1, exon2, intron2, exon3, flank3p),
-              collapse = "")
+chr1 <- paste(c(flank5p, exon1, intron1, exon2, intron2, exon3,
+    intergene, exon1, intron1, exon2, intron2, exon3, flank3p),
+collapse = "")
 exon2b <- rep("C", 5)
 intron2b <- rep("T", 75)
 geneB <- paste(c(flank5p, exon1, intron1, exon2b, intron2b, exon3, flank3p),
-               collapse = "")
+    collapse = "")
 
 exon3c <- rep("G", 5)
 geneC <- paste(c(flank5p, exon1, intron1, exon2, intron2, exon3c, flank3p),
-               collapse = "")
+    collapse = "")
 
 geneD <- paste(c(flank5p, rep("A", 86), flank3p), collapse = "")
 
@@ -104,10 +104,10 @@ exon2e <- rep("C", 5)
 intron2e <- rep("T", 19)
 exon2e2 <- rep("C", 6)
 geneE <- paste(c(flank5p, exon1, intron1, exon2e, intron2e, exon2e2, intron2, exon3,
-           flank3p), collapse = "")
+    flank3p), collapse = "")
 
 gn <- setNames(c(chr1, geneB, geneC, geneD, geneE, rep(chr1, 3)),
-               paste0("chr", 1:8))
+    paste0("chr", 1:8))
 gn <- DNAStringSet(gn, use.names = TRUE)
 writeXStringSet(gn, "./inst/testdata/velocity_genome.fa")
 
@@ -121,7 +121,7 @@ txF2 <- paste(c(exon1, exon3), collapse = "")
 txG2 <- paste(c(rep("A", 16), exon2, exon3), collapse = "")
 txH2 <- paste(c(exon2, exon3), collapse = "")
 plus_tx <- setNames(c(tx1, tx1, txB, txC, txD, txE, tx1, txF2, tx1, txG2, tx1, txH2),
-                    unique(gr$transcript_id))
+    unique(gr$transcript_id))
 plus_tx <- DNAStringSet(plus_tx, use.names = TRUE)
 minus_tx <- reverseComplement(plus_tx)
 names(minus_tx) <- unique(gr_minus$transcript_id)
@@ -140,105 +140,105 @@ iflE2 <- paste(c(exon2e, intron2e, exon2e2), collapse = "")
 iflE3 <- paste(c(exon2e2, intron2, rep("G", 10)), collapse = "")
 iflF2 <- paste(c(rep("A", 10), intron1, exon2, intron2, rep("G", 10)), collapse = "")
 iflG2 <- paste(c(rep("A", 20), intron1, rep("C", 10)), collapse = "")
-ins_trunc_plus <- setNames(c(ifl1, ifl2, 
-                             ifl1, ifl2,
-                             iflB1, iflB2, 
-                             ifl1, iflC2,
-                             iflB1, iflE2, iflE3,
-                             ifl1, ifl2, iflF2,
-                             ifl1, ifl2, iflG2, ifl2,
-                             ifl1, ifl2, ifl2),
-                           c("A1-I1", "A1-I2",
-                             "A1a-I1", "A1a-I2",
-                             "B1-I1", "B1-I2",
-                             "C1-I1", "C1-I2",
-                             "E1-I1", "E1-I2", "E1-I3",
-                             "F1-I1", "F1-I2", "F2-I1",
-                             "G1-I1", "G1-I2", "G2-I1", "G2-I2",
-                             "H1-I1", "H1-I2", "H2-I1"))
+ins_trunc_plus <- setNames(c(ifl1, ifl2,
+    ifl1, ifl2,
+    iflB1, iflB2,
+    ifl1, iflC2,
+    iflB1, iflE2, iflE3,
+    ifl1, ifl2, iflF2,
+    ifl1, ifl2, iflG2, ifl2,
+    ifl1, ifl2, ifl2),
+c("A1-I1", "A1-I2",
+    "A1a-I1", "A1a-I2",
+    "B1-I1", "B1-I2",
+    "C1-I1", "C1-I2",
+    "E1-I1", "E1-I2", "E1-I3",
+    "F1-I1", "F1-I2", "F2-I1",
+    "G1-I1", "G1-I2", "G2-I1", "G2-I2",
+    "H1-I1", "H1-I2", "H2-I1"))
 ins_trunc_plus <- DNAStringSet(ins_trunc_plus, use.names = TRUE)
 ins_trunc_minus <- setNames(reverseComplement(ins_trunc_plus),
-                            c("A1m-I2", "A1m-I1",
-                              "A1am-I2", "A1am-I1",
-                              "B1m-I2", "B1m-I1",
-                              "C1m-I2", "C1m-I1",
-                              "E1m-I3", "E1m-I2", "E1m-I1",
-                              "F1m-I2", "F1m-I1", "F2m-I1",
-                              "G1m-I2", "G1m-I1", "G2m-I2", "G2m-I1",
-                              "H1m-I2", "H1m-I1", "H2m-I1"))
+    c("A1m-I2", "A1m-I1",
+        "A1am-I2", "A1am-I1",
+        "B1m-I2", "B1m-I1",
+        "C1m-I2", "C1m-I1",
+        "E1m-I3", "E1m-I2", "E1m-I1",
+        "F1m-I2", "F1m-I1", "F2m-I1",
+        "G1m-I2", "G1m-I1", "G2m-I2", "G2m-I1",
+        "H1m-I2", "H1m-I1", "H2m-I1"))
 ins_trunc <- c(ins_trunc_plus, ins_trunc_minus)
 writeXStringSet(c(tx, ins_trunc), "./inst/testdata/velocity_introns_trunc.fa")
 writeLines(names(ins_trunc), "./inst/testdata/velocity_introns_trunc_capture.txt")
 tr2g_intron_trunc <- tibble(transcript = names(ins_trunc),
-                            gene = str_remove_all(transcript, "-I\\d") %>% 
-                              str_remove_all("\\d"))
+    gene = str_remove_all(transcript, "-I\\d") %>%
+        str_remove_all("\\d"))
 write_tsv(rbind(tr2g_tx, tr2g_intron_trunc), "./inst/testdata/velocity_tr2g_trunc.tsv",
-            col_names = FALSE)
+    col_names = FALSE)
 
 ## No truncation; pretend short exons don't exist-----------------
 iflBf <- paste(c(rep("A", 10), intron1, exon2b, intron2, rep("G", 10)), collapse = "")
 iflEf <- paste(c(rep("A", 10), intron1, exon2e, intron2e, exon2e2, intron2, rep("G", 10)),
-               collapse = "")
-ins_inc_plus <- setNames(c(ifl1, ifl2, 
-                           ifl1, ifl2,
-                           iflBf, 
-                           ifl1, iflC2,
-                           iflEf,
-                           ifl1, ifl2, iflF2,
-                           ifl1, ifl2, iflG2, ifl2,
-                           ifl1, ifl2, ifl2),
-                         c("A1-I1", "A1-I2",
-                           "A1a-I1", "A1a-I2",
-                           "B1-I1",
-                           "C1-I1", "C1-I2",
-                           "E1-I1",
-                           "F1-I1", "F1-I2", "F2-I1",
-                           "G1-I1", "G1-I2", "G2-I1", "G2-I2",
-                           "H1-I1", "H1-I2", "H2-I1"))
+    collapse = "")
+ins_inc_plus <- setNames(c(ifl1, ifl2,
+    ifl1, ifl2,
+    iflBf,
+    ifl1, iflC2,
+    iflEf,
+    ifl1, ifl2, iflF2,
+    ifl1, ifl2, iflG2, ifl2,
+    ifl1, ifl2, ifl2),
+c("A1-I1", "A1-I2",
+    "A1a-I1", "A1a-I2",
+    "B1-I1",
+    "C1-I1", "C1-I2",
+    "E1-I1",
+    "F1-I1", "F1-I2", "F2-I1",
+    "G1-I1", "G1-I2", "G2-I1", "G2-I2",
+    "H1-I1", "H1-I2", "H2-I1"))
 ins_inc_plus <- DNAStringSet(ins_inc_plus, use.names = TRUE)
 ins_inc_minus <- setNames(reverseComplement(ins_inc_plus),
-                          c("A1m-I2", "A1m-I1",
-                            "A1am-I2", "A1am-I1",
-                            "B1m-I1",
-                            "C1m-I2", "C1m-I1",
-                            "E1m-I1", 
-                            "F1m-I2", "F1m-I1", "F2m-I1",
-                            "G1m-I2", "G1m-I1", "G2m-I2", "G2m-I1",
-                            "H1m-I2", "H1m-I1", "H2m-I1"))
+    c("A1m-I2", "A1m-I1",
+        "A1am-I2", "A1am-I1",
+        "B1m-I1",
+        "C1m-I2", "C1m-I1",
+        "E1m-I1",
+        "F1m-I2", "F1m-I1", "F2m-I1",
+        "G1m-I2", "G1m-I1", "G2m-I2", "G2m-I1",
+        "H1m-I2", "H1m-I1", "H2m-I1"))
 ins_inc <- c(ins_inc_plus, ins_inc_minus)
 writeXStringSet(c(tx, ins_inc), "./inst/testdata/velocity_introns_inc.fa")
 writeLines(names(ins_inc), "./inst/testdata/velocity_introns_inc_capture.txt")
 tr2g_intron_inc <- tibble(transcript = names(ins_inc),
-                          gene = str_remove_all(transcript, "-I\\d") %>% 
-                            str_remove_all("\\d"))
+    gene = str_remove_all(transcript, "-I\\d") %>%
+        str_remove_all("\\d"))
 write_tsv(rbind(tr2g_tx, tr2g_intron_inc), "./inst/testdata/velocity_tr2g_inc.tsv",
-          col_names = FALSE)
+    col_names = FALSE)
 
 ## Collapse isoforms--------------------
 ins_coll_plus <- setNames(c(ins_trunc_plus[1:13],
-                            rep(c(ifl1, ifl2), 2)),
-                          c("A-I1", "A-I2",
-                            "Aa-I1", "Aa-I2",
-                            "B-I1", "B-I2",
-                            "C-I1", "C-I2",
-                            "E-I1", "E-I2", "E-I3",
-                            "F-I1", "F-I2",
-                            "G-I1", "G-I2",
-                            "H-I1", "H-I2"))
+    rep(c(ifl1, ifl2), 2)),
+c("A-I1", "A-I2",
+    "Aa-I1", "Aa-I2",
+    "B-I1", "B-I2",
+    "C-I1", "C-I2",
+    "E-I1", "E-I2", "E-I3",
+    "F-I1", "F-I2",
+    "G-I1", "G-I2",
+    "H-I1", "H-I2"))
 ins_coll_plus <- DNAStringSet(ins_coll_plus, use.names = TRUE)
 ins_coll_minus <- setNames(reverseComplement(ins_coll_plus),
-                           c("Am-I2", "Am-I1",
-                             "Aam-I2", "Aam-I1",
-                             "Bm-I2", "Bm-I1",
-                             "Cm-I2", "Cm-I1",
-                             "Em-I3", "Em-I2", "Em-I1",
-                             "Fm-I2", "Fm-I1",
-                             "Gm-I2", "Gm-I1",
-                             "Hm-I2", "Hm-I1"))
+    c("Am-I2", "Am-I1",
+        "Aam-I2", "Aam-I1",
+        "Bm-I2", "Bm-I1",
+        "Cm-I2", "Cm-I1",
+        "Em-I3", "Em-I2", "Em-I1",
+        "Fm-I2", "Fm-I1",
+        "Gm-I2", "Gm-I1",
+        "Hm-I2", "Hm-I1"))
 ins_coll <- c(ins_coll_plus, ins_coll_minus)
 writeXStringSet(c(tx, ins_coll), "./inst/testdata/velocity_introns_coll.fa")
 writeLines(names(ins_coll), "./inst/testdata/velocity_introns_coll_capture.txt")
 tr2g_intron_coll <- tibble(transcript = names(ins_coll),
-                           gene = str_remove(transcript, "-.+"))
+    gene = str_remove(transcript, "-.+"))
 write_tsv(rbind(tr2g_tx, tr2g_intron_coll), "./inst/testdata/velocity_tr2g_coll.tsv",
-          col_names = FALSE)
+    col_names = FALSE)

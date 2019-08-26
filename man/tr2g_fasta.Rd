@@ -39,9 +39,9 @@ extracts the transcript and gene IDs from such FASTA files.
 \details{
 At present, this function only works with FASTA files from Ensembl, and uses
 regex to extract vertebrate Ensembl IDs. Sequence names should be formatted
-as follows:\preformatted{ENST00000632684.1 cdna chromosome:GRCh38:7:142786213:142786224:1 
-gene:ENSG00000282431.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene 
-gene_symbol:TRBD1 description:T cell receptor beta diversity 1 
+as follows:\preformatted{ENST00000632684.1 cdna chromosome:GRCh38:7:142786213:142786224:1
+gene:ENSG00000282431.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene
+gene_symbol:TRBD1 description:T cell receptor beta diversity 1
 [Source:HGNC Symbol;Acc:HGNC:12158]
 }
 

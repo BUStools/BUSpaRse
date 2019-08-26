@@ -56,7 +56,6 @@ and identifying ECs mapped to known marker genes of cell types.
 toy_path <- system.file("testdata", package = "BUSpaRse")
 load(paste(toy_path, "toy_example.RData", sep = "/"))
 EC2gene(tr2g_toy, toy_path, verbose = FALSE, ncores = 1)
-
 }
 \seealso{
 \code{\link{transcript2gene}}

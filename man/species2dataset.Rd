@@ -25,5 +25,4 @@ query gene and transcript ID.
 }
 \examples{
 species2dataset(species = "Homo sapiens")
-
 }

@@ -97,7 +97,7 @@ file_use <- paste(toy_path, "gff3_test.gff3", sep = "/")
 tr2g <- tr2g_gff3(file = file_use, verbose = FALSE)
 # Excluding version numbers
 tr2g <- tr2g_gff3(file = file_use, transcript_version = NULL,
-gene_version = NULL)
+    gene_version = NULL)
 }
 \seealso{
 Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},

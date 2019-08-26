@@ -94,7 +94,7 @@ file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
 tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
 # Excluding version numbers
 tr2g <- tr2g_gtf(file = file_use, transcript_version = NULL,
-gene_version = NULL)
+    gene_version = NULL)
 }
 \seealso{
 Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
