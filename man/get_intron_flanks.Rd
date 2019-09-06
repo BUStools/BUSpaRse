@@ -21,5 +21,5 @@ in addition to the flanked intronic ranges, a \code{CompressedGRangesList} with
 exon-exon junction ranges and ranges for transcripts without introns.
 }
 \description{
-Adapted from Julien Roux.
+Get flanked intronic ranges
 }

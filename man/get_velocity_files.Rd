@@ -210,9 +210,7 @@ which can be quantified with reads containing intronic sequences. This
 function extracts intronic sequences flanked by L-1 bases of exonic sequences
 where L is the biological read length of the single cell technology of
 interest. The flanking exonic sequences are included for reads partially
-mapping to an intron and an exon. This function is partially adapted from
-Julien Roux's implementation in response to
-\href{https://github.com/pachterlab/kallisto-transcriptome-indices/issues/2#issuecomment-510833194}{this GitHub issue}.
+mapping to an intron and an exon.
 }
 \examples{
 # Use toy example
