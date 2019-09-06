@@ -1,7 +1,7 @@
 Package: BUSpaRse
 Type: Package
 Title: kallisto | bustools R utilities
-Version: 0.99.23
+Version: 0.99.24
 Date: 2019-09-06
 Authors@R: 
     person("Lambda", "Moses", email = "dlu2@caltech.edu", 

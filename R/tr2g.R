@@ -547,9 +547,9 @@ tr2g_EnsDb <- function(ensdb, other_attrs = NULL, use_gene_name = TRUE,
 #' the cleaned up data frame have the same format as those in \code{transcript}
 #'
 #' @param tr2g The data frame output from the \code{tr2g_*} family of functions.
-#' @param file Character vector of length 1, path to a csv or tsv file with
-#' transcript IDs and the corresponding gene IDs. Headers \code{transcript} and
-#' \code{gene} must be present in the file.
+#' @param file Character vector of length 1, path to a tsv file with
+#' transcript IDs and the corresponding gene IDs, in the format required for
+#' `bustools`, or written by \code{\link{save_tr2g_bustools}}.
 #' @param kallisto_out_path Character vector of length 1, path to the directory
 #' for the outputs of kallisto bus.
 #' @param verbose Whether to display progress.
@@ -576,7 +576,7 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
       kallisto_out_path, "")
   }
   if (missing(tr2g)) {
-    tr2g <- fread(file)
+    tr2g <- fread(file, header = FALSE, col.names = c("transcript", "gene"))
   }
   trs <- fread(trs_path, header = FALSE, col.names = "transcript")
   if (verbose) {
@@ -584,7 +584,7 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
   }
   out <- merge(trs, tr2g, by = "transcript", sort = FALSE)
   if (nrow(trs) != nrow(out)) {
-    warning("Some transcripts in the kallisto index are absent from tr2g.")
+    stop("Some transcripts in the kallisto index are absent from tr2g.")
   }
   out
 }

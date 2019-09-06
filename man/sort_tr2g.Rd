@@ -9,9 +9,9 @@ sort_tr2g(tr2g, file, kallisto_out_path, verbose = TRUE)
 \arguments{
 \item{tr2g}{The data frame output from the \code{tr2g_*} family of functions.}
 
-\item{file}{Character vector of length 1, path to a csv or tsv file with
-transcript IDs and the corresponding gene IDs. Headers \code{transcript} and
-\code{gene} must be present in the file.}
+\item{file}{Character vector of length 1, path to a tsv file with
+transcript IDs and the corresponding gene IDs, in the format required for
+\code{bustools}, or written by \code{\link{save_tr2g_bustools}}.}
 
 \item{kallisto_out_path}{Character vector of length 1, path to the directory
 for the outputs of kallisto bus.}
