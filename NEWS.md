@@ -1,3 +1,9 @@
+# BUSpaRse 0.99.23 (2019-09-06)
+* Previous two version bumps did not accomany change; those were used to trigger rebuilds on Bioconductor.
+* Added the functionality to use L-1 (L is read length) bases around exon-exon junction to better distinguish between spliced and unspliced transcripts for RNA velocity.
+* Fixed serious problem with get_velocity_file that counted reads mapping to exons of length between L-1 and 2(L-1) as from unspliced transcript. This was done by an reimplementation of the method to get flanked intronic ranges.
+* Changed default isoform_action to "collapse".
+
 # BUSpaRse 0.99.20 (2019-08-26)
 * Addressed Bioconductor review.
 

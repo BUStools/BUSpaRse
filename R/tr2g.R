@@ -52,57 +52,57 @@ NULL
 #' # This will use plants.ensembl.org as host instead of www.ensembl.org
 #' tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant")
 tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
-                             "fungus", "protist"),
+                           "fungus", "protist"),
                          other_attrs = NULL,
                          use_gene_name = TRUE,
                          use_transcript_version = TRUE,
                          use_gene_version = TRUE,
                          ensembl_version = NULL,
                          verbose = TRUE, ...) {
-    # Validate arguments
-    check_char1(setNames(c(species, type), c("species", "type")))
-    type <- match.arg(type)
-    if (!is.null(ensembl_version) && !is.numeric(ensembl_version)) {
-        stop("ensembl_version must be integer.")
-    }
-    if (!is.null(other_attrs) &&
-        (!is.atomic(other_attrs) || !is.character(other_attrs))) {
-        stop("other_attrs must be an atomic character vector.")
-    }
-    if (type != "vertebrate" && (use_transcript_version || use_gene_version)) {
-        message("Version is only available to vertebrates.")
-        use_transcript_version <- use_gene_version <- FALSE
-    }
-    ds_name <- species2dataset(species, type)
-    host_pre <- switch(type,
-        vertebrate = "www",
-        metazoa = "metazoa",
-        plant = "plants",
-        fungus = "fungi",
-        protist = "protists")
-    mart_use <- paste(host_pre, "mart", sep = "_")
-    host_use <- paste0(host_pre, ".ensembl.org")
-    if (type == "vertebrate") mart_use <- "ensembl"
-    if (verbose) {
-        message(paste("Querying biomart for transcript and gene IDs of",
-            species))
-    }
-    mart <- useEnsembl(biomart = mart_use, dataset = ds_name, host = host_use,
-        version = ensembl_version, ...)
-    attrs_use <- c("ensembl_transcript_id", "ensembl_gene_id", other_attrs)
-    if (use_gene_name) {
-        attrs_use <- c(attrs_use, "external_gene_name")
-    }
-    if (use_transcript_version) {
-        attrs_use[1] <- paste(attrs_use[1], "version", sep = "_")
-    }
-    if (use_gene_version) {
-        attrs_use[2] <- paste(attrs_use[2], "version", sep = "_")
-    }
-    out <- getBM(attrs_use, mart = mart)
-    names(out)[seq_len(2)] <- c("transcript", "gene")
-    names(out)[names(out) == "external_gene_name"] <- "gene_name"
-    out
+  # Validate arguments
+  check_char1(setNames(c(species, type), c("species", "type")))
+  type <- match.arg(type)
+  if (!is.null(ensembl_version) && !is.numeric(ensembl_version)) {
+    stop("ensembl_version must be integer.")
+  }
+  if (!is.null(other_attrs) &&
+    (!is.atomic(other_attrs) || !is.character(other_attrs))) {
+    stop("other_attrs must be an atomic character vector.")
+  }
+  if (type != "vertebrate" && (use_transcript_version || use_gene_version)) {
+    message("Version is only available to vertebrates.")
+    use_transcript_version <- use_gene_version <- FALSE
+  }
+  ds_name <- species2dataset(species, type)
+  host_pre <- switch(type,
+    vertebrate = "www",
+    metazoa = "metazoa",
+    plant = "plants",
+    fungus = "fungi",
+    protist = "protists")
+  mart_use <- paste(host_pre, "mart", sep = "_")
+  host_use <- paste0(host_pre, ".ensembl.org")
+  if (type == "vertebrate") mart_use <- "ensembl"
+  if (verbose) {
+    message(paste("Querying biomart for transcript and gene IDs of",
+      species))
+  }
+  mart <- useEnsembl(biomart = mart_use, dataset = ds_name, host = host_use,
+    version = ensembl_version, ...)
+  attrs_use <- c("ensembl_transcript_id", "ensembl_gene_id", other_attrs)
+  if (use_gene_name) {
+    attrs_use <- c(attrs_use, "external_gene_name")
+  }
+  if (use_transcript_version) {
+    attrs_use[1] <- paste(attrs_use[1], "version", sep = "_")
+  }
+  if (use_gene_version) {
+    attrs_use[2] <- paste(attrs_use[2], "version", sep = "_")
+  }
+  out <- getBM(attrs_use, mart = mart)
+  names(out)[seq_len(2)] <- c("transcript", "gene")
+  names(out)[names(out) == "external_gene_name"] <- "gene_name"
+  out
 }
 
 #' Get transcript and gene info from GRanges
@@ -156,31 +156,31 @@ tr2g_GRanges <- function(gr, type_use = "exon", transcript_id = "transcript_id",
                          gene_id = "gene_id", gene_name = "gene_name",
                          transcript_version = "transcript_version",
                          gene_version = "gene_version", version_sep = ".") {
-    tags <- names(mcols(gr))
-    check_tag_present(c(transcript_id, gene_id), tags, error = TRUE)
-    # Will do nothing if all are NULL
-    check_tag_present(c(gene_name, transcript_version, gene_version),
-        tags, error = FALSE)
-    gr <- gr[!is.na(mcols(gr)[[transcript_id]])]
-    gr <- gr[gr$type %in% type_use]
-    if (length(gr) == 0) {
-        stop(paste("No entry has types", paste(type_use, collapse = ", ")))
-    }
-    out <- data.frame(transcript = mcols(gr)[[transcript_id]],
-        gene = mcols(gr)[[gene_id]],
-        stringsAsFactors = FALSE)
-    if (!is.null(gene_name) && gene_name %in% tags) {
-        out$gene_name <- mcols(gr)[[gene_name]]
-    }
-    if (!is.null(transcript_version) && transcript_version %in% tags) {
-        tv <- mcols(gr)[[transcript_version]]
-        out$transcript <- paste(out$transcript, tv, sep = version_sep)
-    }
-    if (!is.null(gene_version) && gene_version %in% tags) {
-        gv <- mcols(gr)[[gene_version]]
-        out$gene <- paste(out$gene, gv, sep = version_sep)
-    }
-    distinct(out)
+  tags <- names(mcols(gr))
+  check_tag_present(c(transcript_id, gene_id), tags, error = TRUE)
+  # Will do nothing if all are NULL
+  check_tag_present(c(gene_name, transcript_version, gene_version),
+    tags, error = FALSE)
+  gr <- gr[!is.na(mcols(gr)[[transcript_id]])]
+  gr <- gr[gr$type %in% type_use]
+  if (length(gr) == 0) {
+    stop(paste("No entry has types", paste(type_use, collapse = ", ")))
+  }
+  out <- data.frame(transcript = mcols(gr)[[transcript_id]],
+    gene = mcols(gr)[[gene_id]],
+    stringsAsFactors = FALSE)
+  if (!is.null(gene_name) && gene_name %in% tags) {
+    out$gene_name <- mcols(gr)[[gene_name]]
+  }
+  if (!is.null(transcript_version) && transcript_version %in% tags) {
+    tv <- mcols(gr)[[transcript_version]]
+    out$transcript <- paste(out$transcript, tv, sep = version_sep)
+  }
+  if (!is.null(gene_version) && gene_version %in% tags) {
+    gv <- mcols(gr)[[gene_version]]
+    out$gene <- paste(out$gene, gv, sep = version_sep)
+  }
+  distinct(out)
 }
 
 #' Get transcript and gene info from GTF file
@@ -226,22 +226,22 @@ tr2g_GRanges <- function(gr, type_use = "exon", transcript_id = "transcript_id",
 #' tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
 #' # Excluding version numbers
 #' tr2g <- tr2g_gtf(file = file_use, transcript_version = NULL,
-#'     gene_version = NULL)
+#'   gene_version = NULL)
 tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
                      gene_id = "gene_id", gene_name = "gene_name",
                      transcript_version = "transcript_version",
                      gene_version = "gene_version", version_sep = ".",
                      verbose = TRUE) {
-    # Validate arguments
-    check_char1(setNames(file, "file"))
-    file <- normalizePath(file, mustWork = TRUE)
-    check_gff("gtf", file, transcript_id, gene_id)
-    if (verbose) {
-        message(paste("Reading GTF file."))
-    }
-    gr <- read_gff(file)
-    tr2g_GRanges(gr, type_use, transcript_id, gene_id, gene_name,
-        transcript_version, gene_version, version_sep)
+  # Validate arguments
+  check_char1(setNames(file, "file"))
+  file <- normalizePath(file, mustWork = TRUE)
+  check_gff("gtf", file, transcript_id, gene_id)
+  if (verbose) {
+    message(paste("Reading GTF file."))
+  }
+  gr <- read_gff(file)
+  tr2g_GRanges(gr, type_use, transcript_id, gene_id, gene_name,
+    transcript_version, gene_version, version_sep)
 }
 
 #' Get transcript and gene info from GFF3 file
@@ -291,63 +291,63 @@ tr2g_gtf <- function(file, type_use = "exon", transcript_id = "transcript_id",
 #' tr2g <- tr2g_gff3(file = file_use, verbose = FALSE)
 #' # Excluding version numbers
 #' tr2g <- tr2g_gff3(file = file_use, transcript_version = NULL,
-#'     gene_version = NULL)
+#'   gene_version = NULL)
 tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
                       gene_id = "gene_id", gene_name = "Name",
                       transcript_version = "version",
                       gene_version = "version", version_sep = ".",
                       verbose = TRUE) {
-    # Validate arguments
-    check_char1(setNames(file, "file"))
-    file <- normalizePath(file, mustWork = TRUE)
-    check_gff("gff3", file, transcript_id, gene_id)
-    if (verbose) {
-        message(paste("Reading GFF3 file."))
+  # Validate arguments
+  check_char1(setNames(file, "file"))
+  file <- normalizePath(file, mustWork = TRUE)
+  check_gff("gff3", file, transcript_id, gene_id)
+  if (verbose) {
+    message(paste("Reading GFF3 file."))
+  }
+  gr <- read_gff3(file)
+  tags <- names(mcols(gr))
+  check_tag_present(c(transcript_id, gene_id), tags, error = TRUE)
+  # Will do nothing if all are NULL
+  check_tag_present(c(gene_name, transcript_version, gene_version),
+    tags, error = FALSE)
+  # Get transcript ID
+  gr_tx <- gr[!is.na(mcols(gr)[[transcript_id]])]
+  gr_tx <- gr_tx[gr_tx$type %in% type_use]
+  if (length(gr_tx) == 0) {
+    stop(paste("No entry has types", paste(type_use, collapse = ", ")))
+  }
+  genes <- str_split(gr_tx$Parent, ":", simplify = TRUE)[, 2]
+  out <- data.frame(transcript = mcols(gr_tx)[[transcript_id]],
+    gene = genes,
+    stringsAsFactors = FALSE)
+  if (!is.null(transcript_version) && transcript_version %in% tags) {
+    tv <- mcols(gr_tx)[[transcript_version]]
+    out$transcript <- paste(out$transcript, tv, sep = version_sep)
+  }
+  # Get gene name and version
+  get_gene_name <- !is.null(gene_name) && gene_name %in% tags
+  get_gene_version <- !is.null(gene_version) && gene_version %in% tags
+  if (get_gene_name || get_gene_version) {
+    gr_g <- gr[!is.na(mcols(gr)[[gene_id]])]
+    gs <- data.frame(gene = mcols(gr_g)[[gene_id]],
+      stringsAsFactors = FALSE)
+    if (get_gene_name) {
+      gs$gene_name <- mcols(gr_g)[[gene_name]]
     }
-    gr <- read_gff3(file)
-    tags <- names(mcols(gr))
-    check_tag_present(c(transcript_id, gene_id), tags, error = TRUE)
-    # Will do nothing if all are NULL
-    check_tag_present(c(gene_name, transcript_version, gene_version),
-        tags, error = FALSE)
-    # Get transcript ID
-    gr_tx <- gr[!is.na(mcols(gr)[[transcript_id]])]
-    gr_tx <- gr_tx[gr_tx$type %in% type_use]
-    if (length(gr_tx) == 0) {
-        stop(paste("No entry has types", paste(type_use, collapse = ", ")))
+    # Add gene names to output
+    out <- out %>%
+      left_join(gs, by = "gene")
+    if (get_gene_version) {
+      gs$gv <- mcols(gr_g)[[gene_version]]
+      # Add gene version to output
+      # Avoid R CMD check note
+      gene <- gv <- NULL
+      out <- out %>%
+        left_join(gs, by = c("gene", "gene_name")) %>%
+        unite("gene", gene, gv, sep = version_sep)
     }
-    genes <- str_split(gr_tx$Parent, ":", simplify = TRUE)[, 2]
-    out <- data.frame(transcript = mcols(gr_tx)[[transcript_id]],
-        gene = genes,
-        stringsAsFactors = FALSE)
-    if (!is.null(transcript_version) && transcript_version %in% tags) {
-        tv <- mcols(gr_tx)[[transcript_version]]
-        out$transcript <- paste(out$transcript, tv, sep = version_sep)
-    }
-    # Get gene name and version
-    get_gene_name <- !is.null(gene_name) && gene_name %in% tags
-    get_gene_version <- !is.null(gene_version) && gene_version %in% tags
-    if (get_gene_name || get_gene_version) {
-        gr_g <- gr[!is.na(mcols(gr)[[gene_id]])]
-        gs <- data.frame(gene = mcols(gr_g)[[gene_id]],
-            stringsAsFactors = FALSE)
-        if (get_gene_name) {
-            gs$gene_name <- mcols(gr_g)[[gene_name]]
-        }
-        # Add gene names to output
-        out <- out %>%
-            left_join(gs, by = "gene")
-        if (get_gene_version) {
-            gs$gv <- mcols(gr_g)[[gene_version]]
-            # Add gene version to output
-            # Avoid R CMD check note
-            gene <- gv <- NULL
-            out <- out %>%
-                left_join(gs, by = c("gene", "gene_name")) %>%
-                unite("gene", gene, gv, sep = version_sep)
-        }
-    }
-    distinct(out)
+  }
+  distinct(out)
 }
 
 #' Get transcript and gene info from names in FASTA files
@@ -398,45 +398,45 @@ tr2g_fasta <- function(file, use_gene_name = TRUE,
                        use_transcript_version = TRUE,
                        use_gene_version = TRUE,
                        verbose = TRUE) {
-    check_char1(setNames(file, "file"))
-    file <- normalizePath(file, mustWork = TRUE)
-    if (!str_detect(file, "(\\.fasta)|(\\.fa)|(\\.fna)")) {
-        stop("file must be a FASTA file.")
+  check_char1(setNames(file, "file"))
+  file <- normalizePath(file, mustWork = TRUE)
+  if (!str_detect(file, "(\\.fasta)|(\\.fa)|(\\.fna)")) {
+    stop("file must be a FASTA file.")
+  }
+  file <- normalizePath(file, mustWork = TRUE)
+  if (verbose) {
+    message("Reading FASTA file.")
+  }
+  s <- readDNAStringSet(file)
+  is_ens <- all(str_detect(names(s), "^ENS[A-Z]*T\\d+"))
+  if (!is_ens && (use_transcript_version || use_gene_version)) {
+    message("Version is not applicable to IDs not of the form ENS[species prefix][feature type prefix][a unique eleven digit number].")
+    use_transcript_version <- use_gene_version <- FALSE
+  }
+  # Avoid R CMD check note
+  g <- gene_name <- NULL
+  out <- tibble(transcript = str_extract(names(s), "^[a-zA-Z\\d-\\.]+"),
+    gene = str_replace(names(s), "^.*gene:", "") %>%
+      str_replace("\\s+.*$", ""))
+  if (use_gene_name) {
+    out$gene_name <- str_replace(names(s), "^.*gene_symbol:", "") %>%
+      str_replace("\\s+.*$", "")
+  }
+  out <- distinct(out)
+  # Remove version number
+  if (is_ens) {
+    # Prevent R CMD check note of no visible binding for global variable
+    transcript <- gene <- NULL
+    if (!use_transcript_version) {
+      out <- out %>%
+        mutate(transcript = str_remove(transcript, "\\.\\d+$"))
     }
-    file <- normalizePath(file, mustWork = TRUE)
-    if (verbose) {
-        message("Reading FASTA file.")
+    if (!use_gene_version) {
+      out <- out %>%
+        mutate(gene = str_remove(gene, "\\.\\d+$"))
     }
-    s <- readDNAStringSet(file)
-    is_ens <- all(str_detect(names(s), "^ENS[A-Z]*T\\d+"))
-    if (!is_ens && (use_transcript_version || use_gene_version)) {
-        message("Version is not applicable to IDs not of the form ENS[species prefix][feature type prefix][a unique eleven digit number].")
-        use_transcript_version <- use_gene_version <- FALSE
-    }
-    # Avoid R CMD check note
-    g <- gene_name <- NULL
-    out <- tibble(transcript = str_extract(names(s), "^[a-zA-Z\\d-\\.]+"),
-        gene = str_replace(names(s), "^.*gene:", "") %>%
-            str_replace("\\s+.*$", ""))
-    if (use_gene_name) {
-        out$gene_name <- str_replace(names(s), "^.*gene_symbol:", "") %>%
-            str_replace("\\s+.*$", "")
-    }
-    out <- distinct(out)
-    # Remove version number
-    if (is_ens) {
-        # Prevent R CMD check note of no visible binding for global variable
-        transcript <- gene <- NULL
-        if (!use_transcript_version) {
-            out <- out %>%
-                mutate(transcript = str_remove(transcript, "\\.\\d+$"))
-        }
-        if (!use_gene_version) {
-            out <- out %>%
-                mutate(gene = str_remove(gene, "\\.\\d+$"))
-        }
-    }
-    out
+  }
+  out
 }
 
 #' Get transcript and gene info from TxDb objects
@@ -470,15 +470,15 @@ tr2g_fasta <- function(file, use_gene_name = TRUE,
 #' library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 #' tr2g_TxDb(TxDb.Hsapiens.UCSC.hg38.knownGene)
 tr2g_TxDb <- function(txdb) {
-    df <- AnnotationDbi::select(txdb, AnnotationDbi::keys(txdb, keytype = "TXID"),
-        keytype = "TXID",
-        columns = c("TXNAME", "GENEID", "TXID"))
-    if (anyDuplicated(df$TXNAME)) {
-        df$TXNAME <- make.unique(df$TXNAME, sep = "_")
-    }
-    df <- df[complete.cases(df), c("TXNAME", "GENEID", "TXID")]
-    names(df) <- c("transcript", "gene", "tx_id")
-    df
+  df <- AnnotationDbi::select(txdb, AnnotationDbi::keys(txdb, keytype = "TXID"),
+    keytype = "TXID",
+    columns = c("TXNAME", "GENEID", "TXID"))
+  if (anyDuplicated(df$TXNAME)) {
+    df$TXNAME <- make.unique(df$TXNAME, sep = "_")
+  }
+  df <- df[complete.cases(df), c("TXNAME", "GENEID", "TXID")]
+  names(df) <- c("transcript", "gene", "tx_id")
+  df
 }
 
 #' Get transcript and gene info from EnsDb objects
@@ -505,30 +505,30 @@ tr2g_TxDb <- function(txdb) {
 #' @examples
 #' library(EnsDb.Hsapiens.v86)
 #' tr2g_EnsDb(EnsDb.Hsapiens.v86, use_transcript_version = FALSE,
-#'     use_gene_version = FALSE)
+#'   use_gene_version = FALSE)
 tr2g_EnsDb <- function(ensdb, other_attrs = NULL, use_gene_name = TRUE,
                        use_transcript_version = TRUE,
                        use_gene_version = TRUE) {
-    attrs_use <- c("TXID", "GENEID", other_attrs)
-    if (use_gene_name) {
-        attrs_use <- c(attrs_use, "GENENAME")
-    }
-    if (use_transcript_version) {
-        attrs_use[1] <- "TXIDVERSION"
-    }
-    if (use_gene_version) {
-        attrs_use[2] <- "GENEIDVERSION"
-    }
-    df <- AnnotationDbi::select(ensdb, AnnotationDbi::keys(ensdb, keytype = "TXID"),
-        keytype = "TXID",
-        columns = attrs_use)
-    if (use_transcript_version) {
-        df$TXID <- NULL
-    }
-    names(df)[str_detect(names(df), "^TXID")] <- "transcript"
-    names(df)[str_detect(names(df), "^GENEID")] <- "gene"
-    names(df)[names(df) == "GENENAME"] <- "gene_name"
-    df
+  attrs_use <- c("TXID", "GENEID", other_attrs)
+  if (use_gene_name) {
+    attrs_use <- c(attrs_use, "GENENAME")
+  }
+  if (use_transcript_version) {
+    attrs_use[1] <- "TXIDVERSION"
+  }
+  if (use_gene_version) {
+    attrs_use[2] <- "GENEIDVERSION"
+  }
+  df <- AnnotationDbi::select(ensdb, AnnotationDbi::keys(ensdb, keytype = "TXID"),
+    keytype = "TXID",
+    columns = attrs_use)
+  if (use_transcript_version) {
+    df$TXID <- NULL
+  }
+  names(df)[str_detect(names(df), "^TXID")] <- "transcript"
+  names(df)[str_detect(names(df), "^GENEID")] <- "gene"
+  names(df)[names(df) == "GENENAME"] <- "gene_name"
+  df
 }
 
 #' Sort transcripts to the same order as in kallisto index
@@ -563,30 +563,30 @@ tr2g_EnsDb <- function(ensdb, other_attrs = NULL, use_gene_name = TRUE,
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
 #' tr2g <- tr2g_gtf(file = file_use, verbose = FALSE,
-#'     transcript_version = NULL)
+#'   transcript_version = NULL)
 #' tr2g <- sort_tr2g(tr2g, kallisto_out_path = toy_path, verbose = FALSE)
 sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
-    if (!xor(missing(tr2g), missing(file))) {
-        stop("Exactly one of tr2g and file should be missing.")
-    }
-    kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
-    trs_path <- paste(kallisto_out_path, "transcripts.txt", sep = "/")
-    if (!file.exists(trs_path)) {
-        stop("The file transcripts.txt does not exist in",
-            kallisto_out_path, "")
-    }
-    if (missing(tr2g)) {
-        tr2g <- fread(file)
-    }
-    trs <- fread(trs_path, header = FALSE, col.names = "transcript")
-    if (verbose) {
-        message("Sorting transcripts")
-    }
-    out <- merge(trs, tr2g, by = "transcript", sort = FALSE)
-    if (nrow(trs) != nrow(out)) {
-        warning("Some transcripts in the kallisto index are absent from tr2g.")
-    }
-    out
+  if (!xor(missing(tr2g), missing(file))) {
+    stop("Exactly one of tr2g and file should be missing.")
+  }
+  kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
+  trs_path <- paste(kallisto_out_path, "transcripts.txt", sep = "/")
+  if (!file.exists(trs_path)) {
+    stop("The file transcripts.txt does not exist in",
+      kallisto_out_path, "")
+  }
+  if (missing(tr2g)) {
+    tr2g <- fread(file)
+  }
+  trs <- fread(trs_path, header = FALSE, col.names = "transcript")
+  if (verbose) {
+    message("Sorting transcripts")
+  }
+  out <- merge(trs, tr2g, by = "transcript", sort = FALSE)
+  if (nrow(trs) != nrow(out)) {
+    warning("Some transcripts in the kallisto index are absent from tr2g.")
+  }
+  out
 }
 
 #' Save transcript to gene file for use in `bustools`
@@ -619,9 +619,9 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
 #' tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
 #' save_tr2g_bustools(tr2g, file_save = "./tr2g.tsv")
 save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
-    file_save <- normalizePath(file_save, mustWork = FALSE)
-    fwrite(tr2g[, c("transcript", "gene")], file = file_save, sep = "\t",
-        col.names = FALSE)
+  file_save <- normalizePath(file_save, mustWork = FALSE)
+  fwrite(tr2g[, c("transcript", "gene")], file = file_save, sep = "\t",
+    col.names = FALSE)
 }
 
 #' Map Ensembl transcript ID to gene ID
@@ -667,35 +667,35 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
 #' library(TENxBUSData)
 #' TENxBUSData(".", dataset = "retina")
 #' tr2g <- transcript2gene("Mus musculus", type = "vertebrate",
-#'     ensembl_version = 94, kallisto_out_path = "./out_retina")
+#'   ensembl_version = 94, kallisto_out_path = "./out_retina")
 transcript2gene <- function(species, fasta_file, kallisto_out_path,
                             type = "vertebrate",
                             verbose = TRUE, ...) {
-    if (!xor(missing(species), missing(fasta_file))) {
-        stop("Exactly one of species and fasta_file can be missing.")
+  if (!xor(missing(species), missing(fasta_file))) {
+    stop("Exactly one of species and fasta_file can be missing.")
+  }
+  if (missing(fasta_file)) {
+    if (length(type) != 1 && length(species) != length(type)) {
+      stop("species and type must have the same length.")
     }
-    if (missing(fasta_file)) {
-        if (length(type) != 1 && length(species) != length(type)) {
-            stop("species and type must have the same length.")
-        }
-        if (length(type) == 1) {
-            type <- rep(type, length(species))
-        }
-        kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
-        MoreArgs <- list(...)
-        fls <- mapply(tr2g_ensembl, species, type,
-            verbose = verbose,
-            MoreArgs = MoreArgs,
-            SIMPLIFY = FALSE)
-        tr2g <- rbindlist(fls)
-        return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, verbose = verbose))
-    } else {
-        fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose, ...)
-        tr2g <- rbindlist(fls)
-        # Just to be safe, to make sure that the transcripts are in the right order
-        return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path,
-            verbose = verbose))
+    if (length(type) == 1) {
+      type <- rep(type, length(species))
     }
+    kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
+    MoreArgs <- list(...)
+    fls <- mapply(tr2g_ensembl, species, type,
+      verbose = verbose,
+      MoreArgs = MoreArgs,
+      SIMPLIFY = FALSE)
+    tr2g <- rbindlist(fls)
+    return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, verbose = verbose))
+  } else {
+    fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose, ...)
+    tr2g <- rbindlist(fls)
+    # Just to be safe, to make sure that the transcripts are in the right order
+    return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path,
+      verbose = verbose))
+  }
 }
 
 #' Map EC Index to Genes Compatible with the EC
@@ -745,16 +745,16 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
 #' load(paste(toy_path, "toy_example.RData", sep = "/"))
 #' EC2gene(tr2g_toy, toy_path, verbose = FALSE, ncores = 1)
 EC2gene <- function(tr2g, kallisto_out_path, ncores = 0, verbose = TRUE) {
-    kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
-    c(ec_vec, genes) %<-% EC2gene_export(tr2g, kallisto_out_path, ncores, verbose)
-    # Sort according to indices
-    EC_inds <- 0:(length(genes) - 1)
-    genes <- genes[as.character(EC_inds)]
-    names(genes) <- NULL
-    ec_vec <- ec_vec[as.character(EC_inds)]
-    names(ec_vec) <- NULL
-    ec_vec <- lapply(ec_vec, as.numeric)
-    tibble(EC_ind = EC_inds,
-        EC = ec_vec,
-        gene = genes)
+  kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
+  c(ec_vec, genes) %<-% EC2gene_export(tr2g, kallisto_out_path, ncores, verbose)
+  # Sort according to indices
+  EC_inds <- 0:(length(genes) - 1)
+  genes <- genes[as.character(EC_inds)]
+  names(genes) <- NULL
+  ec_vec <- ec_vec[as.character(EC_inds)]
+  names(ec_vec) <- NULL
+  ec_vec <- lapply(ec_vec, as.numeric)
+  tibble(EC_ind = EC_inds,
+    EC = ec_vec,
+    gene = genes)
 }

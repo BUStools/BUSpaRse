@@ -64,59 +64,59 @@ NULL
 #' out_fn <- paste0(toy_path, "/output.sorted.txt")
 #' # With whitelist
 #' m <- make_sparse_matrix(out_fn, tr2g_toy, 10, 3, whitelist = whitelist,
-#'     gene_count = TRUE, TCC = FALSE, single_gene = TRUE,
-#'     verbose = FALSE)
+#'   gene_count = TRUE, TCC = FALSE, single_gene = TRUE,
+#'   verbose = FALSE)
 make_sparse_matrix <- function(bus_path, tr2g, est_ncells,
                                est_ngenes, whitelist = NULL, gene_count = TRUE,
                                TCC = TRUE, single_gene = TRUE, ncores = 0,
                                verbose = TRUE, progress_unit = 5e6) {
-    bus_path <- normalizePath(bus_path, mustWork = TRUE)
-    kallisto_out_path <- dirname(bus_path)
-    bus_fn <- basename(bus_path)
-    if (!grepl(".txt$", bus_fn)) {
-        stop("Argument fn must point to a text file. Please run bustools text.")
-    }
-    if (TCC && !gene_count) {
-        tr2g <- data.frame(gene = character(0),
-            transcript = character(0))
-    }
-    if (is.null(whitelist)) {
-        whitelist <- ""
-    }
-    # Prevent the no visible binding of global variable note in R CMD check
-    barcodes_gc <- geneIDs <- barcodes_tcc <- ec_inds <- NULL
-    if (gene_count && TCC) {
-        c(c(gc_mat, barcodes_gc, geneIDs),
-            c(tcc_mat, barcodes_tcc, ec_inds)) %<-% fill_cell_gene(bus_fn, kallisto_out_path,
-            tr2g,
-            est_ncells, est_ngenes,
-            whitelist, gene_count, TCC,
-            single_gene, ncores,
-            verbose, progress_unit)
-        rownames(gc_mat) <- geneIDs
-        colnames(gc_mat) <- barcodes_gc
-        rownames(tcc_mat) <- ec_inds
-        colnames(tcc_mat) <- barcodes_tcc
-        return(list(gene_count = gc_mat, TCC = tcc_mat))
-    } else if (gene_count) {
-        c(gc_mat, barcodes_gc, geneIDs) %<-% fill_cell_gene(bus_fn, kallisto_out_path,
-            tr2g,
-            est_ncells, est_ngenes,
-            whitelist, gene_count,
-            FALSE, single_gene, ncores,
-            verbose, progress_unit)
-        rownames(gc_mat) <- geneIDs
-        colnames(gc_mat) <- barcodes_gc
-        return(gc_mat)
-    } else {
-        c(tcc_mat, barcodes_tcc, ec_inds) %<-% fill_cell_gene(bus_fn, kallisto_out_path,
-            tr2g,
-            est_ncells, est_ngenes,
-            whitelist, FALSE, TCC,
-            FALSE, ncores,
-            verbose, progress_unit)
-        rownames(tcc_mat) <- ec_inds
-        colnames(tcc_mat) <- barcodes_tcc
-        return(tcc_mat)
-    }
+  bus_path <- normalizePath(bus_path, mustWork = TRUE)
+  kallisto_out_path <- dirname(bus_path)
+  bus_fn <- basename(bus_path)
+  if (!grepl(".txt$", bus_fn)) {
+    stop("Argument fn must point to a text file. Please run bustools text.")
+  }
+  if (TCC && !gene_count) {
+    tr2g <- data.frame(gene = character(0),
+      transcript = character(0))
+  }
+  if (is.null(whitelist)) {
+    whitelist <- ""
+  }
+  # Prevent the no visible binding of global variable note in R CMD check
+  barcodes_gc <- geneIDs <- barcodes_tcc <- ec_inds <- NULL
+  if (gene_count && TCC) {
+    c(c(gc_mat, barcodes_gc, geneIDs),
+      c(tcc_mat, barcodes_tcc, ec_inds)) %<-% fill_cell_gene(bus_fn, kallisto_out_path,
+      tr2g,
+      est_ncells, est_ngenes,
+      whitelist, gene_count, TCC,
+      single_gene, ncores,
+      verbose, progress_unit)
+    rownames(gc_mat) <- geneIDs
+    colnames(gc_mat) <- barcodes_gc
+    rownames(tcc_mat) <- ec_inds
+    colnames(tcc_mat) <- barcodes_tcc
+    return(list(gene_count = gc_mat, TCC = tcc_mat))
+  } else if (gene_count) {
+    c(gc_mat, barcodes_gc, geneIDs) %<-% fill_cell_gene(bus_fn, kallisto_out_path,
+      tr2g,
+      est_ncells, est_ngenes,
+      whitelist, gene_count,
+      FALSE, single_gene, ncores,
+      verbose, progress_unit)
+    rownames(gc_mat) <- geneIDs
+    colnames(gc_mat) <- barcodes_gc
+    return(gc_mat)
+  } else {
+    c(tcc_mat, barcodes_tcc, ec_inds) %<-% fill_cell_gene(bus_fn, kallisto_out_path,
+      tr2g,
+      est_ncells, est_ngenes,
+      whitelist, FALSE, TCC,
+      FALSE, ncores,
+      verbose, progress_unit)
+    rownames(tcc_mat) <- ec_inds
+    colnames(tcc_mat) <- barcodes_tcc
+    return(tcc_mat)
+  }
 }

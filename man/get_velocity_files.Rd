@@ -11,35 +11,37 @@
 \usage{
 get_velocity_files(X, L, Genome, Transcriptome = NULL, out_path = ".",
   style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI", "other"),
-  isoform_action = c("separate", "collapse"), compress_fa = FALSE,
-  width = 80L, ...)
+  isoform_action = c("collapse", "separate"), exon_option = c("full",
+  "junction"), compress_fa = FALSE, width = 80L, ...)
 
 \S4method{get_velocity_files}{GRanges}(X, L, Genome,
   Transcriptome = NULL, out_path = ".", style = c("annotation",
   "genome", "Ensembl", "UCSC", "NCBI", "other"),
-  isoform_action = c("separate", "collapse"), compress_fa = FALSE,
-  width = 80L, transcript_id = "transcript_id", gene_id = "gene_id",
+  isoform_action = c("collapse", "separate"), exon_option = c("full",
+  "junction"), compress_fa = FALSE, width = 80L,
+  transcript_id = "transcript_id", gene_id = "gene_id",
   transcript_version = "transcript_version",
   gene_version = "gene_version", version_sep = ".")
 
 \S4method{get_velocity_files}{character}(X, L, Genome,
   Transcriptome = NULL, out_path = ".", style = c("annotation",
   "genome", "Ensembl", "UCSC", "NCBI", "other"),
-  isoform_action = c("separate", "collapse"), compress_fa = FALSE,
-  width = 80L, transcript_id = "transcript_id", gene_id = "gene_id",
+  isoform_action = c("collapse", "separate"), exon_option = c("full",
+  "junction"), compress_fa = FALSE, width = 80L, is_circular = NULL,
+  transcript_id = "transcript_id", gene_id = "gene_id",
   transcript_version = "transcript_version",
   gene_version = "gene_version", version_sep = ".")
 
 \S4method{get_velocity_files}{TxDb}(X, L, Genome, Transcriptome, out_path,
   style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI", "other"),
-  isoform_action = c("separate", "collapse"), compress_fa = FALSE,
-  width = 80L)
+  isoform_action = c("collapse", "separate"), exon_option = c("full",
+  "junction"), compress_fa = FALSE, width = 80L)
 
 \S4method{get_velocity_files}{EnsDb}(X, L, Genome, Transcriptome, out_path,
   style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI", "other"),
-  isoform_action = c("separate", "collapse"), compress_fa = FALSE,
-  width = 80L, use_transcript_version = TRUE,
-  use_gene_version = TRUE)
+  isoform_action = c("collapse", "separate"), exon_option = c("full",
+  "junction"), compress_fa = FALSE, width = 80L,
+  use_transcript_version = TRUE, use_gene_version = TRUE)
 }
 \arguments{
 \item{X}{Gene annotation with transcript and exon information. It can be a
@@ -105,9 +107,20 @@ of interest.}
 \item{isoform_action}{Character, indicating action to take with different
 transcripts of the same gene. Must be one of the following:
 \describe{
-\item{separate}{Introns from different transcripts will be kept separate.}
 \item{collapse}{First, the union of all exons of different transcripts of a
-gene will be taken. Then the introns will be inferred from this union.}
+gene will be taken. Then the introns will be inferred from this union. Only
+the flanked intronic sequences are affected; isoforms will always be taken
+into account for spliced sequences or exon-exon junctions.}
+\item{separate}{Introns from different transcripts will be kept separate.}
+}}
+
+\item{exon_option}{Character, indicating how exonic sequences should be
+included in the kallisto index. Must be one of the following:
+\describe{
+\item{full}{The full cDNA sequences, which include the full exonic sequences,
+will be used. This is the default.}
+\item{junction}{Only the exon-exon junctions, with L-1 bases on each side
+of the junctions, will be used.}
 }}
 
 \item{compress_fa}{Logical, whether to compress the output fasta file of
@@ -151,6 +164,11 @@ version number, it's up to you whether to include gene version number.}
 \item{version_sep}{Character to separate bewteen the main ID and the version
 number. Defaults to ".", as in Ensembl.}
 
+\item{is_circular}{Logical vector of the same length as the number of
+sequences in the annotation and with the same names as the sequences,
+indicating whether the sequence is circular. If \code{NULL}, then all sequences
+will be assumed to be linear.}
+
 \item{use_transcript_version}{Logical, whether to include version number in
 the Ensembl transcript ID.}
 
@@ -169,12 +187,15 @@ mapping to exons. If the exon is shorter than 2*(L-1) nt, then the entire
 exon will be included in the intronic sequence. This will be used to build
 the \code{kallisto} index.}
 \item{cDNA_tx_to_capture.txt}{A text file of transcript IDs of spliced
-transcripts.}
+transcripts. If \code{exon_option == "junction"}, then IDs of the exon-exon
+junctions. These IDs will have the pattern <transcript ID>-Jx, where x is a
+number differentiating between different junctions of the same transcript.
+Here x will always be ordered from 5' to 3' as on the plus strand.}
 \item{introns_tx_to_capture.txt}{A text file of IDs of introns. The names
 will have the pattern <transcript ID>-Ix, where x is a number differentiating
 between introns of the same transcript. If all transcripts of the same gene
 are collapsed before inferring intronic sequences, gene ID will be used in
-place of transcript ID. Here x will always be ordered from 5' to 3' on the
+place of transcript ID. Here x will always be ordered from 5' to 3' as on the
 plus strand.}
 \item{tr2g.txt}{A text file with two columns matching transcripts and introns
 to genes. The first column is transcript or intron ID, and the second column
@@ -200,5 +221,5 @@ file <- paste0(toy_path, "/velocity_annot.gtf")
 genome <- Biostrings::readDNAStringSet(paste0(toy_path, "/velocity_genome.fa"))
 transcriptome <- paste0(toy_path, "/velocity_tx.fa")
 get_velocity_files(file, 11, genome, transcriptome, ".",
-    gene_version = NULL, transcript_version = NULL)
+  gene_version = NULL, transcript_version = NULL)
 }

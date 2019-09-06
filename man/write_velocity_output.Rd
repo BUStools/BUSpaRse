@@ -5,14 +5,14 @@
 \title{Write the files for RNA velocity to disk}
 \usage{
 write_velocity_output(out_path, introns, Genome, Transcriptome,
-  isoform_action, tr2g_cdna, compress_fa, width)
+  isoform_action, exon_option, tr2g_cdna, compress_fa, width)
 }
 \arguments{
 \item{out_path}{Directory to save the outputs written to disk. If this
 directory does not exist, then it will be created.}
 
 \item{introns}{Intronic ranges plus flanking region, returned by
-\code{\link{get_flanked_introns}}.}
+\code{\link{get_intron_flanks}}.}
 
 \item{Genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
 object of genomic sequences, where the intronic sequences will be extracted
@@ -35,9 +35,20 @@ supplied via argument \code{X}.}
 \item{isoform_action}{Character, indicating action to take with different
 transcripts of the same gene. Must be one of the following:
 \describe{
-\item{separate}{Introns from different transcripts will be kept separate.}
 \item{collapse}{First, the union of all exons of different transcripts of a
-gene will be taken. Then the introns will be inferred from this union.}
+gene will be taken. Then the introns will be inferred from this union. Only
+the flanked intronic sequences are affected; isoforms will always be taken
+into account for spliced sequences or exon-exon junctions.}
+\item{separate}{Introns from different transcripts will be kept separate.}
+}}
+
+\item{exon_option}{Character, indicating how exonic sequences should be
+included in the kallisto index. Must be one of the following:
+\describe{
+\item{full}{The full cDNA sequences, which include the full exonic sequences,
+will be used. This is the default.}
+\item{junction}{Only the exon-exon junctions, with L-1 bases on each side
+of the junctions, will be used.}
 }}
 
 \item{tr2g_cdna}{A data frame with columns \code{transcript} and \code{gene} that maps

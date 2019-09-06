@@ -6,9 +6,9 @@
 \usage{
 .get_velocity_files(gr, L, Genome, Transcriptome = NULL,
   out_path = ".", style = c("annotation", "genome", "Ensembl", "UCSC",
-  "NCBI", "other"), isoform_action = c("separate", "collapse"),
-  transcript_id = "transcript_id", gene_id = "gene_id",
-  transcript_version = "transcript_version",
+  "NCBI", "other"), isoform_action = c("collapse", "separate"),
+  exon_option = c("full", "junction"), transcript_id = "transcript_id",
+  gene_id = "gene_id", transcript_version = "transcript_version",
   gene_version = "gene_version", version_sep = ".",
   compress_fa = FALSE, width = 80L)
 }
@@ -67,9 +67,20 @@ of interest.}
 \item{isoform_action}{Character, indicating action to take with different
 transcripts of the same gene. Must be one of the following:
 \describe{
-\item{separate}{Introns from different transcripts will be kept separate.}
 \item{collapse}{First, the union of all exons of different transcripts of a
-gene will be taken. Then the introns will be inferred from this union.}
+gene will be taken. Then the introns will be inferred from this union. Only
+the flanked intronic sequences are affected; isoforms will always be taken
+into account for spliced sequences or exon-exon junctions.}
+\item{separate}{Introns from different transcripts will be kept separate.}
+}}
+
+\item{exon_option}{Character, indicating how exonic sequences should be
+included in the kallisto index. Must be one of the following:
+\describe{
+\item{full}{The full cDNA sequences, which include the full exonic sequences,
+will be used. This is the default.}
+\item{junction}{Only the exon-exon junctions, with L-1 bases on each side
+of the junctions, will be used.}
 }}
 
 \item{transcript_id}{Character vector of length 1. Tag in \code{attribute}

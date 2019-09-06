@@ -33,6 +33,6 @@ Read intronic and exonic matrices into R
 # Internal toy data used for unit testing
 toy_path <- system.file("testdata", package = "BUSpaRse")
 m <- read_velocity_output(toy_path, toy_path,
-    spliced_name = "genes",
-    unspliced_name = "genes")
+  spliced_name = "genes",
+  unspliced_name = "genes")
 }

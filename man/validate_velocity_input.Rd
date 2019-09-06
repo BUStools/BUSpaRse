@@ -5,7 +5,7 @@
 \title{Validate input to get_velocity_files}
 \usage{
 validate_velocity_input(L, Genome, Transcriptome, out_path, compress_fa,
-  width)
+  width, exon_option)
 }
 \arguments{
 \item{L}{Length of the biological read. For instance, 10xv1: 98 nt,
@@ -46,6 +46,15 @@ file will be gzipped.}
 
 \item{width}{Maximum number of letters per line of sequence in the output
 fasta file. Must be an integer.}
+
+\item{exon_option}{Character, indicating how exonic sequences should be
+included in the kallisto index. Must be one of the following:
+\describe{
+\item{full}{The full cDNA sequences, which include the full exonic sequences,
+will be used. This is the default.}
+\item{junction}{Only the exon-exon junctions, with L-1 bases on each side
+of the junctions, will be used.}
+}}
 }
 \value{
 Will throw error if validation fails. Returns a named list whose
