@@ -127,6 +127,7 @@
     # Get intronic ranges
     introns <- get_intron_flanks(grl, L, FALSE)
     if (exon_option == "junction") {
+      message("Extracting exon-exon junctions")
       grt <- GenomicRanges::split(gr, gr$transcript_id)
       exons <- get_intron_flanks(grt, L, TRUE)[[2]]
       Transcriptome <- extractTranscriptSeqs(Genome, exons)
@@ -136,6 +137,7 @@
     grl <- GenomicRanges::split(gr, gr$transcript_id)
     grl <- revElements(grl, any(strand(grl) == "-"))
     if (exon_option == "junction") {
+      message("Extracting exon-exon junctions")
       c(introns, exons) %<-% get_intron_flanks(grl, L, TRUE)
       Transcriptome <- extractTranscriptSeqs(Genome, exons)
       tr2g_cdna <- tr2g_junction(tr2g_cdna, names(Transcriptome))
@@ -324,6 +326,7 @@ setMethod("get_velocity_files", "TxDb",
       # Get intronic ranges
       introns <- get_intron_flanks(grl, L, FALSE)
       if (exon_option == "junction") {
+        message("Extracting exon-exon junctions")
         grt <- exons_by_tx(X, tr2g_cdna$tx_id, tr2g_cdna$transcript)
         c(Genome, grt) %<-% annot_circular(Genome, grt)
         genome(grt) <- genome(Genome)[seqlevels(grt)]
@@ -337,6 +340,7 @@ setMethod("get_velocity_files", "TxDb",
       c(Genome, grl) %<-% annot_circular(Genome, grl)
       genome(grl) <- genome(Genome)[seqlevels(grl)]
       if (exon_option == "junction") {
+        message("Extracting exon-exon junctions")
         c(introns, exons) %<-% get_intron_flanks(grl, L, TRUE)
         Transcriptome <- extractTranscriptSeqs(Genome, exons)
         tr2g_cdna <- tr2g_junction(tr2g_cdna, names(Transcriptome))
@@ -429,6 +433,7 @@ setMethod("get_velocity_files", "EnsDb",
       # Get intronic ranges
       introns <- get_intron_flanks(grl, L, FALSE)
       if (exon_option == "junction") {
+        message("Extracting exon-exon junctions")
         grt <- exons_by_tx(X, tr2g_cdna$transcript, chrs_use,
           use_transcript_version)
         c(Genome, grt) %<-% annot_circular(Genome, grt)
@@ -443,6 +448,7 @@ setMethod("get_velocity_files", "EnsDb",
       c(Genome, grl) %<-% annot_circular(Genome, grl)
       genome(grl) <- genome(Genome)[seqlevels(grl)]
       if (exon_option == "junction") {
+        message("Extracting exon-exon junctions")
         c(introns, exons) %<-% get_intron_flanks(grl, L, TRUE)
         Transcriptome <- extractTranscriptSeqs(Genome, exons)
         tr2g_cdna <- tr2g_junction(tr2g_cdna, names(Transcriptome))

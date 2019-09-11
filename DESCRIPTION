@@ -1,12 +1,15 @@
 Package: BUSpaRse
 Type: Package
 Title: kallisto | bustools R utilities
-Version: 0.99.24
-Date: 2019-09-06
+Version: 0.99.25
+Date: 2019-09-11
 Authors@R: 
-    person("Lambda", "Moses", email = "dlu2@caltech.edu", 
+    c(person("Lambda", "Moses", email = "dlu2@caltech.edu", 
     role = c("aut", "cre"),
-    comment = c(ORCID = "0000-0002-7092-9427"))
+    comment = c(ORCID = "0000-0002-7092-9427")),
+    person("Lior", "Pachter", email = "lpachter@caltech.edu",
+    role = c("aut", "ths"),
+    comment = c(ORCID = "0000-0002-9164-6231")))
 Description: 
     The kallisto | bustools pipeline is a fast and modular set of tools to
     convert single cell RNA-seq reads in fastq files into gene count or 
