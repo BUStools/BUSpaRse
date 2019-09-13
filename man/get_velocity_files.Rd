@@ -11,13 +11,13 @@
 \usage{
 get_velocity_files(X, L, Genome, Transcriptome = NULL, out_path = ".",
   style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI", "other"),
-  isoform_action = c("collapse", "separate"), exon_option = c("full",
+  isoform_action = c("separate", "collapse"), exon_option = c("full",
   "junction"), compress_fa = FALSE, width = 80L, ...)
 
 \S4method{get_velocity_files}{GRanges}(X, L, Genome,
   Transcriptome = NULL, out_path = ".", style = c("annotation",
   "genome", "Ensembl", "UCSC", "NCBI", "other"),
-  isoform_action = c("collapse", "separate"), exon_option = c("full",
+  isoform_action = c("separate", "collapse"), exon_option = c("full",
   "junction"), compress_fa = FALSE, width = 80L,
   transcript_id = "transcript_id", gene_id = "gene_id",
   transcript_version = "transcript_version",
@@ -26,7 +26,7 @@ get_velocity_files(X, L, Genome, Transcriptome = NULL, out_path = ".",
 \S4method{get_velocity_files}{character}(X, L, Genome,
   Transcriptome = NULL, out_path = ".", style = c("annotation",
   "genome", "Ensembl", "UCSC", "NCBI", "other"),
-  isoform_action = c("collapse", "separate"), exon_option = c("full",
+  isoform_action = c("separate", "collapse"), exon_option = c("full",
   "junction"), compress_fa = FALSE, width = 80L, is_circular = NULL,
   transcript_id = "transcript_id", gene_id = "gene_id",
   transcript_version = "transcript_version",
@@ -34,12 +34,12 @@ get_velocity_files(X, L, Genome, Transcriptome = NULL, out_path = ".",
 
 \S4method{get_velocity_files}{TxDb}(X, L, Genome, Transcriptome, out_path,
   style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI", "other"),
-  isoform_action = c("collapse", "separate"), exon_option = c("full",
+  isoform_action = c("separate", "collapse"), exon_option = c("full",
   "junction"), compress_fa = FALSE, width = 80L)
 
 \S4method{get_velocity_files}{EnsDb}(X, L, Genome, Transcriptome, out_path,
   style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI", "other"),
-  isoform_action = c("collapse", "separate"), exon_option = c("full",
+  isoform_action = c("separate", "collapse"), exon_option = c("full",
   "junction"), compress_fa = FALSE, width = 80L,
   use_transcript_version = TRUE, use_gene_version = TRUE)
 }
