@@ -1,5 +1,6 @@
 # BUSpaRse 0.99.25 (2019-09-11)
 * Added message to indicate when get_velocity_files is extracting exon-exon junctions.
+* Restored "separate" to be default isoform_action in get_velocity_files.
 
 # BUSpaRse 0.99.24 (2019-09-06)
 * When sorting tr2g from file, now the file must be formatted in ways required by bustools.
