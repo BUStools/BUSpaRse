@@ -6,7 +6,7 @@
 \usage{
 .get_velocity_files(gr, L, Genome, Transcriptome = NULL,
   out_path = ".", style = c("annotation", "genome", "Ensembl", "UCSC",
-  "NCBI", "other"), isoform_action = c("collapse", "separate"),
+  "NCBI", "other"), isoform_action = c("separate", "collapse"),
   exon_option = c("full", "junction"), transcript_id = "transcript_id",
   gene_id = "gene_id", transcript_version = "transcript_version",
   gene_version = "gene_version", version_sep = ".",
