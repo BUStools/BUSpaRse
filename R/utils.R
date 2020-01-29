@@ -95,8 +95,8 @@ check_gff <- function(format, file, transcript_id, gene_id) {
 #' column names and row names.
 #'
 #' @param dir Directory with the bustools count outputs.
-#' @param name The files in the output directory should be <name>.mtx, <name>.genes.txt,
-#' and <name>.barcodes.txt.
+#' @param name The files in the output directory should be "name".mtx, "name".genes.txt,
+#' and "name".barcodes.txt.
 #' @param tcc Logical, whether the matrix of interest is a TCC matrix. Defaults
 #' to \code{FALSE}.
 #' @return A dgCMatrix with barcodes as column names and genes as row names.

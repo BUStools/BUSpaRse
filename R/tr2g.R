@@ -638,8 +638,6 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
 #' \code{ensembl_version} to match the version where the transcriptomes were
 #' downloaded.
 #'
-#' @inheritParams tr2g_ensembl
-#' @inheritParams sort_tr2g
 #' @param species A character vector of Latin names of species present in this
 #' scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.
 #' @param type A character vector indicating the type of each species. Each

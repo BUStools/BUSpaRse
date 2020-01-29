@@ -101,6 +101,7 @@
   gr <- subset_annot(Genome, gr)
   c(Genome, gr) %<-% annot_circular(Genome, gr)
   genome(gr) <- genome(Genome)[seqlevels(gr)]
+  gr <- sort(gr)
   if (!is.null(gene_version)) {
     names(mcols(gr))[fields == gene_version] <- "gene_version"
     gr$gene_id <- paste(gr$gene_id, gr$gene_version, sep = version_sep)
@@ -197,11 +198,11 @@
 #' the `kallisto` index.}
 #' \item{cDNA_tx_to_capture.txt}{A text file of transcript IDs of spliced
 #' transcripts. If `exon_option == "junction"`, then IDs of the exon-exon
-#' junctions. These IDs will have the pattern <transcript ID>-Jx, where x is a
+#' junctions. These IDs will have the pattern "transcript ID"-Jx, where x is a
 #' number differentiating between different junctions of the same transcript.
 #' Here x will always be ordered from 5' to 3' as on the plus strand.}
 #' \item{introns_tx_to_capture.txt}{A text file of IDs of introns. The names
-#' will have the pattern <transcript ID>-Ix, where x is a number differentiating
+#' will have the pattern "transcript ID"-Ix, where x is a number differentiating
 #' between introns of the same transcript. If all transcripts of the same gene
 #' are collapsed before inferring intronic sequences, gene ID will be used in
 #' place of transcript ID. Here x will always be ordered from 5' to 3' as on the

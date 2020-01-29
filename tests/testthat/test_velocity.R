@@ -145,21 +145,21 @@ test_that("TxDb, collapse isoforms", {
 })
 
 test_that("When transcriptome is missing, GRanges", {
-  out_path <- "./trunc_coll"
+  out_path <- "./trunc_sep"
   get_velocity_files(paste(toy_path, "velocity_annot.gtf", sep = "/"), L = L,
     Genome = toy_genome,
     out_path = out_path,
-    isoform_action = "collapse",
+    isoform_action = "separate",
     transcript_version = NULL,
     gene_version = NULL)
   # fasta file
-  test_fasta(toy_path, out_path, "coll")
+  test_fasta(toy_path, out_path, "normal")
   # tr2g
-  test_tr2g(toy_path, out_path, "coll")
+  test_tr2g(toy_path, out_path, "normal")
   # transcript to capture
   test_tx_capture(toy_path, out_path)
   # introns to capture
-  test_intron_capture(toy_path, out_path, "coll")
+  test_intron_capture(toy_path, out_path, "normal")
   unlink(out_path, recursive = TRUE)
 })
 

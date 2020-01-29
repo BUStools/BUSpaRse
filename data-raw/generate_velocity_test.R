@@ -60,21 +60,26 @@ gr_df <- tribble(
 
 gr_df <- gr_df %>%
   mutate(exon_id = paste(transcript_id, exon_number, sep = "-"))
-gr <- makeGRangesFromDataFrame(gr_df, keep.extra.columns = TRUE)
 
 # Minus strand
-gr_minus <- gr
-strand(gr_minus) <- "-"
-gr_minus$gene_id <- paste0(gr$gene_id, "m")
-gr_minus$transcript_id <- paste0(gr$transcript_id, "m")
+gr_minus <- gr_df
+gr_minus$strand <- "-"
+gr_minus$gene_id <- paste0(gr_df$gene_id, "m")
+gr_minus$transcript_id <- paste0(gr_df$transcript_id, "m")
 gr_minus$exon_number <- c(rep(3:1, 4), 1, 4:1, 3:1, 2:1, rep(3:1, 2), 3:1, 2:1, 1)
-gr_full <- c(gr, gr_minus)
+gr_minus <- gr_minus %>% 
+  arrange(seqnames, desc(start), desc(end))
+gr_minus <- gr_minus[c(1:6, 8:34, 7),]
+gr <- makeGRangesFromDataFrame(gr_df, keep.extra.columns = TRUE)
+gr_m <- makeGRangesFromDataFrame(gr_minus, keep.extra.columns = TRUE)
+gr_full <- c(gr, gr_m)
 gr_full$type <- "exon"
 # Save GTF file
 write_gff(gr_full, "./inst/testdata/velocity_annot.gtf")
 tr2g_tx <- mcols(gr_full) %>%
   as.data.frame() %>%
   dplyr::select(transcript = transcript_id, gene = gene_id) %>%
+  dplyr::filter(!str_detect(transcript, "K")) %>% 
   distinct()
 
 # Make toy genome--------------------------
@@ -109,7 +114,7 @@ exon2e2 <- rep("C", 6)
 geneE <- paste(c(flank5p, exon1, intron1, exon2e, intron2e, exon2e2, intron2, exon3,
   flank3p), collapse = "")
 
-gn <- setNames(c(chr1, geneB, geneC, geneD, geneE, rep(chr1, 9)),
+gn <- setNames(c(chr1, geneB, geneC, geneD, geneE, rep(chr1, 4)),
   paste0("chr", 1:9))
 gn <- DNAStringSet(gn, use.names = TRUE)
 seqinfo(gn) <- Seqinfo(paste("chr", 1:9), isCircular = rep(FALSE, 9))
@@ -125,13 +130,13 @@ txF2 <- paste(c(exon1, exon3), collapse = "")
 txG2 <- paste(c(rep("A", 16), exon2, exon3), collapse = "")
 txH2 <- paste(c(exon2, exon3), collapse = "")
 plus_tx <- setNames(c(tx1, tx1, txB, txC, txD, txE, tx1, txF2, tx1, txG2, tx1, txH2),
-  unique(gr$transcript_id))
+  unique(gr$transcript_id)[1:12])
 plus_tx <- DNAStringSet(plus_tx, use.names = TRUE)
 minus_tx <- reverseComplement(plus_tx)
-names(minus_tx) <- unique(gr_minus$transcript_id)
+names(minus_tx) <- unique(gr_m$transcript_id)[1:12]
 tx <- c(plus_tx, minus_tx)
 writeXStringSet(tx, "./inst/testdata/velocity_tx.fa")
-writeLines(unique(gr_full$transcript_id), "./inst/testdata/velocity_cdna_tx.txt")
+writeLines(names(tx), "./inst/testdata/velocity_cdna_tx.txt")
 
 # Make toy intron fasta, with L=11, so flanking region is 15 or shorter---------
 ## Don't collapse isoforms--------------------
