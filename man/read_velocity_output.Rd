@@ -4,8 +4,7 @@
 \alias{read_velocity_output}
 \title{Read intronic and exonic matrices into R}
 \usage{
-read_velocity_output(spliced_dir, unspliced_dir, spliced_name,
-  unspliced_name)
+read_velocity_output(spliced_dir, unspliced_dir, spliced_name, unspliced_name)
 }
 \arguments{
 \item{spliced_dir}{Directory with \code{mtx} file for UMI counts of spliced

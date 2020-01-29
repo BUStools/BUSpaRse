@@ -4,8 +4,13 @@
 \alias{tr2g_fasta}
 \title{Get transcript and gene info from names in FASTA files}
 \usage{
-tr2g_fasta(file, use_gene_name = TRUE, use_transcript_version = TRUE,
-  use_gene_version = TRUE, verbose = TRUE)
+tr2g_fasta(
+  file,
+  use_gene_name = TRUE,
+  use_transcript_version = TRUE,
+  use_gene_version = TRUE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{file}{Path to the FASTA file to be read. The file can remain gzipped.}
@@ -64,9 +69,13 @@ file_use <- paste(toy_path, "fasta_test.fasta", sep = "/")
 tr2g <- tr2g_fasta(file = file_use, verbose = FALSE)
 }
 \seealso{
-Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
-  \code{\link{tr2g_EnsDb}}, \code{\link{tr2g_TxDb}},
-  \code{\link{tr2g_ensembl}}, \code{\link{tr2g_gff3}},
-  \code{\link{tr2g_gtf}}, \code{\link{transcript2gene}}
+Other functions to retrieve transcript and gene info: 
+\code{\link{sort_tr2g}()},
+\code{\link{tr2g_EnsDb}()},
+\code{\link{tr2g_TxDb}()},
+\code{\link{tr2g_ensembl}()},
+\code{\link{tr2g_gff3}()},
+\code{\link{tr2g_gtf}()},
+\code{\link{transcript2gene}()}
 }
 \concept{functions to retrieve transcript and gene info}

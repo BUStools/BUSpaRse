@@ -9,8 +9,8 @@ read_count_output(dir, name, tcc = TRUE)
 \arguments{
 \item{dir}{Directory with the bustools count outputs.}
 
-\item{name}{The files in the output directory should be <name>.mtx, <name>.genes.txt,
-and <name>.barcodes.txt.}
+\item{name}{The files in the output directory should be "name".mtx, "name".genes.txt,
+and "name".barcodes.txt.}
 
 \item{tcc}{Logical, whether the matrix of interest is a TCC matrix. Defaults
 to \code{FALSE}.}

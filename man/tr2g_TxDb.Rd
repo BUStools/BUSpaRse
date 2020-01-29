@@ -37,14 +37,22 @@ library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 tr2g_TxDb(TxDb.Hsapiens.UCSC.hg38.knownGene)
 }
 \seealso{
-Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
-  \code{\link{tr2g_EnsDb}}, \code{\link{tr2g_ensembl}},
-  \code{\link{tr2g_fasta}}, \code{\link{tr2g_gff3}},
-  \code{\link{tr2g_gtf}}, \code{\link{transcript2gene}}
+Other functions to retrieve transcript and gene info: 
+\code{\link{sort_tr2g}()},
+\code{\link{tr2g_EnsDb}()},
+\code{\link{tr2g_ensembl}()},
+\code{\link{tr2g_fasta}()},
+\code{\link{tr2g_gff3}()},
+\code{\link{tr2g_gtf}()},
+\code{\link{transcript2gene}()}
 
-Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
-  \code{\link{tr2g_EnsDb}}, \code{\link{tr2g_ensembl}},
-  \code{\link{tr2g_fasta}}, \code{\link{tr2g_gff3}},
-  \code{\link{tr2g_gtf}}, \code{\link{transcript2gene}}
+Other functions to retrieve transcript and gene info: 
+\code{\link{sort_tr2g}()},
+\code{\link{tr2g_EnsDb}()},
+\code{\link{tr2g_ensembl}()},
+\code{\link{tr2g_fasta}()},
+\code{\link{tr2g_gff3}()},
+\code{\link{tr2g_gtf}()},
+\code{\link{transcript2gene}()}
 }
 \concept{functions to retrieve transcript and gene info}

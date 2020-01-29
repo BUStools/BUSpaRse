@@ -4,8 +4,13 @@
 \alias{tr2g_EnsDb}
 \title{Get transcript and gene info from EnsDb objects}
 \usage{
-tr2g_EnsDb(ensdb, other_attrs = NULL, use_gene_name = TRUE,
-  use_transcript_version = TRUE, use_gene_version = TRUE)
+tr2g_EnsDb(
+  ensdb,
+  other_attrs = NULL,
+  use_gene_name = TRUE,
+  use_transcript_version = TRUE,
+  use_gene_version = TRUE
+)
 }
 \arguments{
 \item{ensdb}{Ann \code{EnsDb} object, such as from \code{AnnotationHub} or
@@ -49,9 +54,13 @@ tr2g_EnsDb(EnsDb.Hsapiens.v86, use_transcript_version = FALSE,
   use_gene_version = FALSE)
 }
 \seealso{
-Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
-  \code{\link{tr2g_TxDb}}, \code{\link{tr2g_ensembl}},
-  \code{\link{tr2g_fasta}}, \code{\link{tr2g_gff3}},
-  \code{\link{tr2g_gtf}}, \code{\link{transcript2gene}}
+Other functions to retrieve transcript and gene info: 
+\code{\link{sort_tr2g}()},
+\code{\link{tr2g_TxDb}()},
+\code{\link{tr2g_ensembl}()},
+\code{\link{tr2g_fasta}()},
+\code{\link{tr2g_gff3}()},
+\code{\link{tr2g_gtf}()},
+\code{\link{transcript2gene}()}
 }
 \concept{functions to retrieve transcript and gene info}

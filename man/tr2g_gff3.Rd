@@ -4,10 +4,17 @@
 \alias{tr2g_gff3}
 \title{Get transcript and gene info from GFF3 file}
 \usage{
-tr2g_gff3(file, type_use = "mRNA", transcript_id = "transcript_id",
-  gene_id = "gene_id", gene_name = "Name",
-  transcript_version = "version", gene_version = "version",
-  version_sep = ".", verbose = TRUE)
+tr2g_gff3(
+  file,
+  type_use = "mRNA",
+  transcript_id = "transcript_id",
+  gene_id = "gene_id",
+  gene_name = "Name",
+  transcript_version = "version",
+  gene_version = "version",
+  version_sep = ".",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{file}{Path to a GTF file to be read. The file can remain gzipped.}
@@ -100,9 +107,13 @@ tr2g <- tr2g_gff3(file = file_use, transcript_version = NULL,
   gene_version = NULL)
 }
 \seealso{
-Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
-  \code{\link{tr2g_EnsDb}}, \code{\link{tr2g_TxDb}},
-  \code{\link{tr2g_ensembl}}, \code{\link{tr2g_fasta}},
-  \code{\link{tr2g_gtf}}, \code{\link{transcript2gene}}
+Other functions to retrieve transcript and gene info: 
+\code{\link{sort_tr2g}()},
+\code{\link{tr2g_EnsDb}()},
+\code{\link{tr2g_TxDb}()},
+\code{\link{tr2g_ensembl}()},
+\code{\link{tr2g_fasta}()},
+\code{\link{tr2g_gtf}()},
+\code{\link{transcript2gene}()}
 }
 \concept{functions to retrieve transcript and gene info}

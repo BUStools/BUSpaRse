@@ -4,8 +4,17 @@
 \alias{write_velocity_output}
 \title{Write the files for RNA velocity to disk}
 \usage{
-write_velocity_output(out_path, introns, Genome, Transcriptome,
-  isoform_action, exon_option, tr2g_cdna, compress_fa, width)
+write_velocity_output(
+  out_path,
+  introns,
+  Genome,
+  Transcriptome,
+  isoform_action,
+  exon_option,
+  tr2g_cdna,
+  compress_fa,
+  width
+)
 }
 \arguments{
 \item{out_path}{Directory to save the outputs written to disk. If this

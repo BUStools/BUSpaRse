@@ -4,10 +4,19 @@
 \alias{make_sparse_matrix}
 \title{Convert the Output of \code{kallisto bus} into Gene by Gell Matrix}
 \usage{
-make_sparse_matrix(bus_path, tr2g, est_ncells, est_ngenes,
-  whitelist = NULL, gene_count = TRUE, TCC = TRUE,
-  single_gene = TRUE, ncores = 0, verbose = TRUE,
-  progress_unit = 5e+06)
+make_sparse_matrix(
+  bus_path,
+  tr2g,
+  est_ncells,
+  est_ngenes,
+  whitelist = NULL,
+  gene_count = TRUE,
+  TCC = TRUE,
+  single_gene = TRUE,
+  ncores = 0,
+  verbose = TRUE,
+  progress_unit = 5e+06
+)
 }
 \arguments{
 \item{bus_path}{Path to the sorted text \code{bus} output file.}

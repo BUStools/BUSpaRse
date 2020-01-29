@@ -4,13 +4,23 @@
 \alias{.get_velocity_files}
 \title{Generate RNA velocity files for GRanges}
 \usage{
-.get_velocity_files(gr, L, Genome, Transcriptome = NULL,
-  out_path = ".", style = c("annotation", "genome", "Ensembl", "UCSC",
-  "NCBI", "other"), isoform_action = c("separate", "collapse"),
-  exon_option = c("full", "junction"), transcript_id = "transcript_id",
-  gene_id = "gene_id", transcript_version = "transcript_version",
-  gene_version = "gene_version", version_sep = ".",
-  compress_fa = FALSE, width = 80L)
+.get_velocity_files(
+  gr,
+  L,
+  Genome,
+  Transcriptome = NULL,
+  out_path = ".",
+  style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI", "other"),
+  isoform_action = c("separate", "collapse"),
+  exon_option = c("full", "junction"),
+  transcript_id = "transcript_id",
+  gene_id = "gene_id",
+  transcript_version = "transcript_version",
+  gene_version = "gene_version",
+  version_sep = ".",
+  compress_fa = FALSE,
+  width = 80L
+)
 }
 \arguments{
 \item{gr}{A \code{GRanges} object for gene annotation.}
@@ -18,10 +28,10 @@
 \item{L}{Length of the biological read. For instance, 10xv1: 98 nt,
 10xv2: 98 nt, 10xv3: 91 nt, Drop-seq: 50 nt. If in doubt check read length
 in a fastq file for biological reads with the \code{bash} commands:
-If the fastq file is gzipped, then do \code{zcat your_file.fastq.gz | head} on
+If the fastq file is gzipped, then do \verb{zcat your_file.fastq.gz | head} on
 Linux. If on Mac, then \code{zcat < your_file.fastq.gz | head}. Then you will see
 lines with nucleotide bases. Copy one of those lines and determine its length
-with \code{\link{str_length}} in R or \code{echo -n <the sequence> | wc -c} in
+with \code{\link{str_length}} in R or \verb{echo -n <the sequence> | wc -c} in
 \code{bash}. Which file corresponds to biological reads depends on the particular
 technology.}
 

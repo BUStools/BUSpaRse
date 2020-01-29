@@ -4,10 +4,16 @@
 \alias{tr2g_GRanges}
 \title{Get transcript and gene info from GRanges}
 \usage{
-tr2g_GRanges(gr, type_use = "exon", transcript_id = "transcript_id",
-  gene_id = "gene_id", gene_name = "gene_name",
+tr2g_GRanges(
+  gr,
+  type_use = "exon",
+  transcript_id = "transcript_id",
+  gene_id = "gene_id",
+  gene_name = "gene_name",
   transcript_version = "transcript_version",
-  gene_version = "gene_version", version_sep = ".")
+  gene_version = "gene_version",
+  version_sep = "."
+)
 }
 \arguments{
 \item{gr}{A \code{\link{GRanges}} object. The metadata columns should be

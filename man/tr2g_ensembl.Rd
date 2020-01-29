@@ -4,10 +4,17 @@
 \alias{tr2g_ensembl}
 \title{Get transcript and gene info from Ensembl}
 \usage{
-tr2g_ensembl(species, type = c("vertebrate", "metazoa", "plant",
-  "fungus", "protist"), other_attrs = NULL, use_gene_name = TRUE,
-  use_transcript_version = TRUE, use_gene_version = TRUE,
-  ensembl_version = NULL, verbose = TRUE, ...)
+tr2g_ensembl(
+  species,
+  type = c("vertebrate", "metazoa", "plant", "fungus", "protist"),
+  other_attrs = NULL,
+  use_gene_name = TRUE,
+  use_transcript_version = TRUE,
+  use_gene_version = TRUE,
+  ensembl_version = NULL,
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{species}{Character vector of length 1, Latin name of the species of
@@ -68,9 +75,13 @@ tr2g <- tr2g_ensembl(species = "Felis catus", other_attrs = "description")
 tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant")
 }
 \seealso{
-Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
-  \code{\link{tr2g_EnsDb}}, \code{\link{tr2g_TxDb}},
-  \code{\link{tr2g_fasta}}, \code{\link{tr2g_gff3}},
-  \code{\link{tr2g_gtf}}, \code{\link{transcript2gene}}
+Other functions to retrieve transcript and gene info: 
+\code{\link{sort_tr2g}()},
+\code{\link{tr2g_EnsDb}()},
+\code{\link{tr2g_TxDb}()},
+\code{\link{tr2g_fasta}()},
+\code{\link{tr2g_gff3}()},
+\code{\link{tr2g_gtf}()},
+\code{\link{transcript2gene}()}
 }
 \concept{functions to retrieve transcript and gene info}

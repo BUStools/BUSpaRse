@@ -4,17 +4,24 @@
 \alias{validate_velocity_input}
 \title{Validate input to get_velocity_files}
 \usage{
-validate_velocity_input(L, Genome, Transcriptome, out_path, compress_fa,
-  width, exon_option)
+validate_velocity_input(
+  L,
+  Genome,
+  Transcriptome,
+  out_path,
+  compress_fa,
+  width,
+  exon_option
+)
 }
 \arguments{
 \item{L}{Length of the biological read. For instance, 10xv1: 98 nt,
 10xv2: 98 nt, 10xv3: 91 nt, Drop-seq: 50 nt. If in doubt check read length
 in a fastq file for biological reads with the \code{bash} commands:
-If the fastq file is gzipped, then do \code{zcat your_file.fastq.gz | head} on
+If the fastq file is gzipped, then do \verb{zcat your_file.fastq.gz | head} on
 Linux. If on Mac, then \code{zcat < your_file.fastq.gz | head}. Then you will see
 lines with nucleotide bases. Copy one of those lines and determine its length
-with \code{\link{str_length}} in R or \code{echo -n <the sequence> | wc -c} in
+with \code{\link{str_length}} in R or \verb{echo -n <the sequence> | wc -c} in
 \code{bash}. Which file corresponds to biological reads depends on the particular
 technology.}
 

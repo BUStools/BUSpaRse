@@ -4,8 +4,14 @@
 \alias{transcript2gene}
 \title{Map Ensembl transcript ID to gene ID}
 \usage{
-transcript2gene(species, fasta_file, kallisto_out_path,
-  type = "vertebrate", verbose = TRUE, ...)
+transcript2gene(
+  species,
+  fasta_file,
+  kallisto_out_path,
+  type = "vertebrate",
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
@@ -56,9 +62,13 @@ tr2g <- transcript2gene("Mus musculus", type = "vertebrate",
   ensembl_version = 94, kallisto_out_path = "./out_retina")
 }
 \seealso{
-Other functions to retrieve transcript and gene info: \code{\link{sort_tr2g}},
-  \code{\link{tr2g_EnsDb}}, \code{\link{tr2g_TxDb}},
-  \code{\link{tr2g_ensembl}}, \code{\link{tr2g_fasta}},
-  \code{\link{tr2g_gff3}}, \code{\link{tr2g_gtf}}
+Other functions to retrieve transcript and gene info: 
+\code{\link{sort_tr2g}()},
+\code{\link{tr2g_EnsDb}()},
+\code{\link{tr2g_TxDb}()},
+\code{\link{tr2g_ensembl}()},
+\code{\link{tr2g_fasta}()},
+\code{\link{tr2g_gff3}()},
+\code{\link{tr2g_gtf}()}
 }
 \concept{functions to retrieve transcript and gene info}
