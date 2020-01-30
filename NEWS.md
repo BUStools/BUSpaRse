@@ -1,3 +1,9 @@
+# BUSpaRse 1.1.1 (2019-01-29)
+* Sort GRanges for RNA velocity to make sure that exons are in the right order;
+`split` no longer sorts within each element of GRangesList.
+* Export subset_annot, which makes sure that all chromosomes in the annotation
+are present in the genome prior to transcriptome extraction.
+
 # BUSpaRse 0.99.25 (2019-09-11)
 * Added message to indicate when get_velocity_files is extracting exon-exon junctions.
 * Restored "separate" to be default isoform_action in get_velocity_files.
