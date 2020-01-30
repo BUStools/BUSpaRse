@@ -25,10 +25,19 @@ consistent.}
 annotation.}
 }
 \value{
-A subsetted genome annotation of the same type ofo the input genome
+A subsetted genome annotation of the same type of the input genome
 annotation.
 }
 \description{
 Exclude chromosomes present in the annotation but absent from the genome and
 add information about circular chromosomes.
+}
+\examples{
+library(BSgenome.Hsapiens.UCSC.hg38)
+library(EnsDb.Hsapiens.v86) 
+library(GenomeInfoDb)
+gn <- BSgenome.Hsapiens.UCSC.hg38
+seqlevelsStyle(gn) <- "Ensembl"
+subset_annot(gn, EnsDb.Hsapiens.v86)
+
 }

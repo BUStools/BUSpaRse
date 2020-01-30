@@ -97,8 +97,17 @@ check_genome <- function(chrs_use, Genome) {
 #'
 #' @inheritParams get_velocity_files
 #' @inheritParams sub_annot
-#' @return A subsetted genome annotation of the same type ofo the input genome
+#' @return A subsetted genome annotation of the same type of the input genome
 #' annotation.
+#' @export
+#' @examples 
+#' library(BSgenome.Hsapiens.UCSC.hg38)
+#' library(EnsDb.Hsapiens.v86) 
+#' library(GenomeInfoDb)
+#' gn <- BSgenome.Hsapiens.UCSC.hg38
+#' seqlevelsStyle(gn) <- "Ensembl"
+#' subset_annot(gn, EnsDb.Hsapiens.v86)
+#' 
 setGeneric("subset_annot",
   function(Genome, annot)
     standardGeneric("subset_annot"))
