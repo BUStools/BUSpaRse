@@ -4,7 +4,7 @@
 \alias{read_count_output}
 \title{Read matrix along with barcode and gene names}
 \usage{
-read_count_output(dir, name, tcc = TRUE)
+read_count_output(dir, name, tcc = FALSE)
 }
 \arguments{
 \item{dir}{Directory with the bustools count outputs.}

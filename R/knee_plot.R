@@ -16,12 +16,14 @@ setGeneric("knee_plot", function(bc_rank) standardGeneric("knee_plot"),
 #' @importFrom tidyr unnest
 #' @importFrom ggplot2 ggplot aes geom_line geom_hline geom_vline scale_x_log10
 #' scale_y_log10 labs
+#' @importFrom S4Vectors metadata
 #' @export
 #' @examples 
+#' library(DropletUtils)
 #' set.seed(2000)
 #' my.counts <- DropletUtils:::simCounts()
 #' br.out <- barcodeRanks(my.counts)
-#' knee_plt(br.out)
+#' knee_plot(br.out)
 #' 
 setMethod("knee_plot", "DataFrame",
          function(bc_rank) {

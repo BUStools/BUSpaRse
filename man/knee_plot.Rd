@@ -26,5 +26,10 @@ this function with \verb{facet_*} functions. Will be added to the next release
 version of BUSpaRse.
 }
 \examples{
+library(DropletUtils)
+set.seed(2000)
+my.counts <- DropletUtils:::simCounts()
+br.out <- barcodeRanks(my.counts)
+knee_plot(br.out)
 
 }
