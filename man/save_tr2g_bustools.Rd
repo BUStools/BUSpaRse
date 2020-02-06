@@ -4,16 +4,13 @@
 \alias{save_tr2g_bustools}
 \title{Save transcript to gene file for use in \code{bustools}}
 \usage{
-save_tr2g_bustools(tr2g, file_save = "./tr2g.tsv", ...)
+save_tr2g_bustools(tr2g, file_save = "./tr2g.tsv")
 }
 \arguments{
 \item{tr2g}{The data frame output from the \code{tr2g_*} family of functions.}
 
 \item{file_save}{File name of the file to be saved. The directory in which
 the file is to be saved must exist.}
-
-\item{\dots}{Other arguments passed to \code{\link{fwrite}}, such
-as \code{sep}, \code{quote}, and \code{col.names}.}
 }
 \value{
 Nothing is returned into the R session. A tsv file of the format
@@ -31,8 +28,7 @@ kallisto index, and this ordering can be ensured by the function
 \code{\link{sort_tr2g}}. There must also be no headers. All columns other than
 \code{transcript} and \code{gene} will be discarded. To save a file with those columns,
 directly save the transcript to gene data frame with function like
-\code{\link{write.table}}, \code{readr::write_delim}, and
-\code{\link{fwrite}}.
+\code{\link{write.table}}, \code{readr::write_delim}.
 }
 \examples{
 toy_path <- system.file("testdata", package = "BUSpaRse")

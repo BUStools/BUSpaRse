@@ -556,8 +556,8 @@ tr2g_EnsDb <- function(ensdb, other_attrs = NULL, use_gene_name = TRUE,
 #' @return A data frame with columns \code{transcript} and \code{gene} and the
 #' other columns present in \code{tr2g} or the data frame in \code{file}, with
 #' the transcript IDs sorted to be in the same order as in the kallisto index.
-#' @importFrom data.table fread fwrite
 #' @export
+#' @importFrom utils read.table
 #' @family functions to retrieve transcript and gene info
 #' @examples
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
@@ -576,9 +576,11 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
       kallisto_out_path, "")
   }
   if (missing(tr2g)) {
-    tr2g <- fread(file, header = FALSE, col.names = c("transcript", "gene"))
+    tr2g <- read.table(file, header = FALSE, col.names = c("transcript", "gene"),
+                       stringsAsFactors = FALSE)
   }
-  trs <- fread(trs_path, header = FALSE, col.names = "transcript")
+  trs <- read.table(trs_path, header = FALSE, col.names = "transcript",
+                    stringsAsFactors = FALSE)
   if (verbose) {
     message("Sorting transcripts")
   }
@@ -601,27 +603,25 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
 #' \code{\link{sort_tr2g}}. There must also be no headers. All columns other than
 #' `transcript` and `gene` will be discarded. To save a file with those columns,
 #' directly save the transcript to gene data frame with function like
-#' \code{\link{write.table}}, \code{readr::write_delim}, and
-#' \code{\link{fwrite}}.
+#' \code{\link{write.table}}, \code{readr::write_delim}.
 #'
 #' @inheritParams sort_tr2g
-#' @param \dots Other arguments passed to \code{\link{fwrite}}, such
-#' as \code{sep}, \code{quote}, and \code{col.names}.
 #' @param file_save File name of the file to be saved. The directory in which
 #' the file is to be saved must exist.
 #' @return Nothing is returned into the R session. A tsv file of the format
 #' required by `bustools` with the name and directory specified will be written
 #' to disk.
 #' @export
+#' @importFrom utils write.table
 #' @examples
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
 #' tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
 #' save_tr2g_bustools(tr2g, file_save = "./tr2g.tsv")
-save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
+save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv") {
   file_save <- normalizePath(file_save, mustWork = FALSE)
-  fwrite(tr2g[, c("transcript", "gene")], file = file_save, sep = "\t",
-    col.names = FALSE)
+  write.table(tr2g[, c("transcript", "gene")], file = file_save, sep = "\t",
+    col.names = FALSE, quote = FALSE, row.names = FALSE)
 }
 
 #' Map Ensembl transcript ID to gene ID
@@ -657,7 +657,7 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv", ...) {
 #' `fasta_files` is supplied instead of `species`, then this will be extra
 #' argumennts to \code{\link{tr2g_fasta}}, such as `use_transcript_version` and
 #' `use_gene_version`.
-#' @importFrom data.table rbindlist
+#' @importFrom dplyr bind_rows
 #' @export
 #' @family functions to retrieve transcript and gene info
 #' @examples
@@ -685,11 +685,11 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
       verbose = verbose,
       MoreArgs = MoreArgs,
       SIMPLIFY = FALSE)
-    tr2g <- rbindlist(fls)
+    tr2g <- bind_rows(fls)
     return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, verbose = verbose))
   } else {
     fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose, ...)
-    tr2g <- rbindlist(fls)
+    tr2g <- bind_rows(fls)
     # Just to be safe, to make sure that the transcripts are in the right order
     return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path,
       verbose = verbose))
@@ -719,11 +719,6 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
 #' @inheritParams transcript2gene
 #' @param tr2g A Data frame with columns \code{gene} and \code{transcript}, in
 #' the same order as in the transcriptome index for \code{kallisto}.
-#' @param ncores Number of cores to use, defaults to 0, which means the system
-#' will automatically determine the number of cores as it sees fit. Negative
-#' numbers are interpreted as 0. Positive numbers will limit the number of cores
-#' used. This might not speed up `EC2gene` very much unless there are many genes
-#' or ECs detected.
 #' @return A data frame with 3 columns:
 #' \describe{
 #' \item{EC_ind}{Index of the EC as appearing in the `matrix.ec` file.}
@@ -734,17 +729,16 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
 #' the EC maps to.}
 #' }
 #' @seealso \code{\link{transcript2gene}}
-#' @importFrom RcppParallel RcppParallelLibs
 #' @importFrom tibble tibble
 #' @export
 #' @examples
 #' # Load toy example for testing
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' load(paste(toy_path, "toy_example.RData", sep = "/"))
-#' EC2gene(tr2g_toy, toy_path, verbose = FALSE, ncores = 1)
-EC2gene <- function(tr2g, kallisto_out_path, ncores = 0, verbose = TRUE) {
+#' EC2gene(tr2g_toy, toy_path, verbose = FALSE)
+EC2gene <- function(tr2g, kallisto_out_path, verbose = TRUE) {
   kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
-  c(ec_vec, genes) %<-% EC2gene_export(tr2g, kallisto_out_path, ncores, verbose)
+  c(ec_vec, genes) %<-% EC2gene_export(tr2g, kallisto_out_path, verbose)
   # Sort according to indices
   EC_inds <- 0:(length(genes) - 1)
   genes <- genes[as.character(EC_inds)]

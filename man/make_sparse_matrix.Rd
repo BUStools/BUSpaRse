@@ -13,7 +13,6 @@ make_sparse_matrix(
   gene_count = TRUE,
   TCC = TRUE,
   single_gene = TRUE,
-  ncores = 0,
   verbose = TRUE,
   progress_unit = 5e+06
 )
@@ -46,12 +45,6 @@ excluded.}
 mode, only UMIs that can be uniquely mapped to one gene are kept. Without
 single gene mode, UMIs mapped to multiple genes will be evenly distributed to
 those genes.}
-
-\item{ncores}{Number of cores to use, defaults to 0, which means the system
-will automatically determine the number of cores as it sees fit. Negative
-numbers are interpreted as 0. Positive numbers will limit the number of cores
-used. This might not speed up \code{EC2gene} very much unless there are many genes
-or ECs detected.}
 
 \item{verbose}{Whether to display progress.}
 

@@ -114,8 +114,8 @@ read_count_output <- function(dir, name, tcc = TRUE) {
   m <- as(m, "dgCMatrix")
   # The matrix read has cells in rows
   ge <- if (tcc) ".ec.txt" else ".genes.txt"
-  genes <- fread(paste0(dir, "/", name, ge), header = FALSE)$V1
-  barcodes <- fread(paste0(dir, "/", name, ".barcodes.txt"), header = FALSE)$V1
+  genes <- readLines(file(paste0(dir, "/", name, ge)))
+  barcodes <- readLines(file(paste0(dir, "/", name, ".barcodes.txt")))
   colnames(m) <- barcodes
   rownames(m) <- genes
   return(m)

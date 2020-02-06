@@ -1,15 +1,10 @@
 // [[Rcpp::plugins(cpp11)]]
-// [[Rcpp::plugins(openmp)]]
 // [[Rcpp::depends(RcppProgress)]]
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::depends(BH)]]
-// [[Rcpp::depends(RcppParallel)]]
 #define BOOST_DISABLE_ASSERTS
 #define ARMA_64BIT_WORD 1
 #include <RcppArmadillo.h>
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 #include <progress.hpp>
 #include <progress_bar.hpp>
 #include <fstream>
@@ -20,14 +15,13 @@
 #include <unordered_set>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/join.hpp>
-#include <RcppParallel.h>
+
 using namespace std;
 using namespace Rcpp;
 using namespace arma;
 using namespace boost;
-using namespace tbb;
 
-typedef tbb::concurrent_unordered_map<int, vector<string> > cumivs;
+typedef unordered_map<int, vector<string> > umivs;
 // Tokenize the individual ECs
 vector<string> tokenize(string s) {
   tokenizer<> tok(s);
@@ -45,7 +39,7 @@ void gene_unique(vector<string>& g) {
 }
 
 // Get EC index and corresponding ECs
-cumivs matrix_ec(int est_ngenes, std::string kallisto_out_path, int ncores = 0, 
+umivs matrix_ec(int est_ngenes, std::string kallisto_out_path, 
                  bool verbose = true) {
   // Read in the matrix.ec file
   const string fn = kallisto_out_path + "/matrix.ec";
@@ -65,15 +59,10 @@ cumivs matrix_ec(int est_ngenes, std::string kallisto_out_path, int ncores = 0,
     ec2g_tmp.push_back(ecs);
     ct++;
   }
-  // Process ec2g_tmp in parallel
+  // Process ec2g_tmp
   if (verbose) Rcout << "Processing ECs" << endl;
-  cumivs ec_vec;
+  umivs ec_vec;
   Progress p(ec2g_tmp.size(), verbose);
-#ifdef _OPENMP
-  if (ncores > 0)
-    omp_set_num_threads(ncores);
-#endif
-#pragma omp parallel for schedule(dynamic)
   for (size_t i = 0; i < ec2g_tmp.size(); i++) {
     if (!Progress::check_abort()) {
       p.increment();
@@ -84,16 +73,11 @@ cumivs matrix_ec(int est_ngenes, std::string kallisto_out_path, int ncores = 0,
 }
 
 // Get genes each EC maps to
-cumivs EC2geneC(Rcpp::DataFrame tr2g, cumivs ec_vec, int ncores, bool verbose) {
+umivs EC2geneC(Rcpp::DataFrame tr2g, umivs ec_vec, bool verbose) {
   vector<string> g = tr2g["gene"];
-  cumivs ec2g;
+  umivs ec2g;
   if (verbose) Rcout << "Matching genes to ECs" << endl;
   Progress p(ec_vec.size(), verbose);
-#ifdef _OPENMP
-  if (ncores > 0)
-    omp_set_num_threads(ncores);
-#endif
-#pragma omp parallel for schedule(dynamic)
   for (size_t i = 0; i < ec_vec.size(); i++) {
     if (!Progress::check_abort()) {
       p.increment();
@@ -112,10 +96,10 @@ cumivs EC2geneC(Rcpp::DataFrame tr2g, cumivs ec_vec, int ncores, bool verbose) {
 // ECs
 //[[Rcpp::export]]
 Rcpp::List EC2gene_export(Rcpp::DataFrame tr2g, std::string kallisto_out_path,
-               int ncores = 0, bool verbose = true) {
-  tbb::concurrent_unordered_map<int, vector<string> > ec_vec, ec2g;
-  ec_vec = matrix_ec(tr2g.nrow(), kallisto_out_path, ncores, verbose);
-  ec2g = EC2geneC(tr2g, ec_vec, ncores, verbose);
+               bool verbose = true) {
+  unordered_map<int, vector<string> > ec_vec, ec2g;
+  ec_vec = matrix_ec(tr2g.nrow(), kallisto_out_path, verbose);
+  ec2g = EC2geneC(tr2g, ec_vec, verbose);
   return List::create(_["ec_vec"] = wrap(ec_vec),
                       _["ec2g"] = wrap(ec2g));
 }
@@ -137,7 +121,7 @@ void fill_spmat(unordered_map<string, unordered_map<string, double> >& cell_gene
   size_t i = 0, gene_row = 0; string gn;
   unordered_map<string, size_t> rowind_map;
   Progress p(cell_gene.size(), verbose);
-  // Consider parallelizing
+
   for (auto el : cell_gene) {
     if (i % 1000 == 0) {
       checkUserInterrupt();
@@ -181,7 +165,7 @@ List fill_cell_gene(std::string fn, std::string kallisto_out_path,
                     std::vector<std::string> whitelist,
                     bool gene_count = true, bool tcc = true,
                     bool single_gene = true,
-                    int ncores = 0, bool verbose = true,
+                    bool verbose = true,
                     int progress_unit = 5e6) {
   if (!(gene_count || tcc)) {
     stop("At least one of gene_count and tcc must be true.");
@@ -202,10 +186,10 @@ List fill_cell_gene(std::string fn, std::string kallisto_out_path,
   // Convert whitelist into unordered_set to speed up lookup
   unordered_set<string> wl(whitelist.begin(), whitelist.end());
   // Get genes and ecs
-  cumivs ec_vec, ec2g;
-  ec_vec = matrix_ec(est_ngenes, kallisto_out_path, ncores, verbose);
+  umivs ec_vec, ec2g;
+  ec_vec = matrix_ec(est_ngenes, kallisto_out_path, verbose);
   if (gene_count) {
-    ec2g = EC2geneC(tr2g, ec_vec, ncores, verbose);
+    ec2g = EC2geneC(tr2g, ec_vec, verbose);
   }
   if (verbose) {
     Rcout << "Reading data" << endl;

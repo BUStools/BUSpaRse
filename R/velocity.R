@@ -319,8 +319,8 @@ write_velocity_output <- function(out_path, introns, Genome, Transcriptome,
     sep = "/"))
   writeLines(unique(tr2g_cdna$transcript),
     paste(out_path, "cDNA_tx_to_capture.txt", sep = "/"))
-  fwrite(rbind(tr2g_cdna, tr2g_intron), paste(out_path, "tr2g.tsv", sep = "/"),
-    quote = FALSE, sep = "\t", col.names = FALSE)
+  write.table(rbind(tr2g_cdna, tr2g_intron), paste(out_path, "tr2g.tsv", sep = "/"),
+    quote = FALSE, sep = "\t", col.names = FALSE, row.names = FALSE)
 }
 
 #' Validate input to get_velocity_files

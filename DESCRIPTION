@@ -35,25 +35,25 @@ Imports:
     biomaRt,
     Biostrings,
     BSgenome,
-    data.table,
     dplyr,
     ensembldb,
     GenomeInfoDb,
     GenomicFeatures,
     GenomicRanges,
+    ggplot2,
     magrittr,
     Matrix,
     methods,
     plyranges,
     Rcpp,
-    RcppParallel,
     S4Vectors,
     stats,
     stringr,
     tibble,
     tidyr,
+    utils,
     zeallot
-LinkingTo: Rcpp, RcppArmadillo, RcppProgress, BH, RcppParallel
+LinkingTo: Rcpp, RcppArmadillo, RcppProgress, BH
 RoxygenNote: 7.0.2
 Roxygen: list(markdown = TRUE)
 Suggests: 
@@ -63,13 +63,13 @@ Suggests:
     BiocStyle,
     TENxBUSData,
     DropletUtils,
-    ggplot2,
     TxDb.Hsapiens.UCSC.hg38.knownGene,
     BSgenome.Hsapiens.UCSC.hg38,
     EnsDb.Hsapiens.v86
 VignetteBuilder: knitr
 Collate: 
     'RcppExports.R'
+    'knee_plot.R'
     'sparse_matrix.R'
     'tr2g.R'
     'utils.R'

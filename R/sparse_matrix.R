@@ -23,7 +23,6 @@ NULL
 #' \code{cellranger-2.1.0/cellranger-cs/2.1.0/lib/python/cellranger/barcodes/737K-august-2016.txt}
 #' for v2 chemistry.
 #'
-#' @inheritParams EC2gene
 #' @param bus_path Path to the sorted text `bus` output file.
 #' @param tr2g A Data frame with columns \code{gene} and \code{transcript}, in
 #' the same order as in the transcriptome index for \code{kallisto}. This
@@ -68,7 +67,7 @@ NULL
 #'   verbose = FALSE)
 make_sparse_matrix <- function(bus_path, tr2g, est_ncells,
                                est_ngenes, whitelist = NULL, gene_count = TRUE,
-                               TCC = TRUE, single_gene = TRUE, ncores = 0,
+                               TCC = TRUE, single_gene = TRUE, 
                                verbose = TRUE, progress_unit = 5e6) {
   bus_path <- normalizePath(bus_path, mustWork = TRUE)
   kallisto_out_path <- dirname(bus_path)
@@ -91,7 +90,7 @@ make_sparse_matrix <- function(bus_path, tr2g, est_ncells,
       tr2g,
       est_ncells, est_ngenes,
       whitelist, gene_count, TCC,
-      single_gene, ncores,
+      single_gene, 
       verbose, progress_unit)
     rownames(gc_mat) <- geneIDs
     colnames(gc_mat) <- barcodes_gc
@@ -103,7 +102,7 @@ make_sparse_matrix <- function(bus_path, tr2g, est_ncells,
       tr2g,
       est_ncells, est_ngenes,
       whitelist, gene_count,
-      FALSE, single_gene, ncores,
+      FALSE, single_gene, 
       verbose, progress_unit)
     rownames(gc_mat) <- geneIDs
     colnames(gc_mat) <- barcodes_gc
@@ -113,7 +112,7 @@ make_sparse_matrix <- function(bus_path, tr2g, est_ncells,
       tr2g,
       est_ncells, est_ngenes,
       whitelist, FALSE, TCC,
-      FALSE, ncores,
+      FALSE, 
       verbose, progress_unit)
     rownames(tcc_mat) <- ec_inds
     colnames(tcc_mat) <- barcodes_tcc

@@ -142,12 +142,7 @@ test_that("Extract transcript and gene ID from FASTA file", {
 })
 
 test_that("Correct gene list output", {
-  foo <- EC2gene(tr2g_toy, toy_path, verbose = FALSE, ncores = 1)
-  expect_equal(foo$EC_ind, EC2g_toy$EC_ind)
-  expect_equal(foo$EC, EC2g_toy$EC)
-  expect_equal(foo$gene, EC2g_toy$gene)
-  # Test multicore
-  foo <- EC2gene(tr2g_toy, toy_path, ncores = 2, verbose = FALSE)
+  foo <- EC2gene(tr2g_toy, toy_path, verbose = FALSE)
   expect_equal(foo$EC_ind, EC2g_toy$EC_ind)
   expect_equal(foo$EC, EC2g_toy$EC)
   expect_equal(foo$gene, EC2g_toy$gene)

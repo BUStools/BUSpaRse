@@ -51,7 +51,7 @@ Here we make both the gene count matrix and the TCC matrix.
 ```{r}
 c(gene_count, tcc) %<-% make_sparse_matrix("./out_hgmm100/output.sorted.txt",
                                tr2g = tr2g, est_ncells = 1e5,
-                              est_ngenes = nrow(tr2g), ncores = 2)
+                               est_ngenes = nrow(tr2g))
 ```
 
 ## Remove empty droplets
@@ -72,15 +72,7 @@ bc_rank <- barcodeRanks(gene_count)
 ```
 
 ```{r}
-qplot(bc_rank$rank, bc_rank$total, geom = "line") +
-  geom_hline(yintercept = metadata(bc_rank)$knee, color = "blue", linetype = 2) +
-  geom_hline(yintercept = metadata(bc_rank)$inflection, color = "green", linetype = 2) +
-  annotate("text", x = 1000, y = 1.5 * c(metadata(bc_rank)$knee, metadata(bc_rank)$inflection),
-           label = c("knee", "inflection"), color = c("blue", "green")) +
-  scale_x_log10() +
-  scale_y_log10() +
-  labs(x = "Rank", y = "Total UMI counts") +
-  theme_bw()
+knee_plot(bc_rank)
 ```
 
 ```{r}
@@ -107,15 +99,7 @@ bc_rank <- barcodeRanks(tcc)
 ```
 
 ```{r}
-qplot(bc_rank$rank, bc_rank$total, geom = "line") +
-  geom_hline(yintercept = metadata(bc_rank)$knee, color = "blue", linetype = 2) +
-  geom_hline(yintercept = metadata(bc_rank)$inflection, color = "green", linetype = 2) +
-  annotate("text", x = 1000, y = 1.5 * c(metadata(bc_rank)$knee, metadata(bc_rank)$inflection),
-           label = c("knee", "inflection"), color = c("blue", "green")) +
-  scale_x_log10() +
-  scale_y_log10() +
-  labs(x = "Rank", y = "Total UMI counts") +
-  theme_bw()
+knee_plot(bc_rank)
 ```
 
 ```{r}

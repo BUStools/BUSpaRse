@@ -4,19 +4,13 @@
 \alias{EC2gene}
 \title{Map EC Index to Genes Compatible with the EC}
 \usage{
-EC2gene(tr2g, kallisto_out_path, ncores = 0, verbose = TRUE)
+EC2gene(tr2g, kallisto_out_path, verbose = TRUE)
 }
 \arguments{
 \item{tr2g}{A Data frame with columns \code{gene} and \code{transcript}, in
 the same order as in the transcriptome index for \code{kallisto}.}
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
-
-\item{ncores}{Number of cores to use, defaults to 0, which means the system
-will automatically determine the number of cores as it sees fit. Negative
-numbers are interpreted as 0. Positive numbers will limit the number of cores
-used. This might not speed up \code{EC2gene} very much unless there are many genes
-or ECs detected.}
 
 \item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 }
@@ -55,7 +49,7 @@ and identifying ECs mapped to known marker genes of cell types.
 # Load toy example for testing
 toy_path <- system.file("testdata", package = "BUSpaRse")
 load(paste(toy_path, "toy_example.RData", sep = "/"))
-EC2gene(tr2g_toy, toy_path, verbose = FALSE, ncores = 1)
+EC2gene(tr2g_toy, toy_path, verbose = FALSE)
 }
 \seealso{
 \code{\link{transcript2gene}}
