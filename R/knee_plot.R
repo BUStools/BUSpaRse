@@ -18,6 +18,10 @@ setGeneric("knee_plot", function(bc_rank) standardGeneric("knee_plot"),
 #' scale_y_log10 labs
 #' @export
 #' @examples 
+#' set.seed(2000)
+#' my.counts <- DropletUtils:::simCounts()
+#' br.out <- barcodeRanks(my.counts)
+#' knee_plt(br.out)
 #' 
 setMethod("knee_plot", "DataFrame",
          function(bc_rank) {
