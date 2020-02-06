@@ -1,4 +1,9 @@
-# BUSpaRse 1.1.1 (2019-01-29)
+# BUSpaRse 1.1.2 (2020-02-06)
+* Removed RcppParallel and data.table dependencies, and hence all C++ multithreading
+* Added knee_plot function
+* Changed default in read_count_output to tcc = FALSE
+
+# BUSpaRse 1.1.1 (2020-01-29)
 * Sort GRanges for RNA velocity to make sure that exons are in the right order;
 `split` no longer sorts within each element of GRangesList.
 * Export subset_annot, which makes sure that all chromosomes in the annotation
