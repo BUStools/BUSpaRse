@@ -107,7 +107,7 @@ check_gff <- function(format, file, transcript_id, gene_id) {
 #' # Internal toy data used for unit testing
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' m <- read_count_output(toy_path, name = "genes", tcc = FALSE)
-read_count_output <- function(dir, name, tcc = TRUE) {
+read_count_output <- function(dir, name, tcc = FALSE) {
   dir <- normalizePath(dir, mustWork = TRUE)
   m <- readMM(paste0(dir, "/", name, ".mtx"))
   m <- Matrix::t(m)
