@@ -6,14 +6,21 @@
 \usage{
 tr2g_gtf(
   file,
-  type_use = "exon",
+  type_use = "transcript",
   transcript_id = "transcript_id",
   gene_id = "gene_id",
   gene_name = "gene_name",
   transcript_version = "transcript_version",
   gene_version = "gene_version",
   version_sep = ".",
-  verbose = TRUE
+  verbose = TRUE,
+  transcript_biotype = "transcript_biotype",
+  gene_biotype = "gene_biotype",
+  transcript_biotype_use = "all",
+  gene_biotype_use = "all",
+  chrs_only = TRUE,
+  save_filtered = FALSE,
+  file_save = "./gtf_filtered.gtf"
 )
 }
 \arguments{
@@ -61,6 +68,33 @@ version number, it's up to you whether to include gene version number.}
 number. Defaults to ".", as in Ensembl.}
 
 \item{verbose}{Whether to display progress.}
+
+\item{transcript_biotype}{Character vector of length 1. Tag in \code{attribute}
+field corresponding to \emph{transcript} biotype.}
+
+\item{gene_biotype}{Character vector of length 1. Tag in \code{attribute}
+field corresponding to \emph{gene} biotype.}
+
+\item{transcript_biotype_use}{Character, can be "all", "cellranger", or
+a vector of \emph{transcript} biotypes to be used. Transcript biotypes aren't
+entirely the same as gene biotypes. For instance, in Ensembl annotation,
+\code{retained_intron} is a transcript biotype, but not a gene biotype. If
+"cellranger", then the biotypes used by Cell Ranger's reference are used:
+\code{c("protein_coding", "lincRNA", "antisense", "IG_LV_gene", "IG_V_gene",  "IG_V_pseudogene", "IG_D_gene", "IG_J_gene", "IG_J_pseudogene", "IG_C_gene",  "IG_C_pseudogene", "TR_V_gene", "TR_V_pseudogene", "TR_D_gene", "TR_J_gene",  "TR_J_pseudogene", "TR_C_gene")}.}
+
+\item{gene_biotype_use}{Character, can be "all", "cellranger", or
+a vector of \emph{gene} biotypes to be used. If
+"cellranger", then the biotypes used by Cell Ranger's reference are used.}
+
+\item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
+GFF files can contain annotations for scaffolds, which are not incorporated
+into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
+
+\item{save_filtered}{Logical. If filtering type, biotypes, and/or
+chromosomes, whether to save the filtered \code{GRanges} as a GTF/GFF3 file.}
+
+\item{file_save}{File name of the file to be saved. The directory in which
+the file is to be saved must exist.}
 }
 \value{
 A data frame at least 2 columns: \code{gene} for gene ID,

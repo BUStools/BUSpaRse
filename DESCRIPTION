@@ -41,6 +41,7 @@ Imports:
     GenomicFeatures,
     GenomicRanges,
     ggplot2,
+    IRanges,
     magrittr,
     Matrix,
     methods,
