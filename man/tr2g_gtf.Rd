@@ -14,8 +14,8 @@ tr2g_gtf(
   gene_version = "gene_version",
   version_sep = ".",
   verbose = TRUE,
-  transcript_biotype = "transcript_biotype",
-  gene_biotype = "gene_biotype",
+  transcript_biotype_col = "transcript_biotype",
+  gene_biotype_col = "gene_biotype",
   transcript_biotype_use = "all",
   gene_biotype_use = "all",
   chrs_only = TRUE,
@@ -69,10 +69,10 @@ number. Defaults to ".", as in Ensembl.}
 
 \item{verbose}{Whether to display progress.}
 
-\item{transcript_biotype}{Character vector of length 1. Tag in \code{attribute}
+\item{transcript_biotype_col}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to \emph{transcript} biotype.}
 
-\item{gene_biotype}{Character vector of length 1. Tag in \code{attribute}
+\item{gene_biotype_col}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to \emph{gene} biotype.}
 
 \item{transcript_biotype_use}{Character, can be "all", "cellranger", or

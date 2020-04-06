@@ -33,6 +33,7 @@ Imports:
     AnnotationDbi,
     AnnotationFilter,
     biomaRt,
+    BiocGenerics,
     Biostrings,
     BSgenome,
     dplyr,

@@ -46,6 +46,7 @@ NULL
 #' for gene names. If \code{other_attrs} has been specified, then those will
 #' also be columns in the data frame returned.
 #' @family functions to retrieve transcript and gene info
+#' @importFrom BiocGenerics %in%
 #' @export
 #' @examples
 #' tr2g <- tr2g_ensembl(species = "Felis catus", other_attrs = "description")
@@ -130,30 +131,30 @@ filter_chr <- function(gr, chrs_only) {
   if (chrs_only) {
     chrs_use <- mapSeqlevels(seqlevels(gr), seqlevelsStyle(gr)[1])
     chrs_use <- unname(chrs_use[!is.na(chrs_use)])
-    gr <- gr[BiocGenerics::match(seqnames(gr), chrs_use) > 0]
+    gr <- gr[seqnames(gr) %in% chrs_use]
   }
   gr
 }
 
-filter_biotype <- function(gr, transcript_biotype,
-                           gene_biotype, transcript_biotype_use,
+filter_biotype <- function(gr, transcript_biotype_col,
+                           gene_biotype_col, transcript_biotype_use,
                            gene_biotype_use, gff3 = FALSE) {
   if (gene_biotype_use == "all" && transcript_biotype_use == "all") {
     return(gr)
   }
   if (gene_biotype_use != "all") {
-    gbt_use <- which_biotypes(gene_biotype_use, mcols(gr)[[gene_biotype]])
-    gr <- gr[mcols(gr)[[gene_biotype]] %in% gbt_use]
+    gbt_use <- which_biotypes(gene_biotype_use, mcols(gr)[[gene_biotype_col]])
+    gr <- gr[mcols(gr)[[gene_biotype_col]] %in% gbt_use]
   }
   if (transcript_biotype_use != "all") {
-    tbt_use <- which_biotypes(transcript_biotype_use, mcols(gr)[[transcript_biotype]])
-    gr <- gr[mcols(gr)[[transcript_biotype]] %in% tbt_use]
+    tbt_use <- which_biotypes(transcript_biotype_use, mcols(gr)[[transcript_biotype_col]])
+    gr <- gr[mcols(gr)[[transcript_biotype_col]] %in% tbt_use]
   }
   gr
 }
 
-filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype,
-                                gene_biotype, transcript_biotype_use,
+filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype_col,
+                                gene_biotype_col, transcript_biotype_use,
                                 gene_biotype_use, source) {
   grt <- gr[!is.na(mcols(gr)[[transcript_id]])]
   if (gene_biotype_use == "all" && transcript_biotype_use == "all") {
@@ -163,8 +164,8 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype,
   sep <- if (source == "ensembl") ":" else "-"
   if (gene_biotype_use != "all") {
     grg <- gr[gr$type == "gene"]
-    gbt_use <- which_biotypes(gene_biotype_use, mcols(grg)[[gene_biotype]])
-    genes_use <- unique(mcols(grg)[[gene_id]][mcols(grg)[[gene_biotype]] %in% gbt_use])
+    gbt_use <- which_biotypes(gene_biotype_use, mcols(grg)[[gene_biotype_col]])
+    genes_use <- unique(mcols(grg)[[gene_id]][mcols(grg)[[gene_biotype_col]] %in% gbt_use])
     genes_use <- genes_use[!is.na(genes_use)]
     if (transcript_biotype_use == "all") {
       genes <- paste("gene", genes_use, sep = sep)
@@ -172,8 +173,8 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype,
     }
   }
   if (transcript_biotype_use != "all") {
-    tbt_use <- which_biotypes(transcript_biotype_use, mcols(grt)[[transcript_biotype]])
-    grt <- grt[mcols(grt)[[transcript_biotype]] %in% tbt_use]
+    tbt_use <- which_biotypes(transcript_biotype_use, mcols(grt)[[transcript_biotype_col]])
+    grt <- grt[mcols(grt)[[transcript_biotype_col]] %in% tbt_use]
     if (gene_biotype_use == "all") {
       grg <- gr[gr$type == "gene"]
       return(list(gr_tx = grt, gr_g = grg))
@@ -224,9 +225,9 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype,
 #' version number, it's up to you whether to include gene version number.
 #' @param version_sep Character to separate bewteen the main ID and the version
 #' number. Defaults to ".", as in Ensembl.
-#' @param transcript_biotype Character vector of length 1. Tag in \code{attribute}
+#' @param transcript_biotype_col Character vector of length 1. Tag in \code{attribute}
 #' field corresponding to _transcript_ biotype.
-#' @param gene_biotype Character vector of length 1. Tag in \code{attribute}
+#' @param gene_biotype_col Character vector of length 1. Tag in \code{attribute}
 #' field corresponding to _gene_ biotype.
 #' @param transcript_biotype_use Character, can be "all", "cellranger", or
 #' a vector of _transcript_ biotypes to be used. Transcript biotypes aren't
@@ -260,8 +261,8 @@ tr2g_GRanges <- function(gr, type_use = "transcript", transcript_id = "transcrip
                          gene_id = "gene_id", gene_name = "gene_name",
                          transcript_version = "transcript_version",
                          gene_version = "gene_version", version_sep = ".",
-                         transcript_biotype = "transcript_biotype",
-                         gene_biotype = "gene_biotype", 
+                         transcript_biotype_col = "transcript_biotype",
+                         gene_biotype_col = "gene_biotype", 
                          transcript_biotype_use = "all",
                          gene_biotype_use = "all", 
                          chrs_only = TRUE, save_filtered = FALSE,
@@ -269,10 +270,10 @@ tr2g_GRanges <- function(gr, type_use = "transcript", transcript_id = "transcrip
   tags <- names(mcols(gr))
   check_tag_present(c(transcript_id, gene_id), tags, error = TRUE)
   if (transcript_biotype_use != "all") {
-    check_tag_present(transcript_biotype, tags, error = TRUE)
+    check_tag_present(transcript_biotype_col, tags, error = TRUE)
   }
   if (gene_biotype_use != "all") {
-    check_tag_present(gene_biotype, tags, error = TRUE)
+    check_tag_present(gene_biotype_col, tags, error = TRUE)
   }
   # Will do nothing if all are NULL
   check_tag_present(c(gene_name, transcript_version, gene_version),
@@ -285,7 +286,7 @@ tr2g_GRanges <- function(gr, type_use = "transcript", transcript_id = "transcrip
   # Filter chromosomes
   gr <- filter_chr(gr, chrs_only)
   # Filter by biotypes
-  gr <- filter_biotype(gr, transcript_biotype, gene_biotype, 
+  gr <- filter_biotype(gr, transcript_biotype_col, gene_biotype_col, 
                        transcript_biotype_use, gene_biotype_use)
   # Prepare output
   out <- data.frame(transcript = mcols(gr)[[transcript_id]],
@@ -358,8 +359,8 @@ tr2g_gtf <- function(file, type_use = "transcript", transcript_id = "transcript_
                      gene_id = "gene_id", gene_name = "gene_name",
                      transcript_version = "transcript_version",
                      gene_version = "gene_version", version_sep = ".",
-                     verbose = TRUE, transcript_biotype = "transcript_biotype",
-                     gene_biotype = "gene_biotype", 
+                     verbose = TRUE, transcript_biotype_col = "transcript_biotype",
+                     gene_biotype_col = "gene_biotype", 
                      transcript_biotype_use = "all",
                      gene_biotype_use = "all", 
                      chrs_only = TRUE, save_filtered = FALSE,
@@ -373,8 +374,8 @@ tr2g_gtf <- function(file, type_use = "transcript", transcript_id = "transcript_
   }
   gr <- read_gff(file)
   tr2g_GRanges(gr, type_use, transcript_id, gene_id, gene_name,
-    transcript_version, gene_version, version_sep, transcript_biotype,
-    gene_biotype, transcript_biotype_use, gene_biotype_use, chrs_only,
+    transcript_version, gene_version, version_sep, transcript_biotype_col,
+    gene_biotype_col, transcript_biotype_use, gene_biotype_use, chrs_only,
     save_filtered, file_save)
 }
 
@@ -433,8 +434,8 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
                       gene_id = "gene_id", gene_name = "Name",
                       transcript_version = "version",
                       gene_version = "version", version_sep = ".",
-                      transcript_biotype = "biotype",
-                      gene_biotype = "biotype", 
+                      transcript_biotype_col = "biotype",
+                      gene_biotype_col = "biotype", 
                       transcript_biotype_use = "all",
                       gene_biotype_use = "all", 
                       chrs_only = TRUE, source = c("ensembl", "refseq"),
@@ -455,8 +456,8 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
   gr <- filter_chr(gr, chrs_only)
   # Filter by biotype
   c(gr_tx, gr_g) %<-% filter_biotype_gff3(gr, transcript_id, gene_id, 
-                                          transcript_biotype, 
-                                          gene_biotype, transcript_biotype_use, 
+                                          transcript_biotype_col, 
+                                          gene_biotype_col, transcript_biotype_use, 
                                           gene_biotype_use, source)
   # Get transcript ID
   gr_tx <- gr_tx[gr_tx$type %in% type_use]
@@ -504,6 +505,10 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
 }
 
 .annots_from_fa <- function(fa) {
+  # Avoid R CMD check note
+  transcript_id <- type <- cr <- gene_biotype <- transcript_biotype <- 
+    gene_id <- gene_symbol <- description <- source <- accession <- 
+    start <- end <- strand <- NULL
   out <- tibble(transcript_id = str_extract(names(fa), "^[a-zA-Z\\d-\\.]+"),
                 type = str_extract(names(fa), paste0("(?<=", transcript_id, " ).*?(?=\\s)")),
                 cr = str_extract(names(fa),
@@ -635,9 +640,9 @@ tr2g_fasta <- function(file, use_gene_name = TRUE,
   # Avoid R CMD check note
   g <- gene_name <- NULL
   out <- tibble(transcript = str_extract(names(s), "^[a-zA-Z\\d-\\.]+"),
-                gene = str_extract(names(s), "(?<=gene:).*?(?=\\.)"))
+                gene = str_extract(names(s), "(?<=gene:).*?(?=\\s)"))
   if (use_gene_name) {
-    out$gene_name <- str_extract(names(s), "(?<=gene_symbol:).*?(?=\\s)")
+    out$gene_name <- str_extract(names(s), "(?<=gene_symbol:).*?(?=(\\s|$))")
   }
   
   inds <- TRUE

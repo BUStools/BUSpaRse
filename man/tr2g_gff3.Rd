@@ -13,8 +13,8 @@ tr2g_gff3(
   transcript_version = "version",
   gene_version = "version",
   version_sep = ".",
-  transcript_biotype = "biotype",
-  gene_biotype = "biotype",
+  transcript_biotype_col = "biotype",
+  gene_biotype_col = "biotype",
   transcript_biotype_use = "all",
   gene_biotype_use = "all",
   chrs_only = TRUE,
@@ -67,10 +67,10 @@ version number, it's up to you whether to include gene version number.}
 \item{version_sep}{Character to separate bewteen the main ID and the version
 number. Defaults to ".", as in Ensembl.}
 
-\item{transcript_biotype}{Character vector of length 1. Tag in \code{attribute}
+\item{transcript_biotype_col}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to \emph{transcript} biotype.}
 
-\item{gene_biotype}{Character vector of length 1. Tag in \code{attribute}
+\item{gene_biotype_col}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to \emph{gene} biotype.}
 
 \item{transcript_biotype_use}{Character, can be "all", "cellranger", or
