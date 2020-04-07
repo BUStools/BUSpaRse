@@ -47,7 +47,8 @@ test_that("Sensible results from biomart query", {
       use_transcript_version = TRUE)
   },
   "Version is only available to vertebrates.")
-  expect_equal(names(tr2g), c("transcript", "gene", "gene_name"))
+  expect_equal(names(tr2g), c("transcript", "gene", "gene_name",
+                              "chromosome_name"))
   expect_gt(nrow(tr2g), 1)
   rm(tr2g)
 })

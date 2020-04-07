@@ -4,7 +4,8 @@ NULL
 #' Get transcript and gene info from Ensembl
 #'
 #' This function queries Ensembl biomart to convert transcript IDs to gene IDs.
-#'
+#' 
+#' @inheritParams tr2g_GRanges
 #' @param species Character vector of length 1, Latin name of the species of
 #' interest.
 #' @param type Character, must be one of "vertebrate", "metazoa", "plant",
@@ -47,6 +48,7 @@ NULL
 #' also be columns in the data frame returned.
 #' @family functions to retrieve transcript and gene info
 #' @importFrom BiocGenerics %in%
+#' @importFrom GenomeInfoDb genomeStyles
 #' @export
 #' @examples
 #' tr2g <- tr2g_ensembl(species = "Felis catus", other_attrs = "description")
@@ -58,6 +60,11 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
                          use_gene_name = TRUE,
                          use_transcript_version = TRUE,
                          use_gene_version = TRUE,
+                         transcript_biotype_col = "transcript_biotype",
+                         gene_biotype_col = "gene_biotype", 
+                         transcript_biotype_use = "all",
+                         gene_biotype_use = "all", 
+                         chrs_only = TRUE,
                          ensembl_version = NULL,
                          verbose = TRUE, ...) {
   # Validate arguments
@@ -100,7 +107,35 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
   if (use_gene_version) {
     attrs_use[2] <- paste(attrs_use[2], "version", sep = "_")
   }
+  if (transcript_biotype_use != "all") {
+    attrs_use <- c(attrs_use, transcript_biotype_col)
+  }
+  if (gene_biotype_use != "all") {
+    attrs_use <- c(attrs_use, gene_biotype_col)
+  }
+  if (chrs_only) {
+    chrs_use <- try(genomeStyles(species)$Ensembl)
+    if (is(chrs_use, "try-error")) {
+      chrs_only <- FALSE
+    } else {
+      attrs_use <- c(attrs_use, "chromosome_name")
+    }
+  }
+  attrs_use <- unique(attrs_use)
   out <- getBM(attrs_use, mart = mart)
+  
+  if (gene_biotype_use != "all") {
+    gbt_use <- which_biotypes(gene_biotype_use, out[[gene_biotype_col]])
+    out <- out[out[[gene_biotype_col]] %in% gbt_use,]
+  }
+  if (transcript_biotype_use != "all") {
+    tbt_use <- which_biotypes(transcript_biotype_use, 
+                              df[[transcript_biotype_col]])
+    out <- out[out[[transcript_biotype_col]] %in% tbt_use,]
+  }
+  if (chrs_only) {
+    out <- out[out$chromosome_name %in% chrs_use,]
+  }
   names(out)[seq_len(2)] <- c("transcript", "gene")
   names(out)[names(out) == "external_gene_name"] <- "gene_name"
   out
@@ -734,6 +769,7 @@ tr2g_TxDb <- function(txdb) {
 #' on `AnnotationHub`.
 #'
 #' @inheritParams tr2g_ensembl
+#' @inheritParams tr2g_GRanges
 #' @param ensdb Ann `EnsDb` object, such as from `AnnotationHub` or
 #' `EnsDb.Hsapiens.v86`.
 #' @param other_attrs Character vector. Other attributes to get from the `EnsDb`
@@ -751,7 +787,12 @@ tr2g_TxDb <- function(txdb) {
 #'   use_gene_version = FALSE)
 tr2g_EnsDb <- function(ensdb, other_attrs = NULL, use_gene_name = TRUE,
                        use_transcript_version = TRUE,
-                       use_gene_version = TRUE) {
+                       use_gene_version = TRUE,
+                       transcript_biotype_col = "TXBIOTYPE",
+                       gene_biotype_col = "GENEBIOTYPE", 
+                       transcript_biotype_use = "all",
+                       gene_biotype_use = "all", 
+                       chrs_only = TRUE) {
   attrs_use <- c("TXID", "GENEID", other_attrs)
   if (use_gene_name) {
     attrs_use <- c(attrs_use, "GENENAME")
@@ -762,15 +803,48 @@ tr2g_EnsDb <- function(ensdb, other_attrs = NULL, use_gene_name = TRUE,
   if (use_gene_version) {
     attrs_use[2] <- "GENEIDVERSION"
   }
+  if (transcript_biotype_use != "all") {
+    attrs_use <- c(attrs_use, transcript_biotype_col)
+  }
+  if (gene_biotype_use != "all") {
+    attrs_use <- c(attrs_use, gene_biotype_col)
+  }
+  if (chrs_only) {
+    chrs_use <- mapSeqlevels(seqlevels(ensdb), seqlevelsStyle(ensdb)[1])
+    chrs_use <- unname(chrs_use[!is.na(chrs_use)])
+    attrs_use <- c(attrs_use, "SEQNAME")
+  }
+  attrs_use <- unique(attrs_use)
+  cls <- columns(ensdb)
+  if (any(!attrs_use %in% cls)) {
+    stop("Attributes must be one of ", paste(cls, collapse = ", "),
+         "; please double check other_attrs, transcript_biotype_col, ",
+         "and gene_biotype_col.")
+  }
   df <- AnnotationDbi::select(ensdb, AnnotationDbi::keys(ensdb, keytype = "TXID"),
     keytype = "TXID",
     columns = attrs_use)
   if (use_transcript_version) {
     df$TXID <- NULL
   }
+  if (gene_biotype_use != "all") {
+    gbt_use <- which_biotypes(gene_biotype_use, df[[gene_biotype_col]])
+    df <- df[df[[gene_biotype_col]] %in% gbt_use,]
+  }
+  if (transcript_biotype_use != "all") {
+    tbt_use <- which_biotypes(transcript_biotype_use, 
+                              df[[transcript_biotype_col]])
+    df <- df[df[[transcript_biotype_col]] %in% tbt_use,]
+  }
+  if (chrs_only) {
+    df <- df[df$SEQNAME %in% chrs_use,]
+  }
   names(df)[str_detect(names(df), "^TXID")] <- "transcript"
   names(df)[str_detect(names(df), "^GENEID")] <- "gene"
   names(df)[names(df) == "GENENAME"] <- "gene_name"
+  names(df)[names(df) == transcript_biotype_col] <- "transcript_biotype"
+  names(df)[names(df) == gene_biotype_col] <- "gene_biotype"
+  names(df)[names(df) == "SEQNAME"] <- "seqnames"
   df
 }
 
