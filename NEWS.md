@@ -1,3 +1,7 @@
+# BUSpaRse 1.1.3 (2020-04-06)
+* Allow filtering gene and transcript biotypes in tr2g and get_velocity_files
+* Allow removing scaffolds and haplotypes from genome annotations for tr2g
+
 # BUSpaRse 1.1.2 (2020-02-06)
 * Removed RcppParallel and data.table dependencies, and hence all C++ multithreading
 * Added knee_plot function
