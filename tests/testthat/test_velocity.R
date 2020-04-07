@@ -113,8 +113,8 @@ test_that("TxDb, keep isoforms separate", {
   expect_warning(get_velocity_files(txdb, L = L,
     Genome = toy_genome,
     Transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
-    out_path = out_path,
-    isoform_action = "separate"), regexp = "isCircular information")
+    out_path = out_path, isoform_action = "separate", chrs_only = FALSE), 
+    regexp = "isCircular information")
   # fasta file
   test_fasta(toy_path, out_path)
   # tr2g
@@ -131,8 +131,8 @@ test_that("TxDb, collapse isoforms", {
   expect_warning(get_velocity_files(txdb, L = L,
     Genome = toy_genome,
     Transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
-    out_path = out_path,
-    isoform_action = "collapse"), regexp = "isCircular information")
+    out_path = out_path, isoform_action = "collapse", chrs_only = FALSE), 
+    regexp = "isCircular information")
   # fasta file
   test_fasta(toy_path, out_path, "coll")
   # tr2g

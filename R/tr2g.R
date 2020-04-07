@@ -728,6 +728,7 @@ tr2g_fasta <- function(file, use_gene_name = TRUE,
 #' This function extracts transcript and corresponding gene information from
 #' gene annotation stored in a \code{\link{TxDb}} object.
 #'
+#' @inheritParams tr2g_GRanges
 #' @param txdb A \code{\link{TxDb}} object with gene annotation.
 #' @return A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
 #' for transcript ID, and \code{tx_id} for internal transcript IDs used to avoid
@@ -747,15 +748,27 @@ tr2g_fasta <- function(file, use_gene_name = TRUE,
 #' @examples
 #' library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 #' tr2g_TxDb(TxDb.Hsapiens.UCSC.hg38.knownGene)
-tr2g_TxDb <- function(txdb) {
+tr2g_TxDb <- function(txdb, chrs_only = TRUE) {
+  attrs_use <- c("TXNAME", "GENEID", "TXID")
+  if (chrs_only) {
+    chrs_use <- mapSeqlevels(seqlevels(txdb), seqlevelsStyle(txdb)[1])
+    chrs_use <- unname(chrs_use[!is.na(chrs_use)])
+    attrs_use <- c(attrs_use, "TXCHROM")
+  }
   df <- AnnotationDbi::select(txdb, AnnotationDbi::keys(txdb, keytype = "TXID"),
     keytype = "TXID",
-    columns = c("TXNAME", "GENEID", "TXID"))
+    columns = attrs_use)
   if (anyDuplicated(df$TXNAME)) {
     df$TXNAME <- make.unique(df$TXNAME, sep = "_")
   }
-  df <- df[complete.cases(df), c("TXNAME", "GENEID", "TXID")]
-  names(df) <- c("transcript", "gene", "tx_id")
+  df <- df[complete.cases(df), ]
+  if (chrs_only) {
+    df <- df[df$TXCHROM %in% chrs_use, ]
+  }
+  names(df)[1:3] <- c("tx_id", "gene", "transcript")
+  if (chrs_only) {
+    names(df)[4] <- "seqnames"
+  }
   df
 }
 

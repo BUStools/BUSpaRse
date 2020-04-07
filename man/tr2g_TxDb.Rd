@@ -4,10 +4,14 @@
 \alias{tr2g_TxDb}
 \title{Get transcript and gene info from TxDb objects}
 \usage{
-tr2g_TxDb(txdb)
+tr2g_TxDb(txdb, chrs_only = TRUE)
 }
 \arguments{
 \item{txdb}{A \code{\link{TxDb}} object with gene annotation.}
+
+\item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
+GFF files can contain annotations for scaffolds, which are not incorporated
+into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
 }
 \value{
 A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}

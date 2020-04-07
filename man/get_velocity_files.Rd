@@ -83,7 +83,8 @@ get_velocity_files(
   isoform_action = c("separate", "collapse"),
   exon_option = c("full", "junction"),
   compress_fa = FALSE,
-  width = 80L
+  width = 80L,
+  chrs_only = TRUE
 )
 
 \S4method{get_velocity_files}{EnsDb}(

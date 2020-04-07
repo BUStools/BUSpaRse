@@ -321,7 +321,7 @@ setMethod("get_velocity_files", "TxDb",
                "other"),
              isoform_action = c("separate", "collapse"),
              exon_option = c("full", "junction"),
-             compress_fa = FALSE, width = 80L) {
+             compress_fa = FALSE, width = 80L, chrs_only = TRUE) {
     exons_by_tx <- function(X, tx_id, tx) {
       gr <- exonsBy(X, by = "tx") # Will be numbers
       # Remove transcripts that aren't mapped to genes
@@ -340,7 +340,7 @@ setMethod("get_velocity_files", "TxDb",
     style <- match.arg(style)
     c(Genome, X) %<-% match_style(Genome, X, style)
     X <- subset_annot(Genome, X)
-    tr2g_cdna <- tr2g_TxDb(X)
+    tr2g_cdna <- tr2g_TxDb(X, chrs_only)
     if (is(Transcriptome, "DNAStringSet")) {
       tx_overlap <- check_tx(tr2g_cdna$transcript, names(Transcriptome))
       tr2g_cdna <- tr2g_cdna[tr2g_cdna$transcript %in% tx_overlap, ]
