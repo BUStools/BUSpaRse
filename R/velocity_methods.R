@@ -403,12 +403,17 @@ setMethod("get_velocity_files", "TxDb",
 #' @export
 setMethod("get_velocity_files", "EnsDb",
   function(X, L, Genome, Transcriptome, out_path,
-             style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
-               "other"),
-             isoform_action = c("separate", "collapse"),
-             exon_option = c("full", "junction"),
-             compress_fa = FALSE, width = 80L,
-             use_transcript_version = TRUE, use_gene_version = TRUE) {
+           style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
+                     "other"),
+           isoform_action = c("separate", "collapse"),
+           exon_option = c("full", "junction"),
+           compress_fa = FALSE, width = 80L,
+           use_transcript_version = TRUE, use_gene_version = TRUE,
+           transcript_biotype_col = "TXBIOTYPE",
+           gene_biotype_col = "GENEBIOTYPE", 
+           transcript_biotype_use = "all",
+           gene_biotype_use = "all", 
+           chrs_only = TRUE) {
     exons_by_tx <- function(X, tx, chrs_use, use_transcript_version) {
       if (use_transcript_version) {
         # tr2g_cdna has already been filtered if it needs to be filtered
@@ -439,7 +444,12 @@ setMethod("get_velocity_files", "EnsDb",
     chrs_use <- intersect(seqlevels(X), seqlevels(Genome))
     tr2g_cdna <- tr2g_EnsDb(X, use_gene_name = FALSE,
       use_transcript_version = use_transcript_version,
-      use_gene_version = use_gene_version)
+      use_gene_version = use_gene_version,
+      transcript_biotype_col = transcript_biotype_col,
+      gene_biotype_col = gene_biotype_col, 
+      transcript_biotype_use = transcript_biotype_use,
+      gene_biotype_use = gene_biotype_use, 
+      chrs_only = chrs_only)
     if (is(Transcriptome, "DNAStringSet")) {
       tx_overlap <- check_tx(tr2g_cdna$transcript, names(Transcriptome))
       tr2g_cdna <- tr2g_cdna[tr2g_cdna$transcript %in% tx_overlap, ]

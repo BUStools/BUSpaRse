@@ -98,7 +98,12 @@ get_velocity_files(
   compress_fa = FALSE,
   width = 80L,
   use_transcript_version = TRUE,
-  use_gene_version = TRUE
+  use_gene_version = TRUE,
+  transcript_biotype_col = "TXBIOTYPE",
+  gene_biotype_col = "GENEBIOTYPE",
+  transcript_biotype_use = "all",
+  gene_biotype_use = "all",
+  chrs_only = TRUE
 )
 }
 \arguments{
