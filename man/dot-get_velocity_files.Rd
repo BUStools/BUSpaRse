@@ -18,6 +18,13 @@
   transcript_version = "transcript_version",
   gene_version = "gene_version",
   version_sep = ".",
+  transcript_biotype_col = "transcript_biotype",
+  gene_biotype_col = "gene_biotype",
+  transcript_biotype_use = "all",
+  gene_biotype_use = "all",
+  chrs_only = TRUE,
+  save_filtered = FALSE,
+  gtf_file = "./gtf_filtered.gtf",
   compress_fa = FALSE,
   width = 80L
 )
@@ -124,6 +131,33 @@ version number, it's up to you whether to include gene version number.}
 
 \item{version_sep}{Character to separate bewteen the main ID and the version
 number. Defaults to ".", as in Ensembl.}
+
+\item{transcript_biotype_col}{Character vector of length 1. Tag in \code{attribute}
+field corresponding to \emph{transcript} biotype.}
+
+\item{gene_biotype_col}{Character vector of length 1. Tag in \code{attribute}
+field corresponding to \emph{gene} biotype.}
+
+\item{transcript_biotype_use}{Character, can be "all", "cellranger", or
+a vector of \emph{transcript} biotypes to be used. Transcript biotypes aren't
+entirely the same as gene biotypes. For instance, in Ensembl annotation,
+\code{retained_intron} is a transcript biotype, but not a gene biotype. If
+"cellranger", then the biotypes used by Cell Ranger's reference are used:
+\code{c("protein_coding", "lincRNA", "antisense", "IG_LV_gene", "IG_V_gene",  "IG_V_pseudogene", "IG_D_gene", "IG_J_gene", "IG_J_pseudogene", "IG_C_gene",  "IG_C_pseudogene", "TR_V_gene", "TR_V_pseudogene", "TR_D_gene", "TR_J_gene",  "TR_J_pseudogene", "TR_C_gene")}.}
+
+\item{gene_biotype_use}{Character, can be "all", "cellranger", or
+a vector of \emph{gene} biotypes to be used. If
+"cellranger", then the biotypes used by Cell Ranger's reference are used.}
+
+\item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
+GFF files can contain annotations for scaffolds, which are not incorporated
+into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
+
+\item{save_filtered}{Logical. If filtering type, biotypes, and/or
+chromosomes, whether to save the filtered \code{GRanges} as a GTF/GFF3 file.}
+
+\item{gtf_file}{File name of the file to be saved. The directory in which
+the file is to be saved must exist.}
 
 \item{compress_fa}{Logical, whether to compress the output fasta file of
 transcriptome and flanked intronic sequenncess. If \code{TRUE}, then the fasta

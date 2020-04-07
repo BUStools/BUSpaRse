@@ -9,7 +9,12 @@ tr2g_EnsDb(
   other_attrs = NULL,
   use_gene_name = TRUE,
   use_transcript_version = TRUE,
-  use_gene_version = TRUE
+  use_gene_version = TRUE,
+  transcript_biotype_col = "TXBIOTYPE",
+  gene_biotype_col = "GENEBIOTYPE",
+  transcript_biotype_use = "all",
+  gene_biotype_use = "all",
+  chrs_only = TRUE
 )
 }
 \arguments{
@@ -33,6 +38,27 @@ version numbers must not be included here.}
 \item{use_gene_version}{Logical, whether to include version number in the
 Ensembl gene ID. Unlike transcript
 version number, it's up to you whether to include gene version number.}
+
+\item{transcript_biotype_col}{Character vector of length 1. Tag in \code{attribute}
+field corresponding to \emph{transcript} biotype.}
+
+\item{gene_biotype_col}{Character vector of length 1. Tag in \code{attribute}
+field corresponding to \emph{gene} biotype.}
+
+\item{transcript_biotype_use}{Character, can be "all", "cellranger", or
+a vector of \emph{transcript} biotypes to be used. Transcript biotypes aren't
+entirely the same as gene biotypes. For instance, in Ensembl annotation,
+\code{retained_intron} is a transcript biotype, but not a gene biotype. If
+"cellranger", then the biotypes used by Cell Ranger's reference are used:
+\code{c("protein_coding", "lincRNA", "antisense", "IG_LV_gene", "IG_V_gene",  "IG_V_pseudogene", "IG_D_gene", "IG_J_gene", "IG_J_pseudogene", "IG_C_gene",  "IG_C_pseudogene", "TR_V_gene", "TR_V_pseudogene", "TR_D_gene", "TR_J_gene",  "TR_J_pseudogene", "TR_C_gene")}.}
+
+\item{gene_biotype_use}{Character, can be "all", "cellranger", or
+a vector of \emph{gene} biotypes to be used. If
+"cellranger", then the biotypes used by Cell Ranger's reference are used.}
+
+\item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
+GFF files can contain annotations for scaffolds, which are not incorporated
+into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
 }
 \value{
 A data frame with at least 2 columns: \code{gene} for gene ID,
