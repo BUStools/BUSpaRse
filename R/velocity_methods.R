@@ -134,6 +134,7 @@
     gene_biotype_use = gene_biotype_use, 
     chrs_only = chrs_only, save_filtered = save_filtered,
     file_save = gtf_file) 
+  tr2g_cdna <- tr2g_cdna[, c("transcript", "gene")]
   if (isoform_action == "collapse") {
     message("Collapsing gene isoforms")
     grl <- GenomicRanges::split(gr, gr$gene_id)
@@ -450,6 +451,7 @@ setMethod("get_velocity_files", "EnsDb",
       transcript_biotype_use = transcript_biotype_use,
       gene_biotype_use = gene_biotype_use, 
       chrs_only = chrs_only)
+    tr2g_cdna <- tr2g_cdna[, c("transcript", "gene")]
     if (is(Transcriptome, "DNAStringSet")) {
       tx_overlap <- check_tx(tr2g_cdna$transcript, names(Transcriptome))
       tr2g_cdna <- tr2g_cdna[tr2g_cdna$transcript %in% tx_overlap, ]
