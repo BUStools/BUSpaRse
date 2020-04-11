@@ -144,7 +144,7 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
 which_biotypes <- function(bt, bt_col) {
   u_bt_col <- unique(bt_col)
   u_bt_col <- u_bt_col[!is.na(u_bt_col)]
-  if (length(bt) == "1L") {
+  if (length(bt) == 1L) {
     if (bt == "all") {
       return(u_bt_col)
     } else if (bt == "cellranger") {
