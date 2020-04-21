@@ -81,6 +81,10 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
     message("Version is only available to vertebrates.")
     use_transcript_version <- use_gene_version <- FALSE
   }
+  if (type != "vertebrate" & !is.null(ensembl_version)) {
+    warning("Archive only works for vertebrates. Using current version instead.")
+    ensembl_version <- NULL
+  }
   ds_name <- species2dataset(species, type)
   host_pre <- switch(type,
     vertebrate = "www",
@@ -96,7 +100,7 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
       species))
   }
   mart <- useEnsembl(biomart = mart_use, dataset = ds_name, host = host_use,
-    version = ensembl_version, ...)
+                     version = ensembl_version, ...)
   attrs_use <- c("ensembl_transcript_id", "ensembl_gene_id", other_attrs)
   if (use_gene_name) {
     attrs_use <- c(attrs_use, "external_gene_name")
@@ -539,71 +543,6 @@ tr2g_gff3 <- function(file, type_use = "mRNA", transcript_id = "transcript_id",
   out
 }
 
-.annots_from_fa <- function(fa) {
-  # Avoid R CMD check note
-  transcript_id <- type <- cr <- gene_biotype <- transcript_biotype <- 
-    gene_id <- gene_symbol <- description <- source <- accession <- 
-    start <- end <- strand <- NULL
-  out <- tibble(transcript_id = str_extract(names(fa), "^[a-zA-Z\\d-\\.]+"),
-                type = str_extract(names(fa), paste0("(?<=", transcript_id, " ).*?(?=\\s)")),
-                cr = str_extract(names(fa),
-                                 "(?<=((chromosome)|(scaffold)):).*?(?=\\s)"),
-                gene_biotype = str_extract(names(fa), "(?<=gene_biotype:).*?(?=\\s)"),
-                transcript_biotype = str_extract(names(fa), "(?<=transcript_biotype:).*?(?=\\s)"),
-                gene_id = str_extract(names(fa), "(?<=gene:).*?(?=\\.)"),
-                gene_symbol = str_extract(names(fa), "(?<=gene_symbol:).*?(?=\\s)"),
-                description = str_extract(names(fa), "(?<=description:).*?(?= \\[)"),
-                source = str_extract(names(fa), "(?<=Source:).*?(?=;)"),
-                accession = str_extract(names(fa), "(?<=Acc:).*?(?=\\])")) %>% 
-    tidyr::separate(cr, into = c("genome", "seqnames", "start", "end", "strand"), sep = ":") %>% 
-    mutate(start = as.integer(start),
-           end = as.integer(end),
-           strand = dplyr::case_when(
-             strand == "1" ~ "+",
-             strand == "-1" ~ "-",
-             TRUE ~ "*"
-           ))
-}
-
-#' Get genome annotation from Ensembl FASTA file
-#' 
-#' Ensembl FASTA files for RNA contain much of the information contained in GTF
-#' files, such as chromosome, genome assembly version, coordinates, strand,
-#' gene ID, gene symbol, and gene description. Given such a FASTA file, this
-#' function can extract all the genome annotation information and return a
-#' data frame or a `GRanges` object.
-#' 
-#' @param file Path to the FASTA file to be read. The file can remain gzipped.
-#' @return A data frame with genome annotations.
-#' @importFrom tidyr separate
-#' @importFrom dplyr case_when
-#' @export
-
-annots_from_fa_df <- function(file) {
-  fa <- readDNAStringSet(file)
-  .annots_from_fa(fa)
-}
-
-#' @rdname annots_from_fa_df
-#' @importFrom GenomicRanges GRanges
-#' @importFrom IRanges IRanges
-#' @export
-annots_from_fa_GRanges <- function(file) {
-  df <- annots_from_fa_df(file)
-  gn <- unique(df$genome)
-  df <- dplyr::select(df, -genome)
-  DF <- as(df[, c("type", "transcript_id", "gene_id", "gene_symbol", 
-                  "transcript_biotype", "gene_biotype", "description",
-                  "source", "accession")], "DataFrame")
-  ranges <- IRanges(start = df$start, end = df$end)
-  gr <- GRanges(seqnames = as.factor(as(df$seqnames, "Rle")),
-                ranges = ranges, strand = as.factor(as(df$strand, "Rle")),
-                mcols = DF)
-  names(mcols(gr)) <- str_remove(names(mcols(gr)), "^mcols\\.")
-  genome(gr) <- gn
-  gr
-}
-
 #' Get transcript and gene info from names in FASTA files
 #'
 #' FASTA files, such as those for cDNA and ncRNA from Ensembl, might have genome
@@ -637,6 +576,8 @@ annots_from_fa_GRanges <- function(file) {
 #' @inheritParams tr2g_ensembl
 #' @inheritParams tr2g_GRanges
 #' @inheritParams annots_from_fa_df
+#' @param save_filtered If filtering for biotype and chromosomes, whether to
+#' save the filtered fasta file.
 #' @return A data frame with at least 2 columns: \code{gene} for gene ID,
 #' \code{transcript} for transcript ID, and optionally \code{gene_name} for gene
 #' names.
@@ -655,8 +596,8 @@ tr2g_fasta <- function(file, use_gene_name = TRUE,
                        verbose = TRUE,
                        transcript_biotype_use = "all",
                        gene_biotype_use = "all", 
-                       chrs_only = TRUE, save_filtered = FALSE,
-                       file_save = "./cdna_filtered.fa") {
+                       chrs_only = TRUE, save_filtered = TRUE,
+                       file_save = "./cdna_filtered.fa", compress = FALSE) {
   check_char1(setNames(file, "file"))
   file <- normalizePath(file, mustWork = TRUE)
   if (!str_detect(file, "(\\.fasta)|(\\.fa)|(\\.fna)")) {
@@ -681,9 +622,13 @@ tr2g_fasta <- function(file, use_gene_name = TRUE,
   }
   
   inds <- TRUE
+  do_filter <- transcript_biotype_use != "all" | gene_biotype_use != "all" |
+    chrs_only
   if (chrs_only) {
-    sns <- str_extract(names(s), "(?<=chromosome:).*?(?=:)")
-    inds <- !is.na(sns)
+    sns <- str_extract(names(s), "(?<=((chromosome)|(scaffold)):).*?(?=\\s)") %>% 
+      str_split(pattern = ":", simplify = TRUE)
+    sns <- sns[,2]
+    inds <- !is.na(mapSeqlevels(sns, style = "Ensembl"))
   }
   if (transcript_biotype_use != "all") {
     tbts <- str_extract(names(s), "(?<=transcript_biotype:).*?(?=\\s)")
@@ -695,7 +640,7 @@ tr2g_fasta <- function(file, use_gene_name = TRUE,
     gbts_use <- which_biotypes(gene_biotype_use, gbts)
     inds <- inds & (gbts %in% gbts_use)
   }
-  out <- distinct(out[inds, ])
+  if (do_filter) out <- distinct(out[inds, ])
   # Remove version number
   if (is_ens) {
     # Prevent R CMD check note of no visible binding for global variable
@@ -709,10 +654,11 @@ tr2g_fasta <- function(file, use_gene_name = TRUE,
         mutate(gene = str_remove(gene, "\\.\\d+$"))
     }
   }
-  if (save_filtered) {
+  if (save_filtered & do_filter) {
     file_save <- normalizePath(file_save, mustWork = FALSE)
-    fa_out <- cdna[inds]
-    writeXStringSet(fa_out, file_save)
+    fa_out <- s[inds]
+    if (compress) file_save <- paste0(file_save, ".gz")
+    writeXStringSet(fa_out, file_save, compress = compress)
   }
   out
 }
@@ -995,7 +941,7 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv") {
 #' library(TENxBUSData)
 #' TENxBUSData(".", dataset = "retina")
 #' tr2g <- transcript2gene("Mus musculus", type = "vertebrate",
-#'   ensembl_version = 94, kallisto_out_path = "./out_retina")
+#'   ensembl_version = 99, kallisto_out_path = "./out_retina")
 transcript2gene <- function(species, fasta_file, kallisto_out_path,
                             type = "vertebrate",
                             verbose = TRUE, ...) {
