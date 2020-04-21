@@ -59,7 +59,7 @@ downloaded.
 library(TENxBUSData)
 TENxBUSData(".", dataset = "retina")
 tr2g <- transcript2gene("Mus musculus", type = "vertebrate",
-  ensembl_version = 94, kallisto_out_path = "./out_retina")
+  ensembl_version = 99, kallisto_out_path = "./out_retina")
 }
 \seealso{
 Other functions to retrieve transcript and gene info: 
