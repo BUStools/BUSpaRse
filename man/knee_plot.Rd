@@ -2,34 +2,42 @@
 % Please edit documentation in R/knee_plot.R
 \name{knee_plot}
 \alias{knee_plot}
-\alias{knee_plot,DataFrame-method}
-\alias{knee_plot,list-method}
-\title{Knee plot for filtering empty droplets}
+\alias{get_knee_df}
+\title{Plot the transposed knee plot and inflection point}
 \usage{
-knee_plot(bc_rank)
+knee_plot(df, inflection)
 
-\S4method{knee_plot}{DataFrame}(bc_rank)
-
-\S4method{knee_plot}{list}(bc_rank)
+get_knee_df(mat)
 }
 \arguments{
-\item{bc_rank}{A \code{DataFrame} output from \code{DropletUtil::barcodeRanks} or a
-named list of such \code{DataFrame}s.}
+\item{df}{The data frame from \code{\link{get_knee_df}}.}
+
+\item{inflection}{Output of \code{\link{get_inflection}}.}
+
+\item{mat}{Gene count matrix, a dgCMatrix.}
 }
 \value{
-A ggplot2 object.
+A \code{ggplot2} object.
+
+A tibble with two columns: \code{total} for total UMI counts for
+each barcode, and \code{rank} for rank of the total counts, with number 1
+for the barcode with the most counts.
 }
 \description{
-Visualizes the inflection point to filter empty droplets. This function plots
-different datasets with a different color. Facets can be added after calling
-this function with \verb{facet_*} functions. Will be added to the next release
-version of BUSpaRse.
+This function plots a transposed knee plot, showing the inflection point and
+the number of remaining cells after inflection point filtering. It's
+transposed since it's more generalizable to multi-modal data.
 }
 \examples{
-library(DropletUtils)
-set.seed(2000)
-my.counts <- DropletUtils:::simCounts()
-br.out <- barcodeRanks(my.counts)
-knee_plot(br.out)
-
+# Download dataset already in BUS format
+library(TENxBUSData)
+TENxBUSData(".", dataset = "retina")
+tr2g <- transcript2gene("Mus musculus", type = "vertebrate",
+  ensembl_version = 99, kallisto_out_path = "./out_retina")
+m <- make_sparse_matrix("./out_retina/output.sorted.txt",
+tr2g = tr2g, est_ncells = 1e5,
+est_ngenes = nrow(tr2g))
+df <- get_knee_df(m)
+infl <- get_inflection(df)
+knee_plot(df, infl)
 }

@@ -1,76 +1,76 @@
-#' Knee plot for filtering empty droplets
+#' Plot the transposed knee plot and inflection point
 #' 
-#' Visualizes the inflection point to filter empty droplets. This function plots 
-#' different datasets with a different color. Facets can be added after calling
-#' this function with `facet_*` functions. Will be added to the next release
-#' version of BUSpaRse.
+#' This function plots a transposed knee plot, showing the inflection point and
+#' the number of remaining cells after inflection point filtering. It's
+#' transposed since it's more generalizable to multi-modal data.
 #' 
-#' @param bc_rank A `DataFrame` output from `DropletUtil::barcodeRanks` or a
-#' named list of such `DataFrame`s.
-#' @return A ggplot2 object.
+#' @param df The data frame from \code{\link{get_knee_df}}.
+#' @param inflection Output of \code{\link{get_inflection}}.
+#' @return A \code{ggplot2} object.
 #' @export
-setGeneric("knee_plot", function(bc_rank) standardGeneric("knee_plot"),
-           signature = "bc_rank")
-
-#' @rdname knee_plot
-#' @importFrom tidyr unnest
-#' @importFrom ggplot2 ggplot aes geom_line geom_hline geom_vline scale_x_log10
-#' scale_y_log10 labs
-#' @importFrom S4Vectors metadata
-#' @export
+#' @importFrom ggplot2 ggplot aes geom_path geom_vline geom_hline 
+#' scale_x_log10 scale_y_log10 labs annotation_logticks geom_text
 #' @examples 
-#' library(DropletUtils)
-#' set.seed(2000)
-#' my.counts <- DropletUtils:::simCounts()
-#' br.out <- barcodeRanks(my.counts)
-#' knee_plot(br.out)
-#' 
-setMethod("knee_plot", "DataFrame",
-         function(bc_rank) {
-  knee_plt <- tibble(rank = bc_rank[["rank"]],
-                     total = bc_rank[["total"]]) %>% 
-    distinct() %>% 
-    dplyr::filter(total > 0)
-  annot <- tibble(inflection = metadata(bc_rank)[["inflection"]],
-                  rank_cutoff = max(bc_rank$rank[bc_rank$total > metadata(bc_rank)[["inflection"]]]))
-  rank <- total <- inflection <- rank_cutoff <- NULL
-  p <- ggplot(knee_plt, aes(rank, total)) +
-    geom_line() +
-    geom_hline(aes(yintercept = inflection), data = annot, linetype = 2) +
-    geom_vline(aes(xintercept = rank_cutoff), data = annot, linetype = 2) +
+#' # Download dataset already in BUS format
+#' library(TENxBUSData)
+#' TENxBUSData(".", dataset = "retina")
+#' tr2g <- transcript2gene("Mus musculus", type = "vertebrate",
+#'   ensembl_version = 99, kallisto_out_path = "./out_retina")
+#' m <- make_sparse_matrix("./out_retina/output.sorted.txt",
+#' tr2g = tr2g, est_ncells = 1e5,
+#' est_ngenes = nrow(tr2g))
+#' df <- get_knee_df(m)
+#' infl <- get_inflection(df)
+#' knee_plot(df, infl)
+knee_plot <- function(df, inflection) {
+  annot <- tibble(inflection = inflection,
+                  rank_cutoff = max(df$rank[df$total > inflection]))
+  ggplot(df, aes(total, rank)) +
+    geom_path() +
+    geom_vline(aes(xintercept = inflection), data = annot, linetype = 2, color = "gray40") +
+    geom_hline(aes(yintercept = rank_cutoff), data = annot, linetype = 2, color = "gray40") +
+    geom_text(aes(inflection, rank_cutoff, 
+                  label = paste(rank_cutoff, "'cells'")),
+              data = annot, vjust = 1) +
     scale_x_log10() +
     scale_y_log10() +
-    labs(x = "Rank", y = "Total UMIs")
-  return(p)
-})
+    labs(y = "Rank", x = "Total UMIs") +
+    annotation_logticks()
+}
 
 #' @rdname knee_plot
+#' @param mat Gene count matrix, a dgCMatrix.
+#' @return A tibble with two columns: \code{total} for total UMI counts for 
+#' each barcode, and \code{rank} for rank of the total counts, with number 1
+#' for the barcode with the most counts.
 #' @export
-setMethod("knee_plot", "list",
-          function(bc_rank) {
-            knee_plt <- tibble(rank = lapply(bc_rank, function(x) x[["rank"]]),
-                               total = lapply(bc_rank, function(x) x[["total"]]),
-                               dataset = names(bc_rank)) %>% 
-              unnest(cols = c(rank, total)) %>% 
-              distinct() %>% 
-              dplyr::filter(total > 0)
-            annot <- tibble(inflection = vapply(bc_rank, function(x) metadata(x)[["inflection"]], 
-                                                FUN.VALUE = numeric(1L)),
-                            rank_cutoff = vapply(bc_rank, 
-                                                 function(x) max(x$rank[x$total >
-                                                                          metadata(x)[["inflection"]]]),
-                                                 FUN.VALUE = numeric(1L)),
-                            dataset = names(bc_rank))
-            rank <- total <- inflection <- rank_cutoff <- dataset <- NULL
-            p <- ggplot(knee_plt, aes(rank, total, color = dataset)) +
-              geom_line() +
-              geom_hline(aes(yintercept = inflection, color = dataset), 
-                         data = annot, linetype = 2) +
-              geom_vline(aes(xintercept = rank_cutoff, color = dataset),
-                         data = annot, linetype = 2) +
-              scale_x_log10() +
-              scale_y_log10() +
-              labs(x = "Rank", y = "Total UMIs")
-            return(p)
-          }
-)
+#' 
+get_knee_df <- function(mat) {
+  tibble(total = colSums(mat),
+         rank = row_number(desc(total))) %>%
+    distinct() %>%
+    filter(total > 0) %>% 
+    arrange(rank)
+}
+
+#' Compute inflection point of knee plot
+#'
+#'
+#' @param df The data frame from \code{\link{get_knee_df}}.
+#' @param lower Minimum total UMI counts for barcode for it to be considered
+#' when calculating the inflection point; this helps to avoid the noisy part of
+#' the curve for barcodes with very few counts.
+#' @return A \code{numeric(1)} for the total UMI count at the inflection point.
+#' @note Code in part adapted from \code{barcodeRanks} from \code{DropetUtils}.
+#' @export
+#' @importFrom dplyr transmute
+#' 
+get_inflection <- function(df, lower = 100) {
+  df_fit <- df %>% 
+    filter(total > lower) %>% 
+    transmute(log_total = log10(total),
+              log_rank = log10(rank))
+  d1n <- diff(df_fit$log_total)/diff(df_fit$log_rank)
+  right.edge <- which.min(d1n)
+  10^(df_fit$log_total[right.edge])
+}

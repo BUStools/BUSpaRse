@@ -13,8 +13,9 @@ tr2g_fasta(
   transcript_biotype_use = "all",
   gene_biotype_use = "all",
   chrs_only = TRUE,
-  save_filtered = FALSE,
-  file_save = "./cdna_filtered.fa"
+  save_filtered = TRUE,
+  file_save = "./cdna_filtered.fa",
+  compress = FALSE
 )
 }
 \arguments{
@@ -51,8 +52,8 @@ a vector of \emph{gene} biotypes to be used. If
 GFF files can contain annotations for scaffolds, which are not incorporated
 into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
 
-\item{save_filtered}{Logical. If filtering type, biotypes, and/or
-chromosomes, whether to save the filtered \code{GRanges} as a GTF/GFF3 file.}
+\item{save_filtered}{If filtering for biotype and chromosomes, whether to
+save the filtered fasta file.}
 
 \item{file_save}{File name of the file to be saved. The directory in which
 the file is to be saved must exist.}
