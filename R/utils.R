@@ -15,8 +15,8 @@ species2dataset <- function(species, type = c("vertebrate", "metazoa", "plant",
                               "fungus", "protist")) {
   type <- match.arg(type)
   species <- strsplit(species, " ")[[1]]
-  if (length(species) != 2) {
-    stop("Please use the Latin binomial convention for species rather than the colloquial name.\n")
+  if (length(species) != 2L) {
+    stop("Please use the Latin binomial convention for species rather than the colloquial name.")
   }
   species[1] <- tolower(substr(species[1], 1, 1))
   species <- paste(species, collapse = "")
