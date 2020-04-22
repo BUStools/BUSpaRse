@@ -215,6 +215,10 @@ filter_biotype <- function(gr, transcript_biotype_col,
     gr <- gr[mcols(gr)[[gene_biotype_col]] %in% gbt_use]
   }
   if (transcript_biotype_use != "all") {
+    if (transcript_biotype_use == "cellranger") {
+      warning("Transcript biotypes are not the same as gene biotypes. ",
+              "Cell Ranger reference filters by gene biotypes.")
+    }
     tbt_use <- which_biotypes(transcript_biotype_use, mcols(gr)[[transcript_biotype_col]])
     gr <- gr[mcols(gr)[[transcript_biotype_col]] %in% tbt_use]
   }
@@ -241,6 +245,10 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype_c
     }
   }
   if (transcript_biotype_use != "all") {
+    if (transcript_biotype_use == "cellranger") {
+      warning("Transcript biotypes are not the same as gene biotypes. ",
+              "Cell Ranger reference filters by gene biotypes.")
+    }
     tbt_use <- which_biotypes(transcript_biotype_use, mcols(grt)[[transcript_biotype_col]])
     grt <- grt[mcols(grt)[[transcript_biotype_col]] %in% tbt_use]
     if (gene_biotype_use == "all") {
@@ -309,22 +317,22 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype_c
 #' version number, it's up to you whether to include gene version number.
 #' @param version_sep Character to separate bewteen the main ID and the version
 #' number. Defaults to ".", as in Ensembl.
-#' @param transcript_biotype_col Character vector of length 1. Tag in \code{attribute}
-#' field corresponding to _transcript_ biotype.
+#' @param transcript_biotype_col Character vector of length 1. Tag in 
+#' \code{attribute} field corresponding to _transcript_ biotype. 
 #' @param gene_biotype_col Character vector of length 1. Tag in \code{attribute}
-#' field corresponding to _gene_ biotype.
-#' @param transcript_biotype_use Character, can be "all", "cellranger", or
+#' field corresponding to _gene_ biotype. 
+#' @param transcript_biotype_use Character, can be "all" or
 #' a vector of _transcript_ biotypes to be used. Transcript biotypes aren't
 #' entirely the same as gene biotypes. For instance, in Ensembl annotation,
 #' `retained_intron` is a transcript biotype, but not a gene biotype. If 
-#' "cellranger", then the biotypes used by Cell Ranger's reference are used:
-#' `c("protein_coding", "lincRNA", "antisense", "IG_LV_gene", "IG_V_gene", 
-#' "IG_V_pseudogene", "IG_D_gene", "IG_J_gene", "IG_J_pseudogene", "IG_C_gene", 
-#' "IG_C_pseudogene", "TR_V_gene", "TR_V_pseudogene", "TR_D_gene", "TR_J_gene", 
-#' "TR_J_pseudogene", "TR_C_gene")`.
+#' "cellranger", then a warning will be given. See `data("ensembl_tx_biotypes")`
+#' for all available transcript biotypes from Ensembl.
 #' @param gene_biotype_use Character, can be "all", "cellranger", or
-#' a vector of _gene_ biotypes to be used. If 
-#' "cellranger", then the biotypes used by Cell Ranger's reference are used.
+#' a vector of _gene_ biotypes to be used. If "cellranger", then the biotypes 
+#' used by Cell Ranger's reference are used. See `data("cellranger_biotypes")` 
+#' for gene biotypes the Cell Ranger reference uses. See 
+#' `data("ensembl_gene_biotypes")` for all available gene biotypes from Ensembl.
+#' Note that gene biotypes and transcript biotypes are not always the same.
 #' @param chrs_only Logical, whether to include chromosomes only, for GTF and
 #' GFF files can contain annotations for scaffolds, which are not incorporated
 #' into chromosomes. This will also exclude haplotypes. Defaults to `TRUE`.

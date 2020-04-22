@@ -32,16 +32,19 @@ so for these invertebrate model organisms, "vertebrate" can be used for this
 argument. Passing values other than "vertebrate" will use other Ensembl hosts.
 For animals absent from www.ensembl.org, try "metazoa".}
 
-\item{transcript_biotype_use}{Character, can be "all", "cellranger", or
+\item{transcript_biotype_use}{Character, can be "all" or
 a vector of \emph{transcript} biotypes to be used. Transcript biotypes aren't
 entirely the same as gene biotypes. For instance, in Ensembl annotation,
 \code{retained_intron} is a transcript biotype, but not a gene biotype. If
-"cellranger", then the biotypes used by Cell Ranger's reference are used:
-\code{c("protein_coding", "lincRNA", "antisense", "IG_LV_gene", "IG_V_gene",  "IG_V_pseudogene", "IG_D_gene", "IG_J_gene", "IG_J_pseudogene", "IG_C_gene",  "IG_C_pseudogene", "TR_V_gene", "TR_V_pseudogene", "TR_D_gene", "TR_J_gene",  "TR_J_pseudogene", "TR_C_gene")}.}
+"cellranger", then a warning will be given. See \code{data("ensembl_tx_biotypes")}
+for all available transcript biotypes from Ensembl.}
 
 \item{gene_biotype_use}{Character, can be "all", "cellranger", or
-a vector of \emph{gene} biotypes to be used. If
-"cellranger", then the biotypes used by Cell Ranger's reference are used.}
+a vector of \emph{gene} biotypes to be used. If "cellranger", then the biotypes
+used by Cell Ranger's reference are used. See \code{data("cellranger_biotypes")}
+for gene biotypes the Cell Ranger reference uses. See
+\code{data("ensembl_gene_biotypes")} for all available gene biotypes from Ensembl.
+Note that gene biotypes and transcript biotypes are not always the same.}
 
 \item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
 GFF files can contain annotations for scaffolds, which are not incorporated
