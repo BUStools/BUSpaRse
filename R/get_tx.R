@@ -92,19 +92,18 @@ dl_transcriptome <- function(species, out_path = ".",
     chrs_only
   if (do_filter) {
     file_filtered <- paste(out_path, "cdna_filtered.fa", sep = "/")
-    tr2g <- tr2g_fasta(destfile, gene_biotype_use = gene_biotype_use,
+    tr2g <- tr2g_fasta(destfile, out_path = out_path, write_tr2g = TRUE,
+                       gene_biotype_use = gene_biotype_use,
                        transcript_biotype_use = transcript_biotype_use,
                        chrs_only = chrs_only, save_filtered = TRUE,
-                       file_save = file_filtered, verbose = verbose, ...)
+                       verbose = verbose, ...)
     file_return <- file_filtered
   } else {
-    tr2g <- tr2g_fasta(destfile, gene_biotype_use = "all",
-                       transcript_biotype_use = "all",
-                       chrs_only = FALSE, save_filtered = false,
+    tr2g <- tr2g_fasta(destfile, out_path = out_path, gene_biotype_use = "all",
+                       transcript_biotype_use = "all", write_tr2g = TRUE,
+                       chrs_only = FALSE, save_filtered = FALSE,
                        verbose = verbose, ...)
     file_return <- destfile
   }
-  write.table(tr2g, paste(out_path, "tr2g.tsv", sep = "/"), row.names = FALSE,
-              col.names = FALSE, quote = FALSE, sep = "\t")
   invisible(file_return)
 }

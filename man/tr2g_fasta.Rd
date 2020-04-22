@@ -6,20 +6,28 @@
 \usage{
 tr2g_fasta(
   file,
+  out_path = ".",
+  write_tr2g = TRUE,
   use_gene_name = TRUE,
   use_transcript_version = TRUE,
   use_gene_version = TRUE,
-  verbose = TRUE,
   transcript_biotype_use = "all",
   gene_biotype_use = "all",
   chrs_only = TRUE,
   save_filtered = TRUE,
-  file_save = "./cdna_filtered.fa",
-  compress = FALSE
+  compress_fa = FALSE,
+  overwrite = FALSE
 )
 }
 \arguments{
 \item{file}{Path to the FASTA file to be read. The file can remain gzipped.}
+
+\item{out_path}{Directory to save the outputs written to disk. If this
+directory does not exist, then it will be created. Defaults to the current
+working directory.}
+
+\item{write_tr2g}{Logical, whether to write tr2g to disk. If \code{TRUE}, then
+a file \code{tr2g.tsv} will be written into \code{out_path}.}
 
 \item{use_gene_name}{Logical, whether to get gene names.}
 
@@ -34,8 +42,6 @@ version numbers must not be included here.}
 \item{use_gene_version}{Logical, whether to include version number in the
 Ensembl gene ID. Unlike transcript
 version number, it's up to you whether to include gene version number.}
-
-\item{verbose}{Whether to display progress.}
 
 \item{transcript_biotype_use}{Character, can be "all", "cellranger", or
 a vector of \emph{transcript} biotypes to be used. Transcript biotypes aren't
@@ -55,8 +61,11 @@ into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
 \item{save_filtered}{If filtering for biotype and chromosomes, whether to
 save the filtered fasta file.}
 
-\item{file_save}{File name of the file to be saved. The directory in which
-the file is to be saved must exist.}
+\item{compress_fa}{Logical, whether to compress the output fasta file. If
+\code{TRUE}, then the fasta file will be gzipped.}
+
+\item{overwrite}{Logical, whether to overwrite if files with names of outputs
+written to disk already exist.}
 }
 \value{
 A data frame with at least 2 columns: \code{gene} for gene ID,
@@ -93,7 +102,7 @@ function.
 \examples{
 toy_path <- system.file("testdata", package = "BUSpaRse")
 file_use <- paste(toy_path, "fasta_test.fasta", sep = "/")
-tr2g <- tr2g_fasta(file = file_use, verbose = FALSE)
+tr2g <- tr2g_fasta(file = file_use, save_filtered = FALSE, write_tr2g = FALSE)
 }
 \seealso{
 Other functions to retrieve transcript and gene info: 

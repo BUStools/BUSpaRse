@@ -23,8 +23,7 @@
   transcript_biotype_use = "all",
   gene_biotype_use = "all",
   chrs_only = TRUE,
-  save_filtered = FALSE,
-  gtf_file = "./gtf_filtered.gtf",
+  save_filtered_gtf = FALSE,
   compress_fa = FALSE,
   width = 80L
 )
@@ -153,15 +152,11 @@ a vector of \emph{gene} biotypes to be used. If
 GFF files can contain annotations for scaffolds, which are not incorporated
 into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
 
-\item{save_filtered}{Logical. If filtering type, biotypes, and/or
+\item{save_filtered_gtf}{Logical. If filtering type, biotypes, and/or
 chromosomes, whether to save the filtered \code{GRanges} as a GTF/GFF3 file.}
 
-\item{gtf_file}{File name of the file to be saved. The directory in which
-the file is to be saved must exist.}
-
-\item{compress_fa}{Logical, whether to compress the output fasta file of
-transcriptome and flanked intronic sequenncess. If \code{TRUE}, then the fasta
-file will be gzipped.}
+\item{compress_fa}{Logical, whether to compress the output fasta file. If
+\code{TRUE}, then the fasta file will be gzipped.}
 
 \item{width}{Maximum number of letters per line of sequence in the output
 fasta file. Must be an integer.}

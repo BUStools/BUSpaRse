@@ -63,9 +63,8 @@ of the junctions, will be used.}
 \item{tr2g_cdna}{A data frame with columns \code{transcript} and \code{gene} that maps
 transcripts to genes for spliced transcripts.}
 
-\item{compress_fa}{Logical, whether to compress the output fasta file of
-transcriptome and flanked intronic sequenncess. If \code{TRUE}, then the fasta
-file will be gzipped.}
+\item{compress_fa}{Logical, whether to compress the output fasta file. If
+\code{TRUE}, then the fasta file will be gzipped.}
 
 \item{width}{Maximum number of letters per line of sequence in the output
 fasta file. Must be an integer.}

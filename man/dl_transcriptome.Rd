@@ -53,7 +53,10 @@ the current release of Ensembl. Use
 \code{\link{listEnsemblArchives}} to see the version number corresponding
 to the Ensembl release of a particular date. The version specified here must
 match the version of Ensembl where the transcriptome used to build the
-kallisto index was downloaded.}
+kallisto index was downloaded. This only works for vertebrates and the most
+common invertebrate model organisms like \emph{Drosophila melanogaster} and
+\emph{C. elegans} (i.e. www.ensembl.org and its mirrors), not the other Ensembl
+sites for plants, protists, fungi, and metazoa.}
 
 \item{verbose}{Whether to display progress.}
 

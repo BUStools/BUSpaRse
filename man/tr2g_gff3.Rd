@@ -6,6 +6,8 @@
 \usage{
 tr2g_gff3(
   file,
+  out_path = ".",
+  write_tr2g = TRUE,
   type_use = "mRNA",
   transcript_id = "transcript_id",
   gene_id = "gene_id",
@@ -19,16 +21,24 @@ tr2g_gff3(
   gene_biotype_use = "all",
   chrs_only = TRUE,
   source = c("ensembl", "refseq"),
-  save_filtered = FALSE,
-  file_save = "gff_filtered.gff"
+  save_filtered_gff = TRUE,
+  overwrite = FALSE
 )
 }
 \arguments{
 \item{file}{Path to a GTF file to be read. The file can remain gzipped.}
 
+\item{out_path}{Directory to save the outputs written to disk. If this
+directory does not exist, then it will be created. Defaults to the current
+working directory.}
+
+\item{write_tr2g}{Logical, whether to write tr2g to disk. If \code{TRUE}, then
+a file \code{tr2g.tsv} will be written into \code{out_path}.}
+
 \item{type_use}{Character vector, the values taken by the \code{type} field
 in the GTF file that denote the desired transcripts. This can be "exon",
-"transcript", "mRNA", and etc.}
+"transcript", "mRNA", and etc. If \code{get_transcriptome = TRUE}, then this can
+only be "exon".}
 
 \item{transcript_id}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to transcript IDs. This argument must be supplied and
@@ -91,11 +101,8 @@ into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
 \item{source}{Name of the database where this GFF3 file was downloaded. Must
 be either "ensembl" or "refseq".}
 
-\item{save_filtered}{Logical. If filtering type, biotypes, and/or
-chromosomes, whether to save the filtered \code{GRanges} as a GTF/GFF3 file.}
-
-\item{file_save}{File name of the file to be saved. The directory in which
-the file is to be saved must exist.}
+\item{overwrite}{Logical, whether to overwrite if files with names of outputs
+written to disk already exist.}
 }
 \value{
 A data frame at least 2 columns: \code{gene} for gene ID,
@@ -136,10 +143,10 @@ further clean up the output of this function.
 toy_path <- system.file("testdata", package = "BUSpaRse")
 file_use <- paste(toy_path, "gff3_test.gff3", sep = "/")
 # Default
-tr2g <- tr2g_gff3(file = file_use, verbose = FALSE)
+tr2g <- tr2g_gff3(file = file_use, write_tr2g = FALSE)
 # Excluding version numbers
 tr2g <- tr2g_gff3(file = file_use, transcript_version = NULL,
-  gene_version = NULL)
+  gene_version = NULL, write_tr2g = FALSE)
 }
 \seealso{
 Other functions to retrieve transcript and gene info: 

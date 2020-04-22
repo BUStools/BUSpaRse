@@ -307,6 +307,9 @@ write_velocity_output <- function(out_path, introns, Genome, Transcriptome,
     out_fa <- paste0(out_fa, ".gz")
   }
   message("Writing outputs")
+  if (compress_fa & !str_detect(out_fa, ".gz$")) {
+    out_fa <- paste0(out_fa, ".gz")
+  }
   if (is.character(Transcriptome)) {
     file.copy(Transcriptome, out_fa)
     writeXStringSet(intron_seqs, out_fa, append = TRUE, compress = compress_fa,
@@ -342,10 +345,7 @@ validate_velocity_input <- function(L, Genome, Transcriptome, out_path,
   if (!is.logical(compress_fa) || length(compress_fa) > 1) {
     stop("compress_fa must be logical with length 1.")
   }
-  out_path <- normalizePath(out_path, mustWork = FALSE)
-  if (!dir.exists(out_path)) {
-    dir.create(out_path)
-  }
+  out_path <- check_out_path(out_path)
   if (!is(Genome, "BSgenome") && !is(Genome, "DNAStringSet")) {
     stop("Genome must be either a BSgenome object or a DNAStringSet.")
   }

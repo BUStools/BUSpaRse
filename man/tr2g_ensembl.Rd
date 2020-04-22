@@ -7,6 +7,8 @@
 tr2g_ensembl(
   species,
   type = c("vertebrate", "metazoa", "plant", "fungus", "protist"),
+  out_path = ".",
+  write_tr2g = TRUE,
   other_attrs = NULL,
   use_gene_name = TRUE,
   use_transcript_version = TRUE,
@@ -17,6 +19,7 @@ tr2g_ensembl(
   gene_biotype_use = "all",
   chrs_only = TRUE,
   ensembl_version = NULL,
+  overwrite = FALSE,
   verbose = TRUE,
   ...
 )
@@ -32,6 +35,13 @@ organisms, such as \emph{Drosophila melanogaster}, are available on www.ensembl.
 so for these invertebrate model organisms, "vertebrate" can be used for this
 argument. Passing values other than "vertebrate" will use other Ensembl hosts.
 For animals absent from www.ensembl.org, try "metazoa".}
+
+\item{out_path}{Directory to save the outputs written to disk. If this
+directory does not exist, then it will be created. Defaults to the current
+working directory.}
+
+\item{write_tr2g}{Logical, whether to write tr2g to disk. If \code{TRUE}, then
+a file \code{tr2g.tsv} will be written into \code{out_path}.}
 
 \item{other_attrs}{Character vector. Other attributes to get from Ensembl,
 such as gene symbol and position on the genome.
@@ -78,7 +88,13 @@ the current release of Ensembl. Use
 \code{\link{listEnsemblArchives}} to see the version number corresponding
 to the Ensembl release of a particular date. The version specified here must
 match the version of Ensembl where the transcriptome used to build the
-kallisto index was downloaded.}
+kallisto index was downloaded. This only works for vertebrates and the most
+common invertebrate model organisms like \emph{Drosophila melanogaster} and
+\emph{C. elegans} (i.e. www.ensembl.org and its mirrors), not the other Ensembl
+sites for plants, protists, fungi, and metazoa.}
+
+\item{overwrite}{Logical, whether to overwrite if files with names of outputs
+written to disk already exist.}
 
 \item{verbose}{Whether to display progress.}
 
@@ -96,11 +112,15 @@ also be columns in the data frame returned.
 This function queries Ensembl biomart to convert transcript IDs to gene IDs.
 }
 \examples{
-tr2g <- tr2g_ensembl(species = "Felis catus", other_attrs = "description")
+tr2g <- tr2g_ensembl(species = "Felis catus", other_attrs = "description",
+  write_tr2g = FALSE)
 # This will use plants.ensembl.org as host instead of www.ensembl.org
-tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant")
+tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant",
+  write_tr2g = FALSE)
 }
 \seealso{
+dl_transcriptome
+
 Other functions to retrieve transcript and gene info: 
 \code{\link{sort_tr2g}()},
 \code{\link{tr2g_EnsDb}()},

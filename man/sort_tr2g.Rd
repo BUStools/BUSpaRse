@@ -15,8 +15,6 @@ transcript IDs and the corresponding gene IDs, in the format required for
 
 \item{kallisto_out_path}{Character vector of length 1, path to the directory
 for the outputs of kallisto bus.}
-
-\item{verbose}{Whether to display progress.}
 }
 \value{
 A data frame with columns \code{transcript} and \code{gene} and the
@@ -41,9 +39,9 @@ the cleaned up data frame have the same format as those in \code{transcript}
 \examples{
 toy_path <- system.file("testdata", package = "BUSpaRse")
 file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
-tr2g <- tr2g_gtf(file = file_use, verbose = FALSE,
-  transcript_version = NULL)
-tr2g <- sort_tr2g(tr2g, kallisto_out_path = toy_path, verbose = FALSE)
+tr2g <- tr2g_gtf(file = file_use, get_transcriptome = FALSE,
+  write_tr2g = FALSE, save_filtered_gtf = FALSE, transcript_version = NULL)
+tr2g <- sort_tr2g(tr2g, kallisto_out_path = toy_path)
 }
 \seealso{
 Other functions to retrieve transcript and gene info: 

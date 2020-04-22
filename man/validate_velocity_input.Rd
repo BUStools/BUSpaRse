@@ -47,9 +47,8 @@ supplied via argument \code{X}.}
 directory does not exist, then it will be created. Defaults to the current
 working directory.}
 
-\item{compress_fa}{Logical, whether to compress the output fasta file of
-transcriptome and flanked intronic sequenncess. If \code{TRUE}, then the fasta
-file will be gzipped.}
+\item{compress_fa}{Logical, whether to compress the output fasta file. If
+\code{TRUE}, then the fasta file will be gzipped.}
 
 \item{width}{Maximum number of letters per line of sequence in the output
 fasta file. Must be an integer.}

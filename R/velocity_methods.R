@@ -11,13 +11,6 @@
 #' with \code{\link{str_length}} in R or `echo -n <the sequence> | wc -c` in
 #' `bash`. Which file corresponds to biological reads depends on the particular
 #' technology.
-#' @param Genome Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
-#' object of genomic sequences, where the intronic sequences will be extracted
-#' from. Use \code{\link{genomeStyles}} to check which styles are supported for
-#' your organism of interest; supported styles can be interconverted. If the
-#' style in your genome or annotation is not supported, then the style of
-#' chromosome names in the genome and annotation should be manually set to be
-#' consistent.
 #' @param Transcriptome A \code{\link{XStringSet}}, a path to a fasta
 #' file (can be gzipped) of the transcriptome which contains sequences of
 #' spliced transcripts, or `NULL`. The transcriptome here will be concatenated
@@ -27,9 +20,6 @@
 #' the transcriptome and in the annotation match. Otherwise, the type of
 #' transcript ID in the transcriptome must match that in the gene annotation
 #' supplied via argument `X`.
-#' @param out_path Directory to save the outputs written to disk. If this
-#' directory does not exist, then it will be created. Defaults to the current
-#' working directory.
 #' @param style Formatting of chromosome names. Use
 #' \code{\link{genomeStyles}} to check which styles are supported for your
 #' organism of interest and what those styles look like. This can also be a
@@ -63,11 +53,6 @@
 #' \item{junction}{Only the exon-exon junctions, with L-1 bases on each side
 #' of the junctions, will be used.}
 #' }
-#' @param gtf_file File name of the file to be saved. The directory in which
-#' the file is to be saved must exist.
-#' @param compress_fa Logical, whether to compress the output fasta file of
-#' transcriptome and flanked intronic sequenncess. If `TRUE`, then the fasta
-#' file will be gzipped.
 #' @param width Maximum number of letters per line of sequence in the output
 #' fasta file. Must be an integer.
 #' @return See \code{\link{get_velocity_files}}
@@ -90,8 +75,7 @@
                                 gene_biotype_col = "gene_biotype", 
                                 transcript_biotype_use = "all",
                                 gene_biotype_use = "all", 
-                                chrs_only = TRUE, save_filtered = FALSE,
-                                gtf_file = "./gtf_filtered.gtf",
+                                chrs_only = TRUE, save_filtered_gtf = FALSE,
                                 compress_fa = FALSE, width = 80L) {
   tx_path <- NULL
   L <- as.integer(L)
@@ -126,14 +110,16 @@
   } else {
     Transcriptome <- tx_path
   }
-  tr2g_cdna <- tr2g_GRanges(gr, type_use = "exon", gene_name = NULL,
-    transcript_version = NULL, gene_version = NULL, # version already added
-    transcript_biotype_col = transcript_biotype_col,
-    gene_biotype_col = gene_biotype_col, 
-    transcript_biotype_use = transcript_biotype_use,
-    gene_biotype_use = gene_biotype_use, 
-    chrs_only = chrs_only, save_filtered = save_filtered,
-    file_save = gtf_file) 
+  tr2g_cdna <- tr2g_GRanges(gr, out_path = out_path, get_transcriptome = FALSE,
+                            type_use = "exon", gene_name = NULL, 
+                            write_tr2g = FALSE, transcript_version = NULL, 
+                            gene_version = NULL, # version already added
+                            transcript_biotype_col = transcript_biotype_col,
+                            gene_biotype_col = gene_biotype_col, 
+                            transcript_biotype_use = transcript_biotype_use,
+                            gene_biotype_use = gene_biotype_use, 
+                            chrs_only = chrs_only, 
+                            save_filtered_gtf = save_filtered_gtf) 
   tr2g_cdna <- tr2g_cdna[, c("transcript", "gene")]
   if (isoform_action == "collapse") {
     message("Collapsing gene isoforms")
@@ -264,12 +250,22 @@ setMethod("get_velocity_files", "GRanges",
            gene_biotype_use = "all", 
            chrs_only = TRUE, save_filtered = FALSE,
            gtf_file = "./gtf_filtered.gtf") {
-    .get_velocity_files(X, L, Genome, Transcriptome, out_path, style,
-      isoform_action, exon_option, transcript_id, gene_id,
-      transcript_version, gene_version, version_sep,
-      transcript_biotype_col, gene_biotype_col, 
-      transcript_biotype_use, gene_biotype_use,  chrs_only, save_filtered, 
-      gtf_file, compress_fa, width)
+    .get_velocity_files(X, L, Genome, Transcriptome = Transcriptome,
+                        out_path = out_path, style = style,
+                        isoform_action = isoform_action,
+                        exon_option = exon_option,
+                        transcript_id = transcript_id,
+                        gene_id = gene_id,
+                        transcript_version = transcript_version,
+                        gene_version = gene_version,
+                        version_sep = version_sep,
+                        transcript_biotype_col = transcript_biotype_col,
+                        gene_biotype_col = gene_biotype_col, 
+                        transcript_biotype_use = transcript_biotype_use,
+                        gene_biotype_use = gene_biotype_use, 
+                        chrs_only = chrs_only, 
+                        save_filtered_gtf = save_filtered_gtf,
+                        compress_fa = compress_fa, width = width)
   }
 )
 
@@ -294,8 +290,7 @@ setMethod("get_velocity_files", "character",
            gene_biotype_col = "gene_biotype", 
            transcript_biotype_use = "all",
            gene_biotype_use = "all", 
-           chrs_only = TRUE, save_filtered = FALSE,
-           gtf_file = "./gtf_filtered.gtf") {
+           chrs_only = TRUE, save_filtered_gtf = FALSE) {
     file <- normalizePath(X, mustWork = TRUE)
     check_gff("gtf", file, transcript_id, gene_id)
     gr <- plyranges::read_gff(file)
@@ -304,12 +299,22 @@ setMethod("get_velocity_files", "character",
       isCircular(gr) <- setNames(rep(FALSE, length(seqlevels(gr))),
         seqlevels(gr))
     }
-    .get_velocity_files(gr, L, Genome, Transcriptome, out_path, style,
-                        isoform_action, exon_option, transcript_id, gene_id,
-                        transcript_version, gene_version, version_sep,
-                        transcript_biotype_col, gene_biotype_col, 
-                        transcript_biotype_use, gene_biotype_use,  chrs_only, 
-                        save_filtered, gtf_file, compress_fa, width)
+    .get_velocity_files(gr, L, Genome, Transcriptome = Transcriptome,
+                        out_path = out_path, style = style,
+                        isoform_action = isoform_action,
+                        exon_option = exon_option,
+                        transcript_id = transcript_id,
+                        gene_id = gene_id,
+                        transcript_version = transcript_version,
+                        gene_version = gene_version,
+                        version_sep = version_sep,
+                        transcript_biotype_col = transcript_biotype_col,
+                        gene_biotype_col = gene_biotype_col, 
+                        transcript_biotype_use = transcript_biotype_use,
+                        gene_biotype_use = gene_biotype_use, 
+                        chrs_only = chrs_only, 
+                        save_filtered_gtf = save_filtered_gtf,
+                        compress_fa = compress_fa, width = width)
   }
 )
 

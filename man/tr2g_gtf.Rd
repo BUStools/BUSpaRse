@@ -6,29 +6,53 @@
 \usage{
 tr2g_gtf(
   file,
-  type_use = "transcript",
+  Genome = NULL,
+  get_transcriptome = TRUE,
+  out_path = ".",
+  write_tr2g = TRUE,
+  type_use = "exon",
   transcript_id = "transcript_id",
   gene_id = "gene_id",
   gene_name = "gene_name",
   transcript_version = "transcript_version",
   gene_version = "gene_version",
   version_sep = ".",
-  verbose = TRUE,
   transcript_biotype_col = "transcript_biotype",
   gene_biotype_col = "gene_biotype",
   transcript_biotype_use = "all",
   gene_biotype_use = "all",
   chrs_only = TRUE,
-  save_filtered = FALSE,
-  file_save = "./gtf_filtered.gtf"
+  compress_fa = FALSE,
+  save_filtered_gtf = TRUE,
+  overwrite = FALSE
 )
 }
 \arguments{
 \item{file}{Path to a GTF file to be read. The file can remain gzipped.}
 
+\item{Genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
+object of genomic sequences, where the intronic sequences will be extracted
+from. Use \code{\link{genomeStyles}} to check which styles are supported for
+your organism of interest; supported styles can be interconverted. If the
+style in your genome or annotation is not supported, then the style of
+chromosome names in the genome and annotation should be manually set to be
+consistent.}
+
+\item{get_transcriptome}{Logical, whether to extract transcriptome from
+genome with the GTF file. If filtering biotypes or chromosomes, the filtered
+\code{GRanges} will be used to extract transcriptome.}
+
+\item{out_path}{Directory to save the outputs written to disk. If this
+directory does not exist, then it will be created. Defaults to the current
+working directory.}
+
+\item{write_tr2g}{Logical, whether to write tr2g to disk. If \code{TRUE}, then
+a file \code{tr2g.tsv} will be written into \code{out_path}.}
+
 \item{type_use}{Character vector, the values taken by the \code{type} field
 in the GTF file that denote the desired transcripts. This can be "exon",
-"transcript", "mRNA", and etc.}
+"transcript", "mRNA", and etc. If \code{get_transcriptome = TRUE}, then this can
+only be "exon".}
 
 \item{transcript_id}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to transcript IDs. This argument must be supplied and
@@ -67,8 +91,6 @@ version number, it's up to you whether to include gene version number.}
 \item{version_sep}{Character to separate bewteen the main ID and the version
 number. Defaults to ".", as in Ensembl.}
 
-\item{verbose}{Whether to display progress.}
-
 \item{transcript_biotype_col}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to \emph{transcript} biotype.}
 
@@ -90,11 +112,14 @@ a vector of \emph{gene} biotypes to be used. If
 GFF files can contain annotations for scaffolds, which are not incorporated
 into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
 
-\item{save_filtered}{Logical. If filtering type, biotypes, and/or
+\item{compress_fa}{Logical, whether to compress the output fasta file. If
+\code{TRUE}, then the fasta file will be gzipped.}
+
+\item{save_filtered_gtf}{Logical. If filtering type, biotypes, and/or
 chromosomes, whether to save the filtered \code{GRanges} as a GTF/GFF3 file.}
 
-\item{file_save}{File name of the file to be saved. The directory in which
-the file is to be saved must exist.}
+\item{overwrite}{Logical, whether to overwrite if files with names of outputs
+written to disk already exist.}
 }
 \value{
 A data frame at least 2 columns: \code{gene} for gene ID,
@@ -132,10 +157,12 @@ further clean up the output of this function.
 toy_path <- system.file("testdata", package = "BUSpaRse")
 file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
 # Default
-tr2g <- tr2g_gtf(file = file_use, verbose = FALSE)
+tr2g <- tr2g_gtf(file = file_use, get_transcriptome = FALSE,
+  write_tr2g = FALSE, save_filtered_gtf = FALSE)
 # Excluding version numbers
 tr2g <- tr2g_gtf(file = file_use, transcript_version = NULL,
-  gene_version = NULL)
+  gene_version = NULL, get_transcriptome = FALSE,
+  write_tr2g = FALSE, save_filtered_gtf = FALSE)
 }
 \seealso{
 Other functions to retrieve transcript and gene info: 

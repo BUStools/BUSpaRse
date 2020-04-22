@@ -6,7 +6,11 @@
 \usage{
 tr2g_GRanges(
   gr,
-  type_use = "transcript",
+  Genome = NULL,
+  get_transcriptome = TRUE,
+  out_path = ".",
+  write_tr2g = TRUE,
+  type_use = "exon",
   transcript_id = "transcript_id",
   gene_id = "gene_id",
   gene_name = "gene_name",
@@ -18,17 +22,38 @@ tr2g_GRanges(
   transcript_biotype_use = "all",
   gene_biotype_use = "all",
   chrs_only = TRUE,
-  save_filtered = FALSE,
-  file_save = "./gtf_filtered.gtf"
+  compress_fa = FALSE,
+  save_filtered_gtf = TRUE,
+  overwrite = FALSE
 )
 }
 \arguments{
 \item{gr}{A \code{\link{GRanges}} object. The metadata columns should be
 atomic vectors, not lists.}
 
+\item{Genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
+object of genomic sequences, where the intronic sequences will be extracted
+from. Use \code{\link{genomeStyles}} to check which styles are supported for
+your organism of interest; supported styles can be interconverted. If the
+style in your genome or annotation is not supported, then the style of
+chromosome names in the genome and annotation should be manually set to be
+consistent.}
+
+\item{get_transcriptome}{Logical, whether to extract transcriptome from
+genome with the GTF file. If filtering biotypes or chromosomes, the filtered
+\code{GRanges} will be used to extract transcriptome.}
+
+\item{out_path}{Directory to save the outputs written to disk. If this
+directory does not exist, then it will be created. Defaults to the current
+working directory.}
+
+\item{write_tr2g}{Logical, whether to write tr2g to disk. If \code{TRUE}, then
+a file \code{tr2g.tsv} will be written into \code{out_path}.}
+
 \item{type_use}{Character vector, the values taken by the \code{type} field
 in the GTF file that denote the desired transcripts. This can be "exon",
-"transcript", "mRNA", and etc.}
+"transcript", "mRNA", and etc. If \code{get_transcriptome = TRUE}, then this can
+only be "exon".}
 
 \item{transcript_id}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to transcript IDs. This argument must be supplied and
@@ -88,11 +113,14 @@ a vector of \emph{gene} biotypes to be used. If
 GFF files can contain annotations for scaffolds, which are not incorporated
 into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
 
-\item{save_filtered}{Logical. If filtering type, biotypes, and/or
+\item{compress_fa}{Logical, whether to compress the output fasta file. If
+\code{TRUE}, then the fasta file will be gzipped.}
+
+\item{save_filtered_gtf}{Logical. If filtering type, biotypes, and/or
 chromosomes, whether to save the filtered \code{GRanges} as a GTF/GFF3 file.}
 
-\item{file_save}{File name of the file to be saved. The directory in which
-the file is to be saved must exist.}
+\item{overwrite}{Logical, whether to overwrite if files with names of outputs
+written to disk already exist.}
 }
 \value{
 A data frame at least 2 columns: \code{gene} for gene ID,
