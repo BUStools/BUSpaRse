@@ -95,14 +95,12 @@ dl_transcriptome <- function(species, out_path = ".",
     tr2g <- tr2g_fasta(destfile, out_path = out_path, write_tr2g = TRUE,
                        gene_biotype_use = gene_biotype_use,
                        transcript_biotype_use = transcript_biotype_use,
-                       chrs_only = chrs_only, save_filtered = TRUE,
-                       verbose = verbose, ...)
+                       chrs_only = chrs_only, save_filtered = TRUE, ...)
     file_return <- file_filtered
   } else {
     tr2g <- tr2g_fasta(destfile, out_path = out_path, gene_biotype_use = "all",
                        transcript_biotype_use = "all", write_tr2g = TRUE,
-                       chrs_only = FALSE, save_filtered = FALSE,
-                       verbose = verbose, ...)
+                       chrs_only = FALSE, save_filtered = FALSE, ...)
     file_return <- destfile
   }
   invisible(file_return)
