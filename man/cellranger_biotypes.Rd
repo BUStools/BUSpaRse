@@ -19,4 +19,7 @@ In the GRCh38 Cell Ranger reference package, an Ensembl human GTF file is
 filtered by gene biotypes. This vector includes all gene biotypes included by
 this Cell Ranger reference package.
 }
+\seealso{
+ensembl_gene_biotypes ensembl_tx_biotypes
+}
 \keyword{datasets}

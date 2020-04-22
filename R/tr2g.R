@@ -486,6 +486,7 @@ tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
 #' gene names.
 #' @importFrom plyranges read_gff
 #' @family functions to retrieve transcript and gene info
+#' @seealso ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes
 #' @export
 #' @examples
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
@@ -572,6 +573,7 @@ tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
 #' be either "ensembl" or "refseq".
 #' @importFrom plyranges write_gff3
 #' @export
+#' @seealso ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes
 #' @examples
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' file_use <- paste(toy_path, "gff3_test.gff3", sep = "/")
@@ -707,6 +709,7 @@ tr2g_gff3 <- function(file, out_path = ".", write_tr2g = TRUE,
 #' @importFrom dplyr select mutate
 #' @family functions to retrieve transcript and gene info
 #' @export
+#' @seealso ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes
 #' @examples
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' file_use <- paste(toy_path, "fasta_test.fasta", sep = "/")
@@ -864,6 +867,7 @@ tr2g_TxDb <- function(txdb, chrs_only = TRUE) {
 #' also be columns in the data frame returned.
 #' @family functions to retrieve transcript and gene info
 #' @export
+#' @seealso ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes
 #' @examples
 #' library(EnsDb.Hsapiens.v86)
 #' tr2g_EnsDb(EnsDb.Hsapiens.v86, use_transcript_version = FALSE,

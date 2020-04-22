@@ -17,5 +17,10 @@ ensembl_gene_biotypes
 \description{
 These vectors are here to make it easy to look up which biotypes are
 available for Ensembl without having to parse GTF and fasta files every time.
+See \href{http://www.ensembl.org/info/genome/genebuild/biotypes.html}{this page from Ensembl}
+for what the biotypes mean.
+}
+\seealso{
+ensembl_tx_biotypes cellranger_biotypes
 }
 \keyword{datasets}

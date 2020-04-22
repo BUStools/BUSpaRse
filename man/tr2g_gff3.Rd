@@ -152,6 +152,8 @@ tr2g <- tr2g_gff3(file = file_use, transcript_version = NULL,
   gene_version = NULL, write_tr2g = FALSE)
 }
 \seealso{
+ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes
+
 Other functions to retrieve transcript and gene info: 
 \code{\link{sort_tr2g}()},
 \code{\link{tr2g_EnsDb}()},

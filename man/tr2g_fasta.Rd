@@ -108,6 +108,8 @@ file_use <- paste(toy_path, "fasta_test.fasta", sep = "/")
 tr2g <- tr2g_fasta(file = file_use, save_filtered = FALSE, write_tr2g = FALSE)
 }
 \seealso{
+ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes
+
 Other functions to retrieve transcript and gene info: 
 \code{\link{sort_tr2g}()},
 \code{\link{tr2g_EnsDb}()},

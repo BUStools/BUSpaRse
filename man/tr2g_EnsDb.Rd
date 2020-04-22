@@ -83,6 +83,8 @@ tr2g_EnsDb(EnsDb.Hsapiens.v86, use_transcript_version = FALSE,
   use_gene_version = FALSE)
 }
 \seealso{
+ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes
+
 Other functions to retrieve transcript and gene info: 
 \code{\link{sort_tr2g}()},
 \code{\link{tr2g_TxDb}()},
