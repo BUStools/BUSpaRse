@@ -346,6 +346,7 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype_c
 #' @importFrom S4Vectors mcols
 #' @importFrom GenomeInfoDb mapSeqlevels
 #' @importFrom plyranges write_gff
+#' @importFrom GenomeInfoDb keepStandardChromosomes
 tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE, 
                          out_path = ".", write_tr2g = TRUE, 
                          transcript_id = "transcript_id",
