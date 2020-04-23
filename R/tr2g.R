@@ -567,6 +567,10 @@ tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
 #' @importFrom plyranges write_gff3
 #' @export
 #' @seealso ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes
+#' ensembl_gtf_mcols ensembl_gff_mcols refseq_gff_mcols
+#' @note The defaults here are for Ensembl GFF3 files. To see all attribute
+#' tags for Ensembl and RefSeq GFF3 files, see `data("ensembl_gff_mcols")` and
+#' `data("refseq_gff_mcols")`.
 #' @examples
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' file_use <- paste(toy_path, "gff3_test.gff3", sep = "/")

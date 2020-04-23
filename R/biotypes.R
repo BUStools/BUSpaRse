@@ -35,3 +35,35 @@
 #' @source \url{https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/advanced/references}
 #' @seealso ensembl_gene_biotypes ensembl_tx_biotypes
 "cellranger_biotypes"
+
+#' Tags in the attributes field of Ensembl GTF files
+#' 
+#' These are the column names of the `mcols` when the Ensembl GTF file is read
+#' into R as a `GRanges`, including `gene_id`, `transcript_id`, `gene_biotype`,
+#' `transcript_biotype`, `description`, and so on.
+#' 
+#' @format A character vector
+#' @source Ensembl version 99 human GTF file
+"ensembl_gtf_mcols"
+
+# Tags in the attributes field of Ensembl GFF files
+#' 
+#' These are the column names of the `mcols` when the Ensembl GTF file is read
+#' into R as a `GRanges`, including `gene_id`, `transcript_id`, `biotype`,
+#' `description`, and so on, and the mandatory tags like `ID`, `Name`, and 
+#' `Parent`.
+#' 
+#' @format A character vector
+#' @source Ensembl version 99 human GFF3 file
+"ensembl_gff_mcols"
+
+#' Tags in the attributes field of RefSeq GFF files
+#' 
+#' These are the column names of the `mcols` when the Ensembl GTF file is read
+#' into R as a `GRanges`, including `gene`, `transcript_id`, `gene_biotype`,
+#' `description`, and so on, and the mandatory tags like `ID`, `Name`, and 
+#' `Parent`.
+#' 
+#' @format A character vector
+#' @source Ensembl version 99 human GTF file
+"refseq_gff_mcols"

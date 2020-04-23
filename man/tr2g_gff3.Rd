@@ -60,7 +60,8 @@ cannot be \code{NA} or \code{NULL}. Note that this is different from gene
 symbols, which do not have to be unique. This can be Ensembl or Entrez IDs.
 However, if the gene symbols are in fact unique for each gene, you may
 supply the tag for human readable gene symbols to this argument. Will throw
-error if tag indicated in this argument does not exist.}
+error if tag indicated in this argument does not exist. This is typically
+"gene_id" for annotations from Ensembl and "gene" for refseq.}
 
 \item{gene_name}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to gene symbols. This argument can be \code{NA} or
@@ -154,6 +155,11 @@ Ensembl GTF files; defaults may not work for files from other sources. Due to
 the general lack of standards for the \code{attribute} field, you may need to
 further clean up the output of this function.
 }
+\note{
+The defaults here are for Ensembl GFF3 files. To see all attribute
+tags for Ensembl and RefSeq GFF3 files, see \code{data("ensembl_gff_mcols")} and
+\code{data("refseq_gff_mcols")}.
+}
 \examples{
 toy_path <- system.file("testdata", package = "BUSpaRse")
 file_use <- paste(toy_path, "gff3_test.gff3", sep = "/")
@@ -165,6 +171,7 @@ tr2g <- tr2g_gff3(file = file_use, transcript_version = NULL,
 }
 \seealso{
 ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes
+ensembl_gtf_mcols ensembl_gff_mcols refseq_gff_mcols
 
 Other functions to retrieve transcript and gene info: 
 \code{\link{sort_tr2g}()},
