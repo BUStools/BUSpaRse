@@ -280,10 +280,6 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype_c
 #' style in your genome or annotation is not supported, then the style of
 #' chromosome names in the genome and annotation should be manually set to be
 #' consistent.
-#' @param type_use Character vector, the values taken by the \code{type} field
-#' in the GTF file that denote the desired transcripts. This can be "exon",
-#' "transcript", "mRNA", and etc. If `get_transcriptome = TRUE`, then this can
-#' only be "exon".
 #' @param transcript_id Character vector of length 1. Tag in \code{attribute}
 #' field corresponding to transcript IDs. This argument must be supplied and
 #' cannot be \code{NA} or \code{NULL}. Will throw error if tag indicated in this
@@ -351,7 +347,7 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype_c
 #' @importFrom GenomeInfoDb mapSeqlevels
 #' @importFrom plyranges write_gff
 tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE, 
-                         out_path = ".", write_tr2g = TRUE, type_use = "exon", 
+                         out_path = ".", write_tr2g = TRUE, 
                          transcript_id = "transcript_id",
                          gene_id = "gene_id", gene_name = "gene_name",
                          transcript_version = "transcript_version",
@@ -382,14 +378,11 @@ tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
     } else if (!is(Genome, "BSgenome") && !is(Genome, "DNAStringSet")) {
       stop("Genome must be either a BSgenome or a DNAStringSet.")
     }
-    if (type_use != "exon") {
-      stop("Must use type_use = 'exon' to extract transcriptome.")
-    }
   }
   gr <- gr[!is.na(mcols(gr)[[transcript_id]])]
-  gr <- gr[gr$type %in% type_use]
+  gr <- gr[gr$type == "exon"]
   if (length(gr) == 0) {
-    stop(paste("No entry has types", paste(type_use, collapse = ", ")))
+    stop(paste("No entry has type exon."))
   }
   # Filter chromosomes
   gr <- filter_chr(gr, chrs_only)
@@ -499,7 +492,7 @@ tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
 #'   gene_version = NULL, get_transcriptome = FALSE,
 #'   write_tr2g = FALSE, save_filtered_gtf = FALSE)
 tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE, 
-                     out_path = ".", write_tr2g = TRUE, type_use = "exon", 
+                     out_path = ".", write_tr2g = TRUE, 
                      transcript_id = "transcript_id",
                      gene_id = "gene_id", gene_name = "gene_name",
                      transcript_version = "transcript_version",
@@ -516,8 +509,8 @@ tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
   check_gff("gtf", file, transcript_id, gene_id)
   gr <- read_gff(file)
   tr2g_GRanges(gr = gr, Genome = Genome, get_transcriptome = get_transcriptome, 
-               out_path = out_path, write_tr2g = write_tr2g,
-               type_use = type_use, transcript_id = transcript_id,
+               out_path = out_path, write_tr2g = write_tr2g, 
+               transcript_id = transcript_id,
                gene_id = gene_id, gene_name = gene_name,
                transcript_version = transcript_version,
                gene_version = gene_version, version_sep = version_sep,

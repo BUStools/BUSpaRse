@@ -110,7 +110,8 @@ cannot be \code{NA} or \code{NULL}. Note that this is different from gene
 symbols, which do not have to be unique. This can be Ensembl or Entrez IDs.
 However, if the gene symbols are in fact unique for each gene, you may
 supply the tag for human readable gene symbols to this argument. Will throw
-error if tag indicated in this argument does not exist.}
+error if tag indicated in this argument does not exist. This is typically
+"gene_id" for annotations from Ensembl and "gene" for refseq.}
 
 \item{transcript_version}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to \emph{transcript} version number. If your GTF file does not

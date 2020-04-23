@@ -111,7 +111,7 @@
     Transcriptome <- tx_path
   }
   tr2g_cdna <- tr2g_GRanges(gr, out_path = out_path, get_transcriptome = FALSE,
-                            type_use = "exon", gene_name = NULL, 
+                            gene_name = NULL, 
                             write_tr2g = FALSE, transcript_version = NULL, 
                             gene_version = NULL, # version already added
                             transcript_biotype_col = transcript_biotype_col,

@@ -10,7 +10,6 @@ tr2g_GRanges(
   get_transcriptome = TRUE,
   out_path = ".",
   write_tr2g = TRUE,
-  type_use = "exon",
   transcript_id = "transcript_id",
   gene_id = "gene_id",
   gene_name = "gene_name",
@@ -50,11 +49,6 @@ working directory.}
 \item{write_tr2g}{Logical, whether to write tr2g to disk. If \code{TRUE}, then
 a file \code{tr2g.tsv} will be written into \code{out_path}.}
 
-\item{type_use}{Character vector, the values taken by the \code{type} field
-in the GTF file that denote the desired transcripts. This can be "exon",
-"transcript", "mRNA", and etc. If \code{get_transcriptome = TRUE}, then this can
-only be "exon".}
-
 \item{transcript_id}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to transcript IDs. This argument must be supplied and
 cannot be \code{NA} or \code{NULL}. Will throw error if tag indicated in this
@@ -66,7 +60,8 @@ cannot be \code{NA} or \code{NULL}. Note that this is different from gene
 symbols, which do not have to be unique. This can be Ensembl or Entrez IDs.
 However, if the gene symbols are in fact unique for each gene, you may
 supply the tag for human readable gene symbols to this argument. Will throw
-error if tag indicated in this argument does not exist.}
+error if tag indicated in this argument does not exist. This is typically
+"gene_id" for annotations from Ensembl and "gene" for refseq.}
 
 \item{gene_name}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to gene symbols. This argument can be \code{NA} or
