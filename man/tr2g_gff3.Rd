@@ -10,7 +10,6 @@ tr2g_gff3(
   get_transcriptome = TRUE,
   out_path = ".",
   write_tr2g = TRUE,
-  type_use = "mRNA",
   transcript_id = "transcript_id",
   gene_id = "gene_id",
   gene_name = "Name",
@@ -49,11 +48,6 @@ working directory.}
 
 \item{write_tr2g}{Logical, whether to write tr2g to disk. If \code{TRUE}, then
 a file \code{tr2g.tsv} will be written into \code{out_path}.}
-
-\item{type_use}{Character vector, the values taken by the \code{type} field
-in the GTF file that denote the desired transcripts. This can be "exon",
-"transcript", "mRNA", and etc. If \code{get_transcriptome = TRUE}, then this can
-only be "exon".}
 
 \item{transcript_id}{Character vector of length 1. Tag in \code{attribute}
 field corresponding to transcript IDs. This argument must be supplied and

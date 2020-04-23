@@ -57,17 +57,20 @@ test_that("Extract transcript and gene ID from GTF file", {
   # No version number
   fn <- paste(toy_path, "gtf_test.gtf", sep = "/")
   tr2g_no_vn <- tr2g_gtf(fn, get_transcriptome = FALSE, write_tr2g = FALSE,
+                         save_filtered_gtf = FALSE,
                          gene_version = NULL, transcript_version = NULL) %>%
     arrange(gene)
   # No gene name
   expect_equal(tr2g_no_vn, tr2g_expected)
   tr2g_no_gn <- tr2g_gtf(fn, get_transcriptome = FALSE, write_tr2g = FALSE,
+                         save_filtered_gtf = FALSE,
                          gene_name = NULL, gene_version = NULL,
-    transcript_version = NULL) %>%
+                         transcript_version = NULL) %>%
     arrange(gene)
   expect_equal(tr2g_no_gn, tr2g_expected[, -3])
   # With version number
-  expect_equal(tr2g_gtf(fn, get_transcriptome = FALSE, write_tr2g = FALSE,) %>% 
+  expect_equal(tr2g_gtf(fn, get_transcriptome = FALSE, write_tr2g = FALSE,
+                        save_filtered_gtf = FALSE) %>% 
                  arrange(gene), tr2g_expected_version)
 
   # Test error messages
@@ -87,11 +90,13 @@ test_that("Extract transcript and gene ID from GTF file", {
                "gene_id cannot be NULL.")
   # gene_name, gene_version, or transcript_version is wrong
   expect_warning(tr2g_gtf(fn, gene_name = "foo", gene_version = "bar",
-                          write_tr2g = FALSE, get_transcriptome = FALSE),
+                          write_tr2g = FALSE, get_transcriptome = FALSE,
+                          save_filtered_gtf = FALSE),
     "Tags foo, bar are absent")
   # Error when input file is not a gtf file
   expect_error(tr2g_gtf(paste(toy_path, "fasta_test.fasta", sep = "/"),
-                        write_tr2g = FALSE, get_transcriptome = FALSE),
+                        write_tr2g = FALSE, get_transcriptome = FALSE,
+                        save_filtered_gtf = FALSE),
     "file must be a GTF file.")
   expect_error(tr2g_gtf(fn, type_use = "foo", write_tr2g = FALSE, get_transcriptome = FALSE),
     "No entry has types foo")
@@ -101,18 +106,18 @@ test_that("Extract transcript and gene ID from GTF file", {
 test_that("Extract transcript and gene ID from GFF3 file", {
   # No version number
   fn <- paste(toy_path, "gff3_test.gff3", sep = "/")
-  tr2g_no_vn <- tr2g_gff3(fn, type_use = c("mRNA", "lnc_RNA"),
+  tr2g_no_vn <- tr2g_gff3(fn, get_transcriptome = FALSE, save_filtered_gff = FALSE,
     gene_version = NULL, transcript_version = NULL, write_tr2g = FALSE) %>%
     arrange(gene)
   # No gene name
   expect_equal(tr2g_no_vn, tr2g_expected)
-  tr2g_no_gn <- tr2g_gff3(fn, type_use = c("mRNA", "lnc_RNA"),
+  tr2g_no_gn <- tr2g_gff3(fn, get_transcriptome = FALSE, save_filtered_gff = FALSE,
     gene_name = NULL, gene_version = NULL, write_tr2g = FALSE,
     transcript_version = NULL) %>%
     arrange(gene)
   expect_equal(tr2g_no_gn, tr2g_expected[, -3])
   # With version number
-  expect_equal(tr2g_gff3(fn, type_use = c("mRNA", "lnc_RNA"), 
+  expect_equal(tr2g_gff3(fn, get_transcriptome = FALSE, save_filtered_gff = FALSE,
                          write_tr2g = FALSE) %>% arrange(gene),
     tr2g_expected_version)
 
@@ -124,14 +129,13 @@ test_that("Extract transcript and gene ID from GFF3 file", {
   expect_error(tr2g_gff3(fn, transcript_id = NULL), "transcript_id cannot be NULL.")
   expect_error(tr2g_gff3(fn, gene_id = NULL), "gene_id cannot be NULL.")
   # gene_name, gene_version, or transcript_version is wrong
-  expect_warning(tr2g_gff3(fn, gene_name = "foo", gene_version = "bar",
+  expect_warning(tr2g_gff3(fn, get_transcriptome = FALSE, save_filtered_gff = FALSE,
+                           gene_name = "foo", gene_version = "bar",
                            write_tr2g = FALSE,),
     "Tags foo, bar are absent")
   # Error when input file is not a gff3 file
   expect_error(tr2g_gff3(paste(toy_path, "fasta_test.fasta", sep = "/")),
     "file must be a GFF3 file.")
-  expect_error(tr2g_gff3(fn, type_use = "foo"),
-    "No entry has types foo")
   rm(list = c("fn", "tr2g_no_vn", "tr2g_no_gn"))
 })
 

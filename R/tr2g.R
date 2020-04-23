@@ -585,7 +585,7 @@ tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
 #'   gene_version = NULL, write_tr2g = FALSE)
 tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
                       out_path = ".", write_tr2g = TRUE, 
-                      type_use = "mRNA", transcript_id = "transcript_id",
+                      transcript_id = "transcript_id",
                       gene_id = "gene_id", gene_name = "Name",
                       transcript_version = "version",
                       gene_version = "version", version_sep = ".",
@@ -602,20 +602,19 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
   check_gff("gff3", file, transcript_id, gene_id)
   source <- match.arg(source)
   gr <- read_gff3(file)
-  if (get_transcriptome && !"exon" %in% unique(gr$type)) {
-    stop("The type 'exon' must be present to extract transcriptome.")
-  }
   tags <- names(mcols(gr))
   check_tag_present(c(transcript_id, gene_id), tags, error = TRUE)
   # Will do nothing if all are NULL
   check_tag_present(c(gene_name, transcript_version, gene_version),
     tags, error = FALSE)
+  if (get_transcriptome && !"exon" %in% unique(gr$type)) {
+    stop("The type 'exon' must be present to extract transcriptome.")
+  }
   if (write_tr2g || save_filtered_gff) {
     out_path <- check_out_path(out_path)
   }
   # Filter by chromosome
   gr <- filter_chr(gr, chrs_only)
-  ind1 <- gr$type == type_use
   # Filter by biotype
   if (is(gr$Parent, "List")) {
     if (!any(lengths(gr$Parent) > 1)) {
@@ -623,14 +622,15 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
       gr$Parent[ind3] <- NA
       gr$Parent <- unlist(gr$Parent)
     } else {
-      gr$Parent[ind1] <- 
-        lapply(gr$Parent[ind1], function(x) x[str_detect(x, "^gene")])
       if (get_transcriptome) {
         ind2 <- gr$type == "exon"
         gr$Parent[ind2] <- 
           lapply(gr$Parent[ind2], 
                  function(x) x[str_detect(x, "^(transcript)|(rna)")])
       }
+      ind1 <- !is.na(mcols(gr)[[transcript_id]])
+      gr$Parent[ind1] <- lapply(gr$Parent[ind1], 
+                          function(x) x[str_detect(x, "^gene")])
       ind3 <- lengths(gr$Parent) < 1
       gr$Parent[ind3] <- NA
       gr$Parent <- unlist(gr$Parent)
@@ -642,10 +642,6 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
                                           gene_biotype_col, transcript_biotype_use, 
                                           gene_biotype_use, source)
   # Get transcript ID
-  gr_tx <- gr_tx[gr_tx$type %in% type_use]
-  if (length(gr_tx) == 0) {
-    stop(paste("No entry has types", paste(type_use, collapse = ", ")))
-  }
   genes <- str_split(gr_tx$Parent, ":|-", simplify = TRUE)[, 2]
   out <- data.frame(transcript = mcols(gr_tx)[[transcript_id]],
                     gene = genes,
@@ -674,6 +670,7 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
       out <- out %>%
         left_join(gs, by = c("gene", "gene_name"))
       out$gene_version <- paste(out$gene, out$gv, sep = version_sep)
+      out$gv <- NULL
     }
   }
   out <- distinct(out)
@@ -716,17 +713,17 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
     writeXStringSet(tx, tx_save, compress = compress_fa)
     }
   }
+  if ("transcript_version" %in% names(out)) {
+    out$transcript <- NULL
+    names(out)[names(out) == "transcript_version"] <- "transcript"
+  }
+  if ("gene_version" %in% names(out)) {
+    out$gene <- NULL
+    names(out)[names(out) == "gene_version"] <- "gene"
+  }
+  out <- out[, c("transcript", "gene", setdiff(names(out), 
+                                               c("transcript", "gene")))]
   if (write_tr2g) { 
-    if ("transcript_version" %in% names(out)) {
-      out$transcript <- NULL
-      names(out)[names(out) == "transcript_version"] <- "transcript"
-    }
-    if ("gene_version" %in% names(out)) {
-      out$gene <- NULL
-      names(out)[names(out) == "gene_version"] <- "gene"
-    }
-    out <- out[, c("transcript", "gene", setdiff(names(out), 
-                                                 c("transcript", "gene")))]
     write_tr2g_fun(out, out_path, overwrite)
   }
   out
