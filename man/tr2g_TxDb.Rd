@@ -4,14 +4,48 @@
 \alias{tr2g_TxDb}
 \title{Get transcript and gene info from TxDb objects}
 \usage{
-tr2g_TxDb(txdb, chrs_only = TRUE)
+tr2g_TxDb(
+  txdb,
+  Genome = NULL,
+  get_transcriptome = TRUE,
+  out_path = ".",
+  write_tr2g = TRUE,
+  chrs_only = TRUE,
+  compress_fa = FALSE,
+  overwrite = FALSE
+)
 }
 \arguments{
 \item{txdb}{A \code{\link{TxDb}} object with gene annotation.}
 
+\item{Genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
+object of genomic sequences, where the intronic sequences will be extracted
+from. Use \code{\link{genomeStyles}} to check which styles are supported for
+your organism of interest; supported styles can be interconverted. If the
+style in your genome or annotation is not supported, then the style of
+chromosome names in the genome and annotation should be manually set to be
+consistent.}
+
+\item{get_transcriptome}{Logical, whether to extract transcriptome from
+genome with the GTF file. If filtering biotypes or chromosomes, the filtered
+\code{GRanges} will be used to extract transcriptome.}
+
+\item{out_path}{Directory to save the outputs written to disk. If this
+directory does not exist, then it will be created. Defaults to the current
+working directory.}
+
+\item{write_tr2g}{Logical, whether to write tr2g to disk. If \code{TRUE}, then
+a file \code{tr2g.tsv} will be written into \code{out_path}.}
+
 \item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
 GFF files can contain annotations for scaffolds, which are not incorporated
 into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
+
+\item{compress_fa}{Logical, whether to compress the output fasta file. If
+\code{TRUE}, then the fasta file will be gzipped.}
+
+\item{overwrite}{Logical, whether to overwrite if files with names of outputs
+written to disk already exist.}
 }
 \value{
 A data frame with 3 columns: \code{gene} for gene ID, \code{transcript}
@@ -38,7 +72,8 @@ gene annotation stored in a \code{\link{TxDb}} object.
 }
 \examples{
 library(TxDb.Hsapiens.UCSC.hg38.knownGene)
-tr2g_TxDb(TxDb.Hsapiens.UCSC.hg38.knownGene)
+library(BSgenome.Hsapiens.UCSC.hg38)
+tr2g_TxDb(TxDb.Hsapiens.UCSC.hg38.knownGene, BSgenome.Hsapiens.UCSC.hg38)
 }
 \seealso{
 Other functions to retrieve transcript and gene info: 

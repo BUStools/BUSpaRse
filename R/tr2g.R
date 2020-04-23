@@ -259,6 +259,16 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype_c
   }
 }
 
+check_genome_present <- function(Genome, get_transcriptome) {
+  if (get_transcriptome) {
+    if (is.null(Genome)) {
+      stop("Genome is required for transcriptome extraction.")
+    } else if (!is(Genome, "BSgenome") && !is(Genome, "DNAStringSet")) {
+      stop("Genome must be either a BSgenome or a DNAStringSet.")
+    }
+  }
+}
+
 #' Get transcript and gene info from GRanges
 #'
 #' Internal use, for GRanges from GTF files
@@ -373,13 +383,7 @@ tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
   if (any(get_transcriptome, write_tr2g, save_filtered_gtf)) {
     out_path <- check_out_path(out_path)
   }
-  if (get_transcriptome) {
-    if (is.null(Genome)) {
-      stop("Genome is required for transcriptome extraction.")
-    } else if (!is(Genome, "BSgenome") && !is(Genome, "DNAStringSet")) {
-      stop("Genome must be either a BSgenome or a DNAStringSet.")
-    }
-  }
+  check_genome_present(Genome = Genome, get_transcriptome = get_transcriptome)
   gr <- gr[!is.na(mcols(gr)[[transcript_id]])]
   gr <- gr[gr$type == "exon"]
   if (length(gr) == 0) {
@@ -598,6 +602,7 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
   file <- normalizePath(file, mustWork = TRUE)
   check_gff("gff3", file, transcript_id, gene_id)
   source <- match.arg(source)
+  check_genome_present(Genome = Genome, get_transcriptome = get_transcriptome)
   gr <- read_gff3(file)
   if (source == "refseq") {
     # refseq has its own seqnames; use chromosome column instead
@@ -618,7 +623,7 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
   if (get_transcriptome && !"exon" %in% unique(gr$type)) {
     stop("The type 'exon' must be present to extract transcriptome.")
   }
-  if (write_tr2g || save_filtered_gff) {
+  if (write_tr2g || save_filtered_gff || get_transcriptome) {
     out_path <- check_out_path(out_path)
   }
   # Filter by chromosome
@@ -901,8 +906,15 @@ tr2g_fasta <- function(file, out_path = ".", write_tr2g = TRUE,
 #' @export
 #' @examples
 #' library(TxDb.Hsapiens.UCSC.hg38.knownGene)
-#' tr2g_TxDb(TxDb.Hsapiens.UCSC.hg38.knownGene)
-tr2g_TxDb <- function(txdb, chrs_only = TRUE) {
+#' library(BSgenome.Hsapiens.UCSC.hg38)
+#' tr2g_TxDb(TxDb.Hsapiens.UCSC.hg38.knownGene, BSgenome.Hsapiens.UCSC.hg38)
+tr2g_TxDb <- function(txdb, Genome = NULL, get_transcriptome = TRUE, 
+                      out_path = ".", write_tr2g = TRUE, chrs_only = TRUE, 
+                      compress_fa = FALSE, overwrite = FALSE) {
+  check_genome_present(Genome = Genome, get_transcriptome = get_transcriptome)
+  if (get_transcriptome || write_tr2g) {
+    out_path <- check_out_path(out_path)
+  }
   attrs_use <- c("TXNAME", "GENEID", "TXID")
   if (chrs_only) {
     chrs_use <- mapSeqlevels(seqlevels(txdb), seqlevelsStyle(txdb)[1])
@@ -922,6 +934,30 @@ tr2g_TxDb <- function(txdb, chrs_only = TRUE) {
   names(df)[1:3] <- c("tx_id", "gene", "transcript")
   if (chrs_only) {
     names(df)[4] <- "seqnames"
+  }
+  if (get_transcriptome) {
+    tx_save <- paste0(out_path, "/transcriptome.fa")
+    if (compress_fa) tx_save <- paste0(tx_save, ".gz")
+    if (file.exists(tx_save) && !overwrite) {
+      message("File ", tx_save, " already exists.")
+    } else {
+      grl <- exonsBy(txdb, by = "tx") # Will be numbers
+      # Remove transcripts that aren't mapped to genes
+      grl <- grl[names(grl) %in% df$tx_id]
+      names(grl) <- df$transcript[match(names(grl), df$tx_id)]
+      c(Genome, grl) %<-% match_style(Genome, grl, "annotation")
+      grl <- subset_annot(Genome, grl)
+      c(Genome, grl) %<-% annot_circular(Genome, grl)
+      genome(grl) <- genome(Genome)[seqlevels(grl)]
+      tx <- extractTranscriptSeqs(Genome, grl)
+      df <- df[df$transcript %in% names(tx),]
+      tx <- tx[df$transcript]
+      writeXStringSet(tx, tx_save, compress = compress_fa)
+    }
+    df <- df[, c("transcript", "gene")]
+    if (write_tr2g) {
+      write_tr2g_fun(df, out_path, overwrite)
+    }
   }
   df
 }

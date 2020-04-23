@@ -346,7 +346,8 @@ setMethod("get_velocity_files", "TxDb",
     style <- match.arg(style)
     c(Genome, X) %<-% match_style(Genome, X, style)
     X <- subset_annot(Genome, X)
-    tr2g_cdna <- tr2g_TxDb(X, chrs_only)
+    tr2g_cdna <- tr2g_TxDb(X, chrs_only = chrs_only, get_transcriptome = FALSE,
+                           write_tr2g = FALSE)
     if (is(Transcriptome, "DNAStringSet")) {
       tx_overlap <- check_tx(tr2g_cdna$transcript, names(Transcriptome))
       tr2g_cdna <- tr2g_cdna[tr2g_cdna$transcript %in% tx_overlap, ]
