@@ -241,7 +241,7 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype_c
     genes_use <- genes_use[!is.na(genes_use)]
     if (transcript_biotype_use == "all") {
       genes <- paste("gene", genes_use, sep = sep)
-      return(list(gr_tx = grt[gtr$Parent %in% genes_use], gr_g = grg))
+      return(list(gr_tx = grt[grt$Parent %in% genes], gr_g = grg))
     }
   }
   if (transcript_biotype_use != "all") {
@@ -256,7 +256,7 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype_c
       return(list(gr_tx = grt, gr_g = grg))
     } else {
       genes <- paste("gene", genes_use, sep = sep)
-      return(list(gr_tx = grt[gtr$Parent %in% genes_use], gr_g = grg))
+      return(list(gr_tx = grt[gtr$Parent %in% genes], gr_g = grg))
     }
   }
 }
@@ -442,6 +442,7 @@ tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
       grl <- revElements(grl, any(strand(grl) == "-"))
       tx <- extractTranscriptSeqs(Genome, grl)
       out <- out[out$transcript %in% names(tx),]
+      tx <- tx[out$transcript]
       writeXStringSet(tx, tx_save, compress = compress_fa)
     }
   }
@@ -561,6 +562,8 @@ tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
 #' further clean up the output of this function.
 #'
 #' @inheritParams tr2g_gtf
+#' @param source Name of the database where this GFF3 file was downloaded. Must
+#' be either "ensembl" or "refseq".
 #' @return A data frame at least 2 columns: \code{gene} for gene ID,
 #' \code{transcript} for transcript ID, and optionally, \code{gene_name} for
 #' gene names.
@@ -569,8 +572,6 @@ tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
 #' @importFrom stringr str_split
 #' @importFrom dplyr left_join distinct
 #' @importFrom tidyr unite
-#' @param source Name of the database where this GFF3 file was downloaded. Must
-#' be either "ensembl" or "refseq".
 #' @importFrom plyranges write_gff3
 #' @export
 #' @seealso ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes
@@ -582,7 +583,8 @@ tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
 #' # Excluding version numbers
 #' tr2g <- tr2g_gff3(file = file_use, transcript_version = NULL,
 #'   gene_version = NULL, write_tr2g = FALSE)
-tr2g_gff3 <- function(file, out_path = ".", write_tr2g = TRUE, 
+tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
+                      out_path = ".", write_tr2g = TRUE, 
                       type_use = "mRNA", transcript_id = "transcript_id",
                       gene_id = "gene_id", gene_name = "Name",
                       transcript_version = "version",
@@ -591,14 +593,18 @@ tr2g_gff3 <- function(file, out_path = ".", write_tr2g = TRUE,
                       gene_biotype_col = "biotype", 
                       transcript_biotype_use = "all",
                       gene_biotype_use = "all", 
-                      chrs_only = TRUE, source = c("ensembl", "refseq"),
-                      save_filtered_gff = TRUE, overwrite = FALSE) {
+                      chrs_only = TRUE, compress_fa = FALSE,
+                      save_filtered_gff = TRUE, overwrite = FALSE,
+                      source = c("ensembl", "refseq")) {
   # Validate arguments
-  source <- match.arg(source)
   check_char1(setNames(file, "file"))
   file <- normalizePath(file, mustWork = TRUE)
   check_gff("gff3", file, transcript_id, gene_id)
+  source <- match.arg(source)
   gr <- read_gff3(file)
+  if (get_transcriptome && !"exon" %in% unique(gr$type)) {
+    stop("The type 'exon' must be present to extract transcriptome.")
+  }
   tags <- names(mcols(gr))
   check_tag_present(c(transcript_id, gene_id), tags, error = TRUE)
   # Will do nothing if all are NULL
@@ -609,7 +615,28 @@ tr2g_gff3 <- function(file, out_path = ".", write_tr2g = TRUE,
   }
   # Filter by chromosome
   gr <- filter_chr(gr, chrs_only)
+  ind1 <- gr$type == type_use
   # Filter by biotype
+  if (is(gr$Parent, "List")) {
+    if (!any(lengths(gr$Parent) > 1)) {
+      ind3 <- lengths(gr$Parent) < 1
+      gr$Parent[ind3] <- NA
+      gr$Parent <- unlist(gr$Parent)
+    } else {
+      gr$Parent[ind1] <- 
+        lapply(gr$Parent[ind1], function(x) x[str_detect(x, "^gene")])
+      if (get_transcriptome) {
+        ind2 <- gr$type == "exon"
+        gr$Parent[ind2] <- 
+          lapply(gr$Parent[ind2], 
+                 function(x) x[str_detect(x, "^(transcript)|(rna)")])
+      }
+      ind3 <- lengths(gr$Parent) < 1
+      gr$Parent[ind3] <- NA
+      gr$Parent <- unlist(gr$Parent)
+    }
+  }
+  
   c(gr_tx, gr_g) %<-% filter_biotype_gff3(gr, transcript_id, gene_id, 
                                           transcript_biotype_col, 
                                           gene_biotype_col, transcript_biotype_use, 
@@ -625,7 +652,7 @@ tr2g_gff3 <- function(file, out_path = ".", write_tr2g = TRUE,
                     stringsAsFactors = FALSE)
   if (!is.null(transcript_version) && transcript_version %in% tags) {
     tv <- mcols(gr_tx)[[transcript_version]]
-    out$transcript <- paste(out$transcript, tv, sep = version_sep)
+    out$transcript_version <- paste(out$transcript, tv, sep = version_sep)
   }
   # Get gene name and version
   get_gene_name <- !is.null(gene_name) && gene_name %in% tags
@@ -645,8 +672,8 @@ tr2g_gff3 <- function(file, out_path = ".", write_tr2g = TRUE,
       # Avoid R CMD check note
       gene <- gv <- NULL
       out <- out %>%
-        left_join(gs, by = c("gene", "gene_name")) %>%
-        unite("gene", gene, gv, sep = version_sep)
+        left_join(gs, by = c("gene", "gene_name"))
+      out$gene_version <- paste(out$gene, out$gv, sep = version_sep)
     }
   }
   out <- distinct(out)
@@ -654,13 +681,52 @@ tr2g_gff3 <- function(file, out_path = ".", write_tr2g = TRUE,
     chrs_only
   if (save_filtered_gff && do_filter) {
     file_save <- paste(out_path, "gff_filtered.gff3", sep = "/")
-    gr_g <- gr_g[mcols(gr_g)[[gene_id]] %in% out$gene]
-    gr_out <- c(gr_g, gr_tx)
     if (file.exists(file_save) && !overwrite) {
       message("File ", file_save, " already exists.")
-    } else write_gff3(gr_out, file_save)
+    } else {
+      gr_g <- gr_g[mcols(gr_g)[[gene_id]] %in% out$gene]
+      gr_out <- c(gr_g, gr_tx)
+      write_gff3(gr_out, file_save)
+    }
   }
-  if (write_tr2g) {
+  if (get_transcriptome) {
+    tx_save <- paste(out_path, "transcriptome.fa", sep = "/")
+    if (compress_fa) tx_save <- paste0(tx_save, ".gz")
+    if (file.exists(tx_save) && !overwrite) {
+      message("File ", tx_save, " already exists.")
+    } else {
+    gre <- gr[gr$type == "exon"]
+    gre <- sort(gre)
+    c(Genome, gre) %<-% match_style(Genome, gre, style = "annotation")
+    gre <- subset_annot(Genome, gre)
+    c(Genome, gre) %<-% annot_circular(Genome, gre)
+    genome(gre) <- genome(Genome)[seqlevels(gre)]
+    grl <- split(gre, gre$Parent)
+    names(grl) <- str_remove(names(grl), "(transcript:)|(rna-)")
+    grl <- revElements(grl, any(strand(grl) == "-"))
+    # Transcript version number
+    if (!is.null(transcript_version)) {
+      names(grl) <- out$transcript_version[match(names(grl), out$transcript)]
+      out$transcript <- NULL
+      names(out)[names(out) == "transcript_version"] <- "transcript"
+    }
+    tx <- extractTranscriptSeqs(Genome, grl)
+    out <- out[out$transcript %in% names(tx),]
+    tx <- tx[out$transcript]
+    writeXStringSet(tx, tx_save, compress = compress_fa)
+    }
+  }
+  if (write_tr2g) { 
+    if ("transcript_version" %in% names(out)) {
+      out$transcript <- NULL
+      names(out)[names(out) == "transcript_version"] <- "transcript"
+    }
+    if ("gene_version" %in% names(out)) {
+      out$gene <- NULL
+      names(out)[names(out) == "gene_version"] <- "gene"
+    }
+    out <- out[, c("transcript", "gene", setdiff(names(out), 
+                                                 c("transcript", "gene")))]
     write_tr2g_fun(out, out_path, overwrite)
   }
   out

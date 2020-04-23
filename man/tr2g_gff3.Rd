@@ -6,6 +6,8 @@
 \usage{
 tr2g_gff3(
   file,
+  Genome = NULL,
+  get_transcriptome = TRUE,
   out_path = ".",
   write_tr2g = TRUE,
   type_use = "mRNA",
@@ -20,13 +22,26 @@ tr2g_gff3(
   transcript_biotype_use = "all",
   gene_biotype_use = "all",
   chrs_only = TRUE,
-  source = c("ensembl", "refseq"),
+  compress_fa = FALSE,
   save_filtered_gff = TRUE,
-  overwrite = FALSE
+  overwrite = FALSE,
+  source = c("ensembl", "refseq")
 )
 }
 \arguments{
 \item{file}{Path to a GTF file to be read. The file can remain gzipped.}
+
+\item{Genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
+object of genomic sequences, where the intronic sequences will be extracted
+from. Use \code{\link{genomeStyles}} to check which styles are supported for
+your organism of interest; supported styles can be interconverted. If the
+style in your genome or annotation is not supported, then the style of
+chromosome names in the genome and annotation should be manually set to be
+consistent.}
+
+\item{get_transcriptome}{Logical, whether to extract transcriptome from
+genome with the GTF file. If filtering biotypes or chromosomes, the filtered
+\code{GRanges} will be used to extract transcriptome.}
 
 \item{out_path}{Directory to save the outputs written to disk. If this
 directory does not exist, then it will be created. Defaults to the current
@@ -101,11 +116,14 @@ Note that gene biotypes and transcript biotypes are not always the same.}
 GFF files can contain annotations for scaffolds, which are not incorporated
 into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
 
-\item{source}{Name of the database where this GFF3 file was downloaded. Must
-be either "ensembl" or "refseq".}
+\item{compress_fa}{Logical, whether to compress the output fasta file. If
+\code{TRUE}, then the fasta file will be gzipped.}
 
 \item{overwrite}{Logical, whether to overwrite if files with names of outputs
 written to disk already exist.}
+
+\item{source}{Name of the database where this GFF3 file was downloaded. Must
+be either "ensembl" or "refseq".}
 }
 \value{
 A data frame at least 2 columns: \code{gene} for gene ID,
