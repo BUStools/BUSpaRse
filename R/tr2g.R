@@ -840,11 +840,11 @@ tr2g_fasta <- function(file, out_path = ".", write_tr2g = TRUE,
     }
   }
   if (save_filtered & do_filter) {
-    file_save <- paste(out_path, "cdna_filtered.fa", sep = "/")
+    file_save <- paste(out_path, "tx_filtered.fa", sep = "/")
     fa_out <- s[inds]
     if (compress_fa) file_save <- paste0(file_save, ".gz")
-    if (file.exists(fa_out) && !overwrite) {
-      message("File ", fa_out, " already exists.")
+    if (file.exists(file_save) && !overwrite) {
+      message("File ", file_save, " already exists.")
     } else writeXStringSet(fa_out, file_save, compress = compress_fa)
   }
   if (write_tr2g) {

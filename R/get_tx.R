@@ -91,7 +91,7 @@ dl_transcriptome <- function(species, out_path = ".",
   do_filter <- transcript_biotype_use != "all" | gene_biotype_use != "all" |
     chrs_only
   if (do_filter) {
-    file_filtered <- paste(out_path, "cdna_filtered.fa", sep = "/")
+    file_filtered <- paste(out_path, "tx_filtered.fa", sep = "/")
     tr2g <- tr2g_fasta(destfile, out_path = out_path, write_tr2g = TRUE,
                        gene_biotype_use = gene_biotype_use,
                        transcript_biotype_use = transcript_biotype_use,
