@@ -1119,6 +1119,11 @@ tr2g_EnsDb <- function(ensdb, Genome = NULL, get_transcriptome = TRUE,
 #' @export
 #' @importFrom utils read.table
 #' @family functions to retrieve transcript and gene info
+#' @note This function has been superseded by the new version of tr2g_* 
+#' functions that can extract transcriptome for only the biotypes specified and
+#' with only the standard chromosomes. The new version of tr2g_* functions also
+#' sorts the transcriptome so the tr2g and the transcriptome have transcripts in
+#' the same order.
 #' @examples
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
@@ -1173,6 +1178,11 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
 #' to disk.
 #' @export
 #' @importFrom utils write.table
+#' @note This function has been superseded by the new version of tr2g_* 
+#' functions that can extract transcriptome for only the biotypes specified and
+#' with only the standard chromosomes. The new version of tr2g_* functions also
+#' sorts the transcriptome so the tr2g and the transcriptome have transcripts in
+#' the same order, and write the tr2g.tsv file in the bustools format.
 #' @examples
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
@@ -1221,6 +1231,11 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv") {
 #' @importFrom dplyr bind_rows
 #' @export
 #' @family functions to retrieve transcript and gene info
+#' @note This function has been superseded by the new version of tr2g_* 
+#' functions that can extract transcriptome for only the biotypes specified and
+#' with only the standard chromosomes. The new version of tr2g_* functions also
+#' sorts the transcriptome so the tr2g and the transcriptome have transcripts in
+#' the same order.
 #' @examples
 #' # Download dataset already in BUS format
 #' library(TENxBUSData)
