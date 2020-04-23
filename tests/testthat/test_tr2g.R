@@ -98,8 +98,6 @@ test_that("Extract transcript and gene ID from GTF file", {
                         write_tr2g = FALSE, get_transcriptome = FALSE,
                         save_filtered_gtf = FALSE),
     "file must be a GTF file.")
-  expect_error(tr2g_gtf(fn, type_use = "foo", write_tr2g = FALSE, get_transcriptome = FALSE),
-    "No entry has types foo")
   rm(list = c("fn", "tr2g_no_vn", "tr2g_no_gn"))
 })
 
