@@ -197,9 +197,7 @@ which_biotypes <- function(bt, bt_col) {
 
 filter_chr <- function(gr, chrs_only) {
   if (chrs_only) {
-    chrs_use <- mapSeqlevels(seqlevels(gr), seqlevelsStyle(gr)[1])
-    chrs_use <- unname(chrs_use[!is.na(chrs_use)])
-    gr <- gr[seqnames(gr) %in% chrs_use]
+    gr <- keepStandardChromosomes(gr, pruning.mode = "coarse")
   }
   gr
 }
@@ -296,7 +294,8 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype_c
 #' symbols, which do not have to be unique. This can be Ensembl or Entrez IDs.
 #' However, if the gene symbols are in fact unique for each gene, you may
 #' supply the tag for human readable gene symbols to this argument. Will throw
-#' error if tag indicated in this argument does not exist.
+#' error if tag indicated in this argument does not exist. This is typically
+#' "gene_id" for annotations from Ensembl and "gene" for refseq.
 #' @param gene_name Character vector of length 1. Tag in \code{attribute}
 #' field corresponding to gene symbols. This argument can be \code{NA} or
 #' \code{NULL} if you are fine with non-human readable gene IDs and do not wish
@@ -602,6 +601,17 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
   check_gff("gff3", file, transcript_id, gene_id)
   source <- match.arg(source)
   gr <- read_gff3(file)
+  if (source == "refseq") {
+    # refseq has its own seqnames; use chromosome column instead
+    sn2chr <- tibble(sn = as.vector(seqnames(gr)), chr = gr$chromosome) %>% 
+      dplyr::filter(!is.na(chr)) %>% 
+      distinct() %>% 
+      dplyr::filter(str_detect(sn, "^NC"))
+    gr <- gr[seqnames(gr) %in% sn2chr$sn]
+    seqlevels(gr, pruning.mode = "coarse") <- seqlevelsInUse(gr)
+    seqlevels(gr) <- sn2chr$chr[as.vector(match(seqlevels(gr), sn2chr$sn))]
+    transcript_version <- gene_version <- NULL
+  }
   tags <- names(mcols(gr))
   check_tag_present(c(transcript_id, gene_id), tags, error = TRUE)
   # Will do nothing if all are NULL
@@ -676,13 +686,23 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
   out <- distinct(out)
   do_filter <- gene_biotype_use != "all" | transcript_biotype_col != "all" |
     chrs_only
+  if ((save_filtered_gff || get_transcriptome)) {
+    # The exons
+    gre <- gr[gr$type == "exon"]
+    txs <- if (source == "ensembl") {
+      paste0("transcript:", out$transcript)
+    } else {
+      paste0("rna-", out$transcript)
+    }
+    gre <- gre[gre$Parent %in% txs]
+  }
   if (save_filtered_gff && do_filter) {
     file_save <- paste(out_path, "gff_filtered.gff3", sep = "/")
     if (file.exists(file_save) && !overwrite) {
       message("File ", file_save, " already exists.")
     } else {
       gr_g <- gr_g[mcols(gr_g)[[gene_id]] %in% out$gene]
-      gr_out <- c(gr_g, gr_tx)
+      gr_out <- c(gr_g, gr_tx, gre)
       write_gff3(gr_out, file_save)
     }
   }
@@ -692,7 +712,6 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
     if (file.exists(tx_save) && !overwrite) {
       message("File ", tx_save, " already exists.")
     } else {
-    gre <- gr[gr$type == "exon"]
     gre <- sort(gre)
     c(Genome, gre) %<-% match_style(Genome, gre, style = "annotation")
     gre <- subset_annot(Genome, gre)
@@ -763,7 +782,8 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
 #' @inheritParams tr2g_GRanges
 #' @inheritParams annots_from_fa_df
 #' @param save_filtered If filtering for biotype and chromosomes, whether to
-#' save the filtered fasta file.
+#' save the filtered fasta file. If `TRUE`, the file will be `tx_filtered.fa` in
+#' `out_path`.
 #' @return A data frame with at least 2 columns: \code{gene} for gene ID,
 #' \code{transcript} for transcript ID, and optionally \code{gene_name} for gene
 #' names.

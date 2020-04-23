@@ -83,7 +83,7 @@ check_gff <- function(format, file, transcript_id, gene_id) {
   if (is.null(transcript_id)) stop("transcript_id cannot be NULL.\n")
   if (is.null(gene_id)) stop("gene_id cannot be NULL.\n")
 
-  if (!str_detect(file, paste0("\\.", format))) {
+  if (!str_detect(file, paste0("\\.", str_remove(format, "\\d")))) {
     stop(paste("file must be a", toupper(format), "file.\n"))
   }
 }

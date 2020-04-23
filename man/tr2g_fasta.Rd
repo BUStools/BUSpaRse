@@ -62,7 +62,8 @@ GFF files can contain annotations for scaffolds, which are not incorporated
 into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
 
 \item{save_filtered}{If filtering for biotype and chromosomes, whether to
-save the filtered fasta file.}
+save the filtered fasta file. If \code{TRUE}, the file will be \code{tx_filtered.fa} in
+\code{out_path}.}
 
 \item{compress_fa}{Logical, whether to compress the output fasta file. If
 \code{TRUE}, then the fasta file will be gzipped.}
