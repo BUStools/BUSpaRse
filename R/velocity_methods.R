@@ -449,14 +449,16 @@ setMethod("get_velocity_files", "EnsDb",
     style <- match.arg(style)
     c(Genome, X) %<-% match_style(Genome, X, style)
     chrs_use <- intersect(seqlevels(X), seqlevels(Genome))
-    tr2g_cdna <- tr2g_EnsDb(X, use_gene_name = FALSE,
-      use_transcript_version = use_transcript_version,
-      use_gene_version = use_gene_version,
-      transcript_biotype_col = transcript_biotype_col,
-      gene_biotype_col = gene_biotype_col, 
-      transcript_biotype_use = transcript_biotype_use,
-      gene_biotype_use = gene_biotype_use, 
-      chrs_only = chrs_only)
+    tr2g_cdna <- tr2g_EnsDb(X, get_transcriptome = FALSE,
+                            write_tr2g = FALSE,
+                            use_gene_name = FALSE,
+                            use_transcript_version = use_transcript_version,
+                            use_gene_version = use_gene_version,
+                            transcript_biotype_col = transcript_biotype_col,
+                            gene_biotype_col = gene_biotype_col, 
+                            transcript_biotype_use = transcript_biotype_use,
+                            gene_biotype_use = gene_biotype_use, 
+                            chrs_only = chrs_only)
     tr2g_cdna <- tr2g_cdna[, c("transcript", "gene")]
     if (is(Transcriptome, "DNAStringSet")) {
       tx_overlap <- check_tx(tr2g_cdna$transcript, names(Transcriptome))

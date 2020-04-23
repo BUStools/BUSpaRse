@@ -6,6 +6,10 @@
 \usage{
 tr2g_EnsDb(
   ensdb,
+  Genome = NULL,
+  get_transcriptome = TRUE,
+  out_path = ".",
+  write_tr2g = TRUE,
   other_attrs = NULL,
   use_gene_name = TRUE,
   use_transcript_version = TRUE,
@@ -14,12 +18,33 @@ tr2g_EnsDb(
   gene_biotype_col = "GENEBIOTYPE",
   transcript_biotype_use = "all",
   gene_biotype_use = "all",
-  chrs_only = TRUE
+  chrs_only = TRUE,
+  compress_fa = FALSE,
+  overwrite = FALSE
 )
 }
 \arguments{
 \item{ensdb}{Ann \code{EnsDb} object, such as from \code{AnnotationHub} or
 \code{EnsDb.Hsapiens.v86}.}
+
+\item{Genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
+object of genomic sequences, where the intronic sequences will be extracted
+from. Use \code{\link{genomeStyles}} to check which styles are supported for
+your organism of interest; supported styles can be interconverted. If the
+style in your genome or annotation is not supported, then the style of
+chromosome names in the genome and annotation should be manually set to be
+consistent.}
+
+\item{get_transcriptome}{Logical, whether to extract transcriptome from
+genome with the GTF file. If filtering biotypes or chromosomes, the filtered
+\code{GRanges} will be used to extract transcriptome.}
+
+\item{out_path}{Directory to save the outputs written to disk. If this
+directory does not exist, then it will be created. Defaults to the current
+working directory.}
+
+\item{write_tr2g}{Logical, whether to write tr2g to disk. If \code{TRUE}, then
+a file \code{tr2g.tsv} will be written into \code{out_path}.}
 
 \item{other_attrs}{Character vector. Other attributes to get from the \code{EnsDb}
 object, such as gene symbol and position on the genome.
@@ -62,6 +87,12 @@ Note that gene biotypes and transcript biotypes are not always the same.}
 \item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
 GFF files can contain annotations for scaffolds, which are not incorporated
 into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
+
+\item{compress_fa}{Logical, whether to compress the output fasta file. If
+\code{TRUE}, then the fasta file will be gzipped.}
+
+\item{overwrite}{Logical, whether to overwrite if files with names of outputs
+written to disk already exist.}
 }
 \value{
 A data frame with at least 2 columns: \code{gene} for gene ID,

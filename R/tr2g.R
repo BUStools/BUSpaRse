@@ -920,6 +920,7 @@ tr2g_TxDb <- function(txdb, Genome = NULL, get_transcriptome = TRUE,
     chrs_use <- mapSeqlevels(seqlevels(txdb), seqlevelsStyle(txdb)[1])
     chrs_use <- unname(chrs_use[!is.na(chrs_use)])
     attrs_use <- c(attrs_use, "TXCHROM")
+    txdb <- keepStandardChromosomes(txdb, pruning.mode = "coarse")
   }
   df <- AnnotationDbi::select(txdb, AnnotationDbi::keys(txdb, keytype = "TXID"),
     keytype = "TXID",
@@ -941,12 +942,12 @@ tr2g_TxDb <- function(txdb, Genome = NULL, get_transcriptome = TRUE,
     if (file.exists(tx_save) && !overwrite) {
       message("File ", tx_save, " already exists.")
     } else {
+      c(Genome, txdb) %<-% match_style(Genome, txdb, "annotation")
+      txdb <- subset_annot(Genome, txdb)
       grl <- exonsBy(txdb, by = "tx") # Will be numbers
       # Remove transcripts that aren't mapped to genes
       grl <- grl[names(grl) %in% df$tx_id]
       names(grl) <- df$transcript[match(names(grl), df$tx_id)]
-      c(Genome, grl) %<-% match_style(Genome, grl, "annotation")
-      grl <- subset_annot(Genome, grl)
       c(Genome, grl) %<-% annot_circular(Genome, grl)
       genome(grl) <- genome(Genome)[seqlevels(grl)]
       tx <- extractTranscriptSeqs(Genome, grl)
@@ -954,10 +955,10 @@ tr2g_TxDb <- function(txdb, Genome = NULL, get_transcriptome = TRUE,
       tx <- tx[df$transcript]
       writeXStringSet(tx, tx_save, compress = compress_fa)
     }
-    df <- df[, c("transcript", "gene")]
-    if (write_tr2g) {
-      write_tr2g_fun(df, out_path, overwrite)
-    }
+  }
+  df <- df[, c("transcript", "gene", setdiff(names(df), c("transcript", "gene")))]
+  if (write_tr2g) {
+    write_tr2g_fun(df, out_path, overwrite)
   }
   df
 }
@@ -989,14 +990,20 @@ tr2g_TxDb <- function(txdb, Genome = NULL, get_transcriptome = TRUE,
 #' library(EnsDb.Hsapiens.v86)
 #' tr2g_EnsDb(EnsDb.Hsapiens.v86, use_transcript_version = FALSE,
 #'   use_gene_version = FALSE)
-tr2g_EnsDb <- function(ensdb, other_attrs = NULL, use_gene_name = TRUE,
+tr2g_EnsDb <- function(ensdb, Genome = NULL, get_transcriptome = TRUE, 
+                       out_path = ".", write_tr2g = TRUE,
+                       other_attrs = NULL, use_gene_name = TRUE,
                        use_transcript_version = TRUE,
                        use_gene_version = TRUE,
                        transcript_biotype_col = "TXBIOTYPE",
                        gene_biotype_col = "GENEBIOTYPE", 
                        transcript_biotype_use = "all",
-                       gene_biotype_use = "all", 
-                       chrs_only = TRUE) {
+                       gene_biotype_use = "all", chrs_only = TRUE, 
+                       compress_fa = FALSE, overwrite = FALSE) {
+  check_genome_present(Genome, get_transcriptome)
+  if (get_transcriptome || write_tr2g) {
+    out_path <- check_out_path(out_path)
+  }
   attrs_use <- c("TXID", "GENEID", other_attrs)
   if (use_gene_name) {
     attrs_use <- c(attrs_use, "GENENAME")
@@ -1049,6 +1056,39 @@ tr2g_EnsDb <- function(ensdb, other_attrs = NULL, use_gene_name = TRUE,
   names(df)[names(df) == transcript_biotype_col] <- "transcript_biotype"
   names(df)[names(df) == gene_biotype_col] <- "gene_biotype"
   names(df)[names(df) == "SEQNAME"] <- "seqnames"
+  if (get_transcriptome) {
+    tx_save <- paste0(out_path, "/transcriptome.fa")
+    if (compress_fa) tx_save <- paste0(tx_save, ".gz")
+    if (file.exists(tx_save) && !overwrite) {
+      message("File ", tx_save, " already exists.")
+    } else {
+      c(Genome, ensdb) %<-% match_style(Genome, ensdb, "annotation")
+      chrs_use <- intersect(unique(df$seqnames), seqlevels(Genome))
+      if (use_transcript_version) {
+        # tr2g_cdna has already been filtered if it needs to be filtered
+        tx_nv <- str_remove(df$transcript, "\\.\\d+$")
+        filter_use <- AnnotationFilterList(SeqNameFilter(chrs_use),
+                                           TxIdFilter(tx_nv))
+      } else {
+        filter_use <- AnnotationFilterList(SeqNameFilter(chrs_use),
+                                           TxIdFilter(df$transcript))
+      }
+      grl <- exonsBy(ensdb, by = "tx", filter = filter_use)
+      seqlevels(grl) <- seqlevelsInUse(grl)
+      if (use_transcript_version) {
+        # Add transcript version
+        names(grl) <- df$transcript[match(names(grl), tx_nv)]
+      }
+      c(Genome, grl) %<-% annot_circular(Genome, grl)
+      genome(grl) <- genome(Genome)[seqlevels(grl)]
+      tx <- extractTranscriptSeqs(Genome, grl)
+      writeXStringSet(tx, tx_save, compress = compress_fa)
+    }
+  }
+  df <- df[, c("transcript", "gene", setdiff(names(df), c("transcript", "gene")))]
+  if (write_tr2g) {
+    write_tr2g_fun(df, out_path, overwrite)
+  }
   df
 }
 
