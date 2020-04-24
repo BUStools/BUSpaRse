@@ -28,7 +28,10 @@ tr2g_gff3(
 )
 }
 \arguments{
-\item{file}{Path to a GTF file to be read. The file can remain gzipped.}
+\item{file}{Path to a GTF file to be read. The file can remain gzipped. Use
+\code{\link{getGTF}} from the \code{biomartr} package to download GTF files
+from Ensembl, and use \code{\link{getGFF}} from \code{biomartr} to download
+GFF3 files from Ensembl and RefSeq.}
 
 \item{Genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
 object of genomic sequences, where the intronic sequences will be extracted

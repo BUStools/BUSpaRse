@@ -54,12 +54,20 @@ transcriptomes from Ensembl. Also, if querying biomart, please make sure to set
 \code{ensembl_version} to match the version where the transcriptomes were
 downloaded.
 }
+\note{
+This function has been superseded by the new version of tr2g_*
+functions that can extract transcriptome for only the biotypes specified and
+with only the standard chromosomes. The new version of tr2g_* functions also
+sorts the transcriptome so the tr2g and the transcriptome have transcripts in
+the same order.
+}
 \examples{
 # Download dataset already in BUS format
 library(TENxBUSData)
-TENxBUSData(".", dataset = "retina")
-tr2g <- transcript2gene("Mus musculus", type = "vertebrate",
-  ensembl_version = 99, kallisto_out_path = "./out_retina")
+TENxBUSData(".", dataset = "hgmm100")
+tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), 
+  type = "vertebrate",
+  ensembl_version = 99, kallisto_out_path = "./out_hgmm100")
 }
 \seealso{
 Other functions to retrieve transcript and gene info: 

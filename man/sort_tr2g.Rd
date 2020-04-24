@@ -36,6 +36,13 @@ clean up. You may also supply gene and transcript IDs from other sources.
 This function should be used after the clean up, when the transcript IDs in
 the cleaned up data frame have the same format as those in \code{transcript}
 }
+\note{
+This function has been superseded by the new version of tr2g_*
+functions that can extract transcriptome for only the biotypes specified and
+with only the standard chromosomes. The new version of tr2g_* functions also
+sorts the transcriptome so the tr2g and the transcriptome have transcripts in
+the same order.
+}
 \examples{
 toy_path <- system.file("testdata", package = "BUSpaRse")
 file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
