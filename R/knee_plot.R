@@ -4,12 +4,13 @@
 #' total UMI counts for each barcode, and \code{rank} for rank of the total 
 #' counts, with number 1 for the barcode with the most counts.
 #' @export
+#' @importFrom dplyr row_number desc arrange
 #' 
 get_knee_df <- function(mat) {
-  tibble(total = colSums(mat),
+  tibble(total = Matrix::colSums(mat),
          rank = row_number(desc(total))) %>%
     distinct() %>%
-    filter(total > 0) %>% 
+    dplyr::filter(total > 0) %>% 
     arrange(rank)
 }
 
@@ -26,7 +27,7 @@ get_knee_df <- function(mat) {
 #' 
 get_inflection <- function(df, lower = 100) {
   df_fit <- df %>% 
-    filter(total > lower) %>% 
+    dplyr::filter(total > lower) %>% 
     transmute(log_total = log10(total),
               log_rank = log10(rank))
   d1n <- diff(df_fit$log_total)/diff(df_fit$log_rank)
