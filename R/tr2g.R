@@ -476,7 +476,10 @@ tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
 #' the general lack of standards for the \code{attribute} field, you may need to
 #' further clean up the output of this function.
 #'
-#' @param file Path to a GTF file to be read. The file can remain gzipped.
+#' @param file Path to a GTF file to be read. The file can remain gzipped. Use
+#' \code{\link{getGTF}} from the \code{biomartr} package to download GTF files
+#' from Ensembl, and use \code{\link{getGFF}} from \code{biomartr} to download
+#' GFF3 files from Ensembl and RefSeq.
 #' @inheritParams tr2g_GRanges
 #' @inheritParams tr2g_ensembl
 #' @return A data frame at least 2 columns: \code{gene} for gene ID,
