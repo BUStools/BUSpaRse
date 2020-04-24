@@ -50,11 +50,12 @@ get_inflection <- function(df, lower = 100) {
 #' # Download dataset already in BUS format
 #' library(TENxBUSData)
 #' TENxBUSData(".", dataset = "retina")
-#' tr2g <- transcript2gene("Mus musculus", type = "vertebrate",
-#'   ensembl_version = 99, kallisto_out_path = "./out_retina")
-#' m <- make_sparse_matrix("./out_retina/output.sorted.txt",
-#' tr2g = tr2g, est_ncells = 1e5,
-#' est_ngenes = nrow(tr2g))
+#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), 
+#'   type = "vertebrate",
+#'   ensembl_version = 99, kallisto_out_path = "./out_hgmm100")
+#' m <- make_sparse_matrix("./out_hgmm100/output.sorted.txt",
+#'   tr2g = tr2g, est_ncells = 1e5,
+#'   est_ngenes = nrow(tr2g))
 #' df <- get_knee_df(m)
 #' infl <- get_inflection(df)
 #' knee_plot(df, infl)

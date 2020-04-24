@@ -1029,8 +1029,8 @@ tr2g_EnsDb <- function(ensdb, Genome = NULL, get_transcriptome = TRUE,
   cls <- columns(ensdb)
   if (any(!attrs_use %in% cls)) {
     stop("Attributes must be one of ", paste(cls, collapse = ", "),
-         "; please double check other_attrs, transcript_biotype_col, ",
-         "and gene_biotype_col.")
+         "; attributes ", paste(setdiff(attrs_use, cls), collapse = " ,"),
+         " are absent.")
   }
   df <- AnnotationDbi::select(ensdb, AnnotationDbi::keys(ensdb, keytype = "TXID"),
     keytype = "TXID",
@@ -1239,9 +1239,10 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv") {
 #' @examples
 #' # Download dataset already in BUS format
 #' library(TENxBUSData)
-#' TENxBUSData(".", dataset = "retina")
-#' tr2g <- transcript2gene("Mus musculus", type = "vertebrate",
-#'   ensembl_version = 99, kallisto_out_path = "./out_retina")
+#' TENxBUSData(".", dataset = "hgmm100")
+#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), 
+#'   type = "vertebrate",
+#'   ensembl_version = 99, kallisto_out_path = "./out_hgmm100")
 transcript2gene <- function(species, fasta_file, kallisto_out_path,
                             type = "vertebrate",
                             verbose = TRUE, ...) {
