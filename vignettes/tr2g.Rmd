@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 Originally, this package was written when the `kallisto | bustools` concept was still experimental, to test a new and fast way to generate the gene count matrix from fastq files for scRNA-seq. In the past year, `kallisto | bustools` has matured. Now there's a wrapper [kb-python](https://github.com/pachterlab/kb_python) that can download a prebuilt `kallisto` index for human and mice and call `kallisto bus` and `bustools` to get the gene count matrix. So largely, the old way of calling `kallisto bus` and `bustools`, and some functionalities of `BUSpaRse`, such as getting transcript to gene mapping, are obsolete.
 
-So now the focus of `BUSpaRse` has shifted to finer control of the transcripts that go into the transcriptome and more options. Now the `tr2g_*` functions can filter transcripts for gene and transcript biotypes, only keep standard chromosomes (so no scaffolds and haplotypes), and extract the filtered transcripts from the transcriptome. GTF files from Ensembl, Ensembl fasta files, GFF3 files from Ensembl and RefSeq, TxDb, and EnsDb can all be used here. 
+So now the focus of `BUSpaRse` has shifted to finer control of the transcripts that go into the transcriptome and more options. Now all `tr2g_*` functions (except `tr2g_ensembl`) can filter transcripts for gene and transcript biotypes, only keep standard chromosomes (so no scaffolds and haplotypes), and extract the filtered transcripts from the transcriptome. GTF files from Ensembl, Ensembl fasta files, GFF3 files from Ensembl and RefSeq, TxDb, and EnsDb can all be used here. 
 ```{r setup}
 library(BUSpaRse)
 library(TENxBUSData)
@@ -104,7 +104,7 @@ tr2g_tg <- tr2g_gtf(toy_gtf, Genome = BSgenome.Hsapiens.UCSC.hg38,
 head(tr2g_tg)
 ```
 
-A new GTF or GFF3 file after filtering biotypes and chromosomes is also written, and this can be turned off by setting `save_filtered_gtf = FALSE` or `save_filtered_gff = FALSE`. 
+A new GTF or GFF3 file after filtering biotypes and chromosomes is also written, and this can be turned off by setting `save_filtered_gtf = FALSE` or `save_filtered_gff = FALSE`. The transcriptome, with biotypes filtered and only standard chromosomes, is in `transcriptome.fa`. Use `compress_fa = TRUE` to gzip it. 
 ```{r}
 list.files("gtf")
 ```
@@ -131,4 +131,3 @@ There used to be sections about `sort_tr2g` and `save_tr2g_bustools`, but these 
 ```{r}
 sessionInfo()
 ```
-

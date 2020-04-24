@@ -15,7 +15,7 @@ A file mapping transcripts to genes is required to convert the `bus` file to a g
 This package can also generate the files required for running RNA velocity with `kallisto` and `bustools`, including a fasta file with not only the transcriptome but also appropriately flanked intronic sequences, lists of transcripts and introns to be captured, and a file mapping transcripts and introns to genes. For spliced transcripts, you may either use the cDNA sequences, or exon-exon junctions, for pseudoalignment. Using exon-exon junctions should more unambiguously distinguish between spliced and unspliced transcripts, since unspliced transcripts also have exonic sequences. 
 
 ## Example
-See [the vignettes](https://bustools.github.io/BUS_notebooks_R/index.html) for examples of using `kallisto bus`, `bustools`, and `BUSpaRse` on real data. The vignettes contain a complete walk-through, starting with downloading the FASTQ files for an experiment and ending with an analysis. Google Colab version of those vignettes can be found [here](https://www.kallistobus.tools/tutorials).
+See [the vignettes](https://bustools.github.io/BUS_notebooks_R/index.html) for examples of using `kallisto bus`, `bustools`, and `BUSpaRse` on real data. The vignettes contain a complete walk-through, starting with downloading the FASTQ files for an experiment and ending with an analysis. Google Colab version of those vignettes can be found [here](https://www.kallistobus.tools/tutorials). Also see `browseVignettes("BUSpaRse")` for vignettes for using `BUSpaRse` to get gene count matrix and for extracting filtered transcriptomes with `tr2g_*` functions.
 
 ## Installation
 
