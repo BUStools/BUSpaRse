@@ -39,7 +39,7 @@ TENxBUSData(".", dataset = "hgmm100")
 First, we map transcripts, as in the `kallisto` index, to the corresponding genes. 
 ```{r}
 tr2g <- transcript2gene(species = c("Homo sapiens", "Mus musculus"), type = "vertebrate",
-                        kallisto_out_path = "~/TENxBUSData/out_hgmm100", ensembl_version = 99,
+                        kallisto_out_path = "./out_hgmm100", ensembl_version = 99,
                         write_tr2g = FALSE)
 ```
 
