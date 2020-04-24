@@ -1,8 +1,8 @@
 Package: BUSpaRse
 Type: Package
 Title: kallisto | bustools R utilities
-Version: 1.1.3
-Date: 2020-04-22
+Version: 1.1.4
+Date: 2020-04-23
 Authors@R: 
     c(person("Lambda", "Moses", email = "dlu2@caltech.edu", 
     role = c("aut", "cre"),
@@ -22,7 +22,9 @@ Description:
     source code of this package to experiment with new uses of BUS format and
     different ways to convert the BUS file into gene count matrix. Second, this 
     package can conveniently generate files required to generate gene count 
-    matrices for spliced and unspliced transcripts for RNA velocity. Third, 
+    matrices for spliced and unspliced transcripts for RNA velocity. Here 
+    biotypes can be filtered and scaffolds and haplotypes can be removed, and
+    the filtered transcriptome can be extracted and written to disk. Third, 
     this package implements utility functions to get transcripts and associated 
     genes required to convert BUS files to gene count matrices, to write the
     transcript to gene information in the format required by bustools, and to

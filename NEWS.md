@@ -1,3 +1,10 @@
+# BUSpaRse 1.1.4 (2020-04-23)
+* Now `tr2g_*` functions can also extract transcriptomes.
+* By default, `tr2g_*` functions write the `tr2g.tsv` to disk.
+* Write filtered GTF and GFF3 files.
+* List of available gene and transcript biotypes from Ensembl can be queried by `data()`.
+* RefSeq GFF3 annotations can now be used in `tr2g_gff3`.
+
 # BUSpaRse 1.1.3 (2020-04-06)
 * Allow filtering gene and transcript biotypes in tr2g and get_velocity_files
 * Allow removing scaffolds and haplotypes from genome annotations for tr2g
