@@ -23,7 +23,6 @@ Originally, this package was written when the `kallisto | bustools` concept was 
 So now the focus of `BUSpaRse` has shifted to finer control of the transcripts that go into the transcriptome and more options. Now all `tr2g_*` functions (except `tr2g_ensembl`) can filter transcripts for gene and transcript biotypes, only keep standard chromosomes (so no scaffolds and haplotypes), and extract the filtered transcripts from the transcriptome. GTF files from Ensembl, Ensembl fasta files, GFF3 files from Ensembl and RefSeq, TxDb, and EnsDb can all be used here. 
 ```{r setup}
 library(BUSpaRse)
-library(TENxBUSData)
 library(BSgenome.Hsapiens.UCSC.hg38)
 library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 library(EnsDb.Hsapiens.v86)

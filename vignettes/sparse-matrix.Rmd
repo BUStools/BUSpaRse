@@ -24,7 +24,8 @@ In this vignette, we convert an 10x 1:1 mouse and human cell mixture dataset fro
 ## Download the dataset
 ```{r, message=FALSE}
 # The dataset package
-library(TENxBUSData)
+# Updated data for Ensembl 99 temporarily unavailable from TENxBUSData
+#library(TENxBUSData)
 library(BUSpaRse)
 library(Matrix)
 library(zeallot)
@@ -32,7 +33,12 @@ library(ggplot2)
 ```
 
 ```{r}
-TENxBUSData(".", dataset = "hgmm100")
+#TENxBUSData(".", dataset = "hgmm100")
+if (!dir.exists("out_hgmm100")) {
+   download.file("https://caltech.box.com/public/static/9pze7j8r58609231tqhw9dtgwy21qx2j",
+                  destfile = "hgmm100.tar.gz")
+   untar("hgmm100.tar.gz")
+ }
 ```
 
 ## Convert to sparse matrix
