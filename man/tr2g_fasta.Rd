@@ -59,7 +59,8 @@ Note that gene biotypes and transcript biotypes are not always the same.}
 
 \item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
 GFF files can contain annotations for scaffolds, which are not incorporated
-into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
+into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.
+Only applicable to species found in \code{genomeStyles()}.}
 
 \item{save_filtered}{If filtering for biotype and chromosomes, whether to
 save the filtered fasta file. If \code{TRUE}, the file will be \code{tx_filtered.fa} in

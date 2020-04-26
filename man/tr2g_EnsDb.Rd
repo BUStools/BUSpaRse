@@ -86,7 +86,8 @@ Note that gene biotypes and transcript biotypes are not always the same.}
 
 \item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
 GFF files can contain annotations for scaffolds, which are not incorporated
-into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
+into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.
+Only applicable to species found in \code{genomeStyles()}.}
 
 \item{compress_fa}{Logical, whether to compress the output fasta file. If
 \code{TRUE}, then the fasta file will be gzipped.}
@@ -110,8 +111,9 @@ on \code{AnnotationHub}.
 }
 \examples{
 library(EnsDb.Hsapiens.v86)
-tr2g_EnsDb(EnsDb.Hsapiens.v86, use_transcript_version = FALSE,
-  use_gene_version = FALSE)
+tr2g_EnsDb(EnsDb.Hsapiens.v86, get_transcriptome = FALSE, write_tr2g = FALSE,
+ use_transcript_version = FALSE,
+ use_gene_version = FALSE)
 }
 \seealso{
 ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes

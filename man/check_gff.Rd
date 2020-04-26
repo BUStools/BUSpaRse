@@ -10,8 +10,8 @@ check_gff(format, file, transcript_id, gene_id)
 \item{format}{Whether it's gtf or gff3.}
 
 \item{file}{Path to a GTF file to be read. The file can remain gzipped. Use
-\code{\link{getGTF}} from the \code{biomartr} package to download GTF files
-from Ensembl, and use \code{\link{getGFF}} from \code{biomartr} to download
+\code{getGTF} from the \code{biomartr} package to download GTF files
+from Ensembl, and use \code{getGFF} from \code{biomartr} to download
 GFF3 files from Ensembl and RefSeq.}
 
 \item{transcript_id}{Character vector of length 1. Tag in \code{attribute}

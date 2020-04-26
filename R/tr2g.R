@@ -160,7 +160,7 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
   }
   if (transcript_biotype_use != "all") {
     tbt_use <- which_biotypes(transcript_biotype_use, 
-                              df[[transcript_biotype_col]])
+                              out[[transcript_biotype_col]])
     out <- out[out[[transcript_biotype_col]] %in% tbt_use,]
   }
   if (chrs_only) {
@@ -254,7 +254,7 @@ filter_biotype_gff3 <- function(gr, transcript_id, gene_id, transcript_biotype_c
       return(list(gr_tx = grt, gr_g = grg))
     } else {
       genes <- paste("gene", genes_use, sep = sep)
-      return(list(gr_tx = grt[gtr$Parent %in% genes], gr_g = grg))
+      return(list(gr_tx = grt[grt$Parent %in% genes], gr_g = grg))
     }
   }
 }
@@ -340,11 +340,12 @@ check_genome_present <- function(Genome, get_transcriptome) {
 #' Note that gene biotypes and transcript biotypes are not always the same.
 #' @param chrs_only Logical, whether to include chromosomes only, for GTF and
 #' GFF files can contain annotations for scaffolds, which are not incorporated
-#' into chromosomes. This will also exclude haplotypes. Defaults to `TRUE`.
+#' into chromosomes. This will also exclude haplotypes. Defaults to `TRUE`. 
+#' Only applicable to species found in `genomeStyles()`.
 #' @param compress_fa Logical, whether to compress the output fasta file. If 
 #' `TRUE`, then the fasta file will be gzipped.
 #' @param save_filtered_gtf Logical. If filtering type, biotypes, and/or 
-#' chromosomes, whether to save the filtered `GRanges` as a GTF/GFF3 file.
+#' chromosomes, whether to save the filtered `GRanges` as a GTF file.
 #' @param overwrite Logical, whether to overwrite if files with names of outputs
 #' written to disk already exist.
 #' @return A data frame at least 2 columns: \code{gene} for gene ID,
@@ -477,8 +478,8 @@ tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
 #' further clean up the output of this function.
 #'
 #' @param file Path to a GTF file to be read. The file can remain gzipped. Use
-#' \code{\link{getGTF}} from the \code{biomartr} package to download GTF files
-#' from Ensembl, and use \code{\link{getGFF}} from \code{biomartr} to download
+#' \code{getGTF} from the \code{biomartr} package to download GTF files
+#' from Ensembl, and use \code{getGFF} from \code{biomartr} to download
 #' GFF3 files from Ensembl and RefSeq.
 #' @inheritParams tr2g_GRanges
 #' @inheritParams tr2g_ensembl
@@ -564,6 +565,8 @@ tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
 #' @inheritParams tr2g_gtf
 #' @param source Name of the database where this GFF3 file was downloaded. Must
 #' be either "ensembl" or "refseq".
+#' @param save_filtered_gff Logical. If filtering type, biotypes, and/or 
+#' chromosomes, whether to save the filtered `GRanges` as a GFF3 file.
 #' @return A data frame at least 2 columns: \code{gene} for gene ID,
 #' \code{transcript} for transcript ID, and optionally, \code{gene_name} for
 #' gene names.
@@ -583,10 +586,12 @@ tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' file_use <- paste(toy_path, "gff3_test.gff3", sep = "/")
 #' # Default
-#' tr2g <- tr2g_gff3(file = file_use, write_tr2g = FALSE)
+#' tr2g <- tr2g_gff3(file = file_use, write_tr2g = FALSE, 
+#' get_transcriptome = FALSE, save_filtered_gff = FALSE)
 #' # Excluding version numbers
 #' tr2g <- tr2g_gff3(file = file_use, transcript_version = NULL,
-#'   gene_version = NULL, write_tr2g = FALSE)
+#'   gene_version = NULL, write_tr2g = FALSE, get_transcriptome = FALSE,
+#'   save_filtered_gff = FALSE)
 tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
                       out_path = ".", write_tr2g = TRUE, 
                       transcript_id = "transcript_id",
@@ -609,6 +614,7 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
   gr <- read_gff3(file)
   if (source == "refseq") {
     # refseq has its own seqnames; use chromosome column instead
+    chr <- sn <- NULL
     sn2chr <- tibble(sn = as.vector(seqnames(gr)), chr = gr$chromosome) %>% 
       dplyr::filter(!is.na(chr)) %>% 
       distinct() %>% 
@@ -652,7 +658,7 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
       gr$Parent <- unlist(gr$Parent)
     }
   }
-  
+  gr_tx <- gr_g <- NULL
   c(gr_tx, gr_g) %<-% filter_biotype_gff3(gr, transcript_id, gene_id, 
                                           transcript_biotype_col, 
                                           gene_biotype_col, transcript_biotype_use, 
@@ -991,8 +997,9 @@ tr2g_TxDb <- function(txdb, Genome = NULL, get_transcriptome = TRUE,
 #' @seealso ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes
 #' @examples
 #' library(EnsDb.Hsapiens.v86)
-#' tr2g_EnsDb(EnsDb.Hsapiens.v86, use_transcript_version = FALSE,
-#'   use_gene_version = FALSE)
+#' tr2g_EnsDb(EnsDb.Hsapiens.v86, get_transcriptome = FALSE, write_tr2g = FALSE,
+#'  use_transcript_version = FALSE,
+#'  use_gene_version = FALSE)
 tr2g_EnsDb <- function(ensdb, Genome = NULL, get_transcriptome = TRUE, 
                        out_path = ".", write_tr2g = TRUE,
                        other_attrs = NULL, use_gene_name = TRUE,
@@ -1133,7 +1140,7 @@ tr2g_EnsDb <- function(ensdb, Genome = NULL, get_transcriptome = TRUE,
 #' tr2g <- tr2g_gtf(file = file_use, get_transcriptome = FALSE,
 #'   write_tr2g = FALSE, save_filtered_gtf = FALSE, transcript_version = NULL)
 #' tr2g <- sort_tr2g(tr2g, kallisto_out_path = toy_path)
-sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
+sort_tr2g <- function(tr2g, file, kallisto_out_path) {
   if (!xor(missing(tr2g), missing(file))) {
     stop("Exactly one of tr2g and file should be missing.")
   }
@@ -1149,9 +1156,6 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path, verbose = TRUE) {
   }
   trs <- read.table(trs_path, header = FALSE, col.names = "transcript",
                     stringsAsFactors = FALSE)
-  if (verbose) {
-    message("Sorting transcripts")
-  }
   out <- merge(trs, tr2g, by = "transcript", sort = FALSE)
   if (nrow(trs) != nrow(out)) {
     stop("Some transcripts in the kallisto index are absent from tr2g.")
@@ -1222,7 +1226,6 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv") {
 #' used to build the kallisto index. Exactly one of \code{species} and
 #' \code{fasta_file} can be missing.
 #' @param kallisto_out_path Path to the \code{kallisto bus} output directory.
-#' @param verbose Whether to display progress. Defaults to \code{TRUE}.
 #' @return A data frame with two columns: \code{gene} and \code{transcript},
 #' with Ensembl gene and transcript IDs (with version number), in the same order
 #' as in the transcriptome index used in \code{kallisto}.
@@ -1252,8 +1255,7 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv") {
 #'   type = "vertebrate",
 #'   ensembl_version = 99, kallisto_out_path = "./out_hgmm100")
 transcript2gene <- function(species, fasta_file, kallisto_out_path,
-                            type = "vertebrate",
-                            verbose = TRUE, ...) {
+                            type = "vertebrate", ...) {
   if (!xor(missing(species), missing(fasta_file))) {
     stop("Exactly one of species and fasta_file can be missing.")
   }
@@ -1267,17 +1269,15 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
     kallisto_out_path <- normalizePath(kallisto_out_path, mustWork = TRUE)
     MoreArgs <- list(...)
     fls <- mapply(tr2g_ensembl, species, type,
-      verbose = verbose,
       MoreArgs = MoreArgs,
       SIMPLIFY = FALSE)
     tr2g <- bind_rows(fls)
-    return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path, verbose = verbose))
+    return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path))
   } else {
-    fls <- lapply(fasta_file, tr2g_fasta, verbose = verbose, ...)
+    fls <- lapply(fasta_file, tr2g_fasta, ...)
     tr2g <- bind_rows(fls)
     # Just to be safe, to make sure that the transcripts are in the right order
-    return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path,
-      verbose = verbose))
+    return(sort_tr2g(tr2g, kallisto_out_path = kallisto_out_path))
   }
 }
 
@@ -1304,6 +1304,7 @@ transcript2gene <- function(species, fasta_file, kallisto_out_path,
 #' @inheritParams transcript2gene
 #' @param tr2g A Data frame with columns \code{gene} and \code{transcript}, in
 #' the same order as in the transcriptome index for \code{kallisto}.
+#' @param verbose Logical, whether to display progress.
 #' @return A data frame with 3 columns:
 #' \describe{
 #' \item{EC_ind}{Index of the EC as appearing in the `matrix.ec` file.}

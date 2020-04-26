@@ -9,7 +9,6 @@ transcript2gene(
   fasta_file,
   kallisto_out_path,
   type = "vertebrate",
-  verbose = TRUE,
   ...
 )
 }
@@ -27,8 +26,6 @@ used to build the kallisto index. Exactly one of \code{species} and
 element must be one of "vertebrate", "metazoa", "plant", "fungus", and
 "protist". If length is 1, then this type will be used for all species specified
 here. Can be missing if \code{fasta_file} is specified.}
-
-\item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
 
 \item{\dots}{Other arguments passed to \code{tr2g_ensembl} such as \code{other_attrs},
 \code{ensembl_version}, and arguments passed to \code{\link{useEnsembl}}. If

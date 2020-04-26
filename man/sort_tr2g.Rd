@@ -4,7 +4,7 @@
 \alias{sort_tr2g}
 \title{Sort transcripts to the same order as in kallisto index}
 \usage{
-sort_tr2g(tr2g, file, kallisto_out_path, verbose = TRUE)
+sort_tr2g(tr2g, file, kallisto_out_path)
 }
 \arguments{
 \item{tr2g}{The data frame output from the \code{tr2g_*} family of functions.}

@@ -26,7 +26,7 @@ function can extract all the genome annotation information and return a
 data frame or a \code{GRanges} object.
 }
 \examples{
-fn <- system.file("testdata/fasta_test.fasta, package = "BUSpaRse)
+fn <- system.file("testdata/fasta_test.fasta", package = "BUSpaRse")
 annots_from_fa_df(fn)
 annots_from_fa_GRanges(fn)
 

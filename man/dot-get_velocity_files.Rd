@@ -154,10 +154,11 @@ Note that gene biotypes and transcript biotypes are not always the same.}
 
 \item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
 GFF files can contain annotations for scaffolds, which are not incorporated
-into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
+into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.
+Only applicable to species found in \code{genomeStyles()}.}
 
 \item{save_filtered_gtf}{Logical. If filtering type, biotypes, and/or
-chromosomes, whether to save the filtered \code{GRanges} as a GTF/GFF3 file.}
+chromosomes, whether to save the filtered \code{GRanges} as a GTF file.}
 
 \item{compress_fa}{Logical, whether to compress the output fasta file. If
 \code{TRUE}, then the fasta file will be gzipped.}

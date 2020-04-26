@@ -5,8 +5,9 @@
 #' counts, with number 1 for the barcode with the most counts.
 #' @export
 #' @importFrom dplyr row_number desc arrange
-#' 
+#' @importFrom Matrix colSums
 get_knee_df <- function(mat) {
+  total <- rank <- NULL
   tibble(total = Matrix::colSums(mat),
          rank = row_number(desc(total))) %>%
     distinct() %>%
@@ -26,6 +27,7 @@ get_knee_df <- function(mat) {
 #' @importFrom dplyr transmute
 #' 
 get_inflection <- function(df, lower = 100) {
+  log_total <- log_rank <- total <-  NULL
   df_fit <- df %>% 
     dplyr::filter(total > lower) %>% 
     transmute(log_total = log10(total),
@@ -52,7 +54,7 @@ get_inflection <- function(df, lower = 100) {
 #' #library(TENxBUSData)
 #' #TENxBUSData(".", dataset = "hgmm100")
 #' if (!dir.exists("out_hgmm100")) {
-#'   download.file("https://caltech.box.com/public/static/9pze7j8r58609231tqhw9dtgwy21qx2j",
+#'   utils::download.file("https://caltech.box.com/public/static/9pze7j8r58609231tqhw9dtgwy21qx2j",
 #'   destfile = "hgmm100.tar.gz")
 #'   untar("hgmm100.tar.gz")
 #' }
@@ -61,11 +63,12 @@ get_inflection <- function(df, lower = 100) {
 #'   ensembl_version = 99, kallisto_out_path = "./out_hgmm100")
 #' m <- make_sparse_matrix("./out_hgmm100/output.sorted.txt",
 #'   tr2g = tr2g, est_ncells = 1e5,
-#'   est_ngenes = nrow(tr2g))
+#'   est_ngenes = nrow(tr2g), TCC = FALSE)
 #' df <- get_knee_df(m)
 #' infl <- get_inflection(df)
 #' knee_plot(df, infl)
 knee_plot <- function(df, inflection) {
+  total <- rank_cutoff <- NULL
   annot <- tibble(inflection = inflection,
                   rank_cutoff = max(df$rank[df$total > inflection]))
   ggplot(df, aes(total, rank)) +

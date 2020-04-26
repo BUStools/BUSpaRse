@@ -121,18 +121,23 @@ test_that("Extract transcript and gene ID from GFF3 file", {
 
   # Test error messages
   # transcript_id or gene_id is wrong
-  expect_error(tr2g_gff3(fn, transcript_id = "foo"), "Tags foo are absent")
-  expect_error(tr2g_gff3(fn, gene_id = "bar"), "Tags bar are absent")
+  expect_error(tr2g_gff3(fn, transcript_id = "foo", get_transcriptome = FALSE), 
+               "Tags foo are absent")
+  expect_error(tr2g_gff3(fn, gene_id = "bar", get_transcriptome = FALSE), 
+               "Tags bar are absent")
   # transcript_id or gene_id is NULL
-  expect_error(tr2g_gff3(fn, transcript_id = NULL), "transcript_id cannot be NULL.")
-  expect_error(tr2g_gff3(fn, gene_id = NULL), "gene_id cannot be NULL.")
+  expect_error(tr2g_gff3(fn, transcript_id = NULL, get_transcriptome = FALSE), 
+               "transcript_id cannot be NULL.")
+  expect_error(tr2g_gff3(fn, gene_id = NULL, get_transcriptome = FALSE), 
+               "gene_id cannot be NULL.")
   # gene_name, gene_version, or transcript_version is wrong
   expect_warning(tr2g_gff3(fn, get_transcriptome = FALSE, save_filtered_gff = FALSE,
                            gene_name = "foo", gene_version = "bar",
-                           write_tr2g = FALSE,),
+                           write_tr2g = FALSE),
     "Tags foo, bar are absent")
   # Error when input file is not a gff3 file
-  expect_error(tr2g_gff3(paste(toy_path, "fasta_test.fasta", sep = "/")),
+  expect_error(tr2g_gff3(paste(toy_path, "fasta_test.fasta", sep = "/"),
+                         get_transcriptome = FALSE),
     "file must be a GFF3 file.")
   rm(list = c("fn", "tr2g_no_vn", "tr2g_no_gn"))
 })
@@ -187,7 +192,7 @@ test_that("Correct sorting of transcripts", {
   tr2g <- tr2g_gtf(file = file_use, save_filtered_gtf = FALSE, 
                    get_transcriptome = FALSE, write_tr2g = FALSE,
                    transcript_version = NULL, gene_version = NULL)
-  s <- sort_tr2g(tr2g, kallisto_out_path = toy_path, verbose = FALSE)
+  s <- sort_tr2g(tr2g, kallisto_out_path = toy_path)
   tx <- readLines(paste(toy_path, "transcripts.txt", sep = "/"))
   expect_equal(s$transcript, tx)
   rm(list = c("tr2g", "s", "tx"))

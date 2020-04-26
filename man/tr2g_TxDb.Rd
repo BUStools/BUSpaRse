@@ -39,7 +39,8 @@ a file \code{tr2g.tsv} will be written into \code{out_path}.}
 
 \item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
 GFF files can contain annotations for scaffolds, which are not incorporated
-into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
+into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.
+Only applicable to species found in \code{genomeStyles()}.}
 
 \item{compress_fa}{Logical, whether to compress the output fasta file. If
 \code{TRUE}, then the fasta file will be gzipped.}

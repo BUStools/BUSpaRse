@@ -29,8 +29,8 @@ tr2g_gff3(
 }
 \arguments{
 \item{file}{Path to a GTF file to be read. The file can remain gzipped. Use
-\code{\link{getGTF}} from the \code{biomartr} package to download GTF files
-from Ensembl, and use \code{\link{getGFF}} from \code{biomartr} to download
+\code{getGTF} from the \code{biomartr} package to download GTF files
+from Ensembl, and use \code{getGFF} from \code{biomartr} to download
 GFF3 files from Ensembl and RefSeq.}
 
 \item{Genome}{Either a \code{\link{BSgenome}} or a \code{\link{XStringSet}}
@@ -112,10 +112,14 @@ Note that gene biotypes and transcript biotypes are not always the same.}
 
 \item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
 GFF files can contain annotations for scaffolds, which are not incorporated
-into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
+into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.
+Only applicable to species found in \code{genomeStyles()}.}
 
 \item{compress_fa}{Logical, whether to compress the output fasta file. If
 \code{TRUE}, then the fasta file will be gzipped.}
+
+\item{save_filtered_gff}{Logical. If filtering type, biotypes, and/or
+chromosomes, whether to save the filtered \code{GRanges} as a GFF3 file.}
 
 \item{overwrite}{Logical, whether to overwrite if files with names of outputs
 written to disk already exist.}
@@ -167,10 +171,12 @@ tags for Ensembl and RefSeq GFF3 files, see \code{data("ensembl_gff_mcols")} and
 toy_path <- system.file("testdata", package = "BUSpaRse")
 file_use <- paste(toy_path, "gff3_test.gff3", sep = "/")
 # Default
-tr2g <- tr2g_gff3(file = file_use, write_tr2g = FALSE)
+tr2g <- tr2g_gff3(file = file_use, write_tr2g = FALSE, 
+get_transcriptome = FALSE, save_filtered_gff = FALSE)
 # Excluding version numbers
 tr2g <- tr2g_gff3(file = file_use, transcript_version = NULL,
-  gene_version = NULL, write_tr2g = FALSE)
+  gene_version = NULL, write_tr2g = FALSE, get_transcriptome = FALSE,
+  save_filtered_gff = FALSE)
 }
 \seealso{
 ensembl_gene_biotypes ensembl_tx_biotypes cellranger_biotypes

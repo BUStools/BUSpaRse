@@ -21,8 +21,9 @@
 #' }
 #' @export
 #' @importFrom biomaRt searchDatasets listMarts
+#' @importFrom utils download.file
 #' @examples 
-#' dl_transcriptome("Felis catus", gene_biotype_use = "cellranger")
+#' dl_transcriptome("Drosophila melanogaster", gene_biotype_use = "cellranger")
 dl_transcriptome <- function(species, out_path = ".",
                              type = c("vertebrate", "metazoa", "plant",
                                       "fungus", "protist"),
@@ -39,6 +40,11 @@ dl_transcriptome <- function(species, out_path = ".",
   }
   if (!is.null(ensembl_version) && !is.numeric(ensembl_version)) {
     stop("ensembl_version must be integer.")
+  }
+  styles <- try(genomeStyles(species))
+  if (is(styles, "try-error")) {
+    warning("All seqnames are used.")
+    chrs_only <- FALSE
   }
   # Get current ensembl version
   ds_name <- species2dataset(species, type)

@@ -43,8 +43,7 @@ get_velocity_files(
   transcript_biotype_use = "all",
   gene_biotype_use = "all",
   chrs_only = TRUE,
-  save_filtered = FALSE,
-  gtf_file = "./gtf_filtered.gtf"
+  save_filtered_gtf = FALSE
 )
 
 \S4method{get_velocity_files}{character}(
@@ -249,15 +248,16 @@ Note that gene biotypes and transcript biotypes are not always the same.}
 
 \item{chrs_only}{Logical, whether to include chromosomes only, for GTF and
 GFF files can contain annotations for scaffolds, which are not incorporated
-into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.}
+into chromosomes. This will also exclude haplotypes. Defaults to \code{TRUE}.
+Only applicable to species found in \code{genomeStyles()}.}
+
+\item{save_filtered_gtf}{Logical. If filtering type, biotypes, and/or
+chromosomes, whether to save the filtered \code{GRanges} as a GTF file.}
 
 \item{is_circular}{Logical vector of the same length as the number of
 sequences in the annotation and with the same names as the sequences,
 indicating whether the sequence is circular. If \code{NULL}, then all sequences
 will be assumed to be linear.}
-
-\item{save_filtered_gtf}{Logical. If filtering type, biotypes, and/or
-chromosomes, whether to save the filtered \code{GRanges} as a GTF/GFF3 file.}
 
 \item{use_transcript_version}{Logical, whether to include version number in
 the Ensembl transcript ID.}

@@ -12,7 +12,7 @@ the same order as in the transcriptome index for \code{kallisto}.}
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
-\item{verbose}{Whether to display progress. Defaults to \code{TRUE}.}
+\item{verbose}{Logical, whether to display progress.}
 }
 \value{
 A data frame with 3 columns:

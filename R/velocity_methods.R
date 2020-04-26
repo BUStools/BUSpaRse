@@ -248,8 +248,7 @@ setMethod("get_velocity_files", "GRanges",
            gene_biotype_col = "gene_biotype", 
            transcript_biotype_use = "all",
            gene_biotype_use = "all", 
-           chrs_only = TRUE, save_filtered = FALSE,
-           gtf_file = "./gtf_filtered.gtf") {
+           chrs_only = TRUE, save_filtered_gtf = FALSE) {
     .get_velocity_files(X, L, Genome, Transcriptome = Transcriptome,
                         out_path = out_path, style = style,
                         isoform_action = isoform_action,
