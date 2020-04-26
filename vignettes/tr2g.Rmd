@@ -33,29 +33,29 @@ The transcriptome can be downloaded from a specified version of Ensembl and filt
 
 Wonder which biotypes are available? The lists of all gene and transcript biotypes from Ensembl are now provided in this package, and can be queried by `data("ensembl_gene_biotypes")` and `data("ensembl_tx_biotypes")`.
 
-For human
+Resources for common invertebrate model organisms such as _Drosophila melanogaster_ and _C. elegans_ are actually available on the vertebrate site (www.ensembl.org).
 ```{r}
-# For human
-dl_transcriptome("Homo sapiens", out_path = "human", 
+# For Drosophila
+dl_transcriptome("Drosophila melanogaster", out_path = "fly", 
                  gene_biotype_use = "cellranger", verbose = FALSE)
-list.files("human")
+list.files("fly")
 ```
 
 The first file is the original fasta file. The second is the `tr2g` file without column names. The third is the filtered fasta file.
 
-For mouse, from an archived version of Ensembl
+For _C. elegans_, from an archived version of Ensembl
 ```{r}
-dl_transcriptome("Mus musculus", out_path = "mouse", verbose = FALSE,
+dl_transcriptome("Caenorhabditis elegans", out_path = "worm", verbose = FALSE,
                  gene_biotype_use = "cellranger", ensembl_version = 97)
-list.files("mouse")
+list.files("worm")
 ```
 
-For _Arabidopsis thaliana_. Note that the versioning of Ensembl for the plants, fungi, and etc. sites, that are actually www.ensemblgenomes.org, is different from that of the vertebrate site. 
+For _Saccharomyces cerevisiae_. Note that the versioning of Ensembl for the plants, fungi, and etc. sites, that are actually www.ensemblgenomes.org, is different from that of the vertebrate site. 
 ```{r}
-dl_transcriptome("Arabidopsis thaliana", out_path = "arabidopsis", 
-                 type = "plant", gene_biotype_use = "cellranger", 
+dl_transcriptome("Saccharomyces cerevisiae", out_path = "yeast", 
+                 type = "fungus", gene_biotype_use = "cellranger", 
                  verbose = FALSE)
-list.files("arabidopsis")
+list.files("yeast")
 ```
 
 # Obtaining transcript to gene information
