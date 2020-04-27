@@ -60,13 +60,8 @@ the same order.
 }
 \examples{
 # Download dataset already in BUS format
-#library(TENxBUSData)
-#TENxBUSData(".", dataset = "hgmm100")
-if (!dir.exists("out_hgmm100")) {
-  download.file("https://caltech.box.com/public/static/9pze7j8r58609231tqhw9dtgwy21qx2j",
-  destfile = "hgmm100.tar.gz")
-  untar("hgmm100.tar.gz")
-}
+library(TENxBUSData)
+TENxBUSData(".", dataset = "hgmm100")
 tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), 
   type = "vertebrate",
   ensembl_version = 99, kallisto_out_path = "./out_hgmm100")
