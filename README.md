@@ -1,5 +1,4 @@
 <!-- badges: start -->
-[![Travis build status](https://travis-ci.com/BUStools/BUSpaRse.svg?branch=master)](https://travis-ci.com/BUStools/BUSpaRse)
 [![BioC status](http://www.bioconductor.org/shields/build/devel/bioc/BUSpaRse.svg)](https://bioconductor.org/checkResults/devel/bioc-LATEST/BUSpaRse)
 [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 <!-- badges: end -->
