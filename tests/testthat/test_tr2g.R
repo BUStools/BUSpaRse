@@ -162,7 +162,7 @@ test_that("Extract transcript and gene ID from FASTA file", {
                                    save_filtered = FALSE))
   expect_match(m, "Version is not applicable.*", all = FALSE)
   tr2g_dm <- read.csv(paste(toy_path, "fa_tr2g_dm.csv", sep = "/"),
-    header = TRUE, stringsAsFactors = FALSE)
+    header = TRUE, stringsAsFactors = FALSE) %>% as_tibble()
   expect_equal(tr2g_fasta(fn_dm, use_transcript_version = TRUE, 
                           write_tr2g = FALSE, save_filtered = FALSE), tr2g_dm)
   expect_equal(tr2g_fasta(fn_dm, use_transcript_version = FALSE, 
