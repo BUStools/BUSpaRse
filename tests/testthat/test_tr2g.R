@@ -2,20 +2,21 @@ context("Test function to convert transcript to gene")
 library(testthat)
 library(dplyr)
 library(stringr)
+library(tibble)
 
 # Load toy example for testing
 toy_path <- system.file("testdata", package = "BUSpaRse")
 load(paste(toy_path, "toy_example.RData", sep = "/"))
 tr2g_expected <- read.csv(paste(toy_path, "tr2g_expected.csv", sep = "/"),
-  header = TRUE, stringsAsFactors = FALSE)
+  header = TRUE, stringsAsFactors = FALSE) %>% as_tibble()
 tr2g_expected_version <- read.csv(paste(toy_path, "tr2g_expected_version.csv", sep = "/"),
-  header = TRUE, stringsAsFactors = FALSE)
+  header = TRUE, stringsAsFactors = FALSE) %>% as_tibble()
 fa_tr2g_expected <- read.csv(paste(toy_path, "fa_tr2g_expected.csv", sep = "/"),
-  header = TRUE, stringsAsFactors = FALSE)
+  header = TRUE, stringsAsFactors = FALSE) %>% as_tibble()
 fa_tr2g_no_version <- read.csv(paste(toy_path, "fa_tr2g_no_version.csv", sep = "/"),
-  header = TRUE, stringsAsFactors = FALSE)
+  header = TRUE, stringsAsFactors = FALSE) %>% as_tibble()
 fa_tr2g_dm <- read.csv(paste(toy_path, "fa_tr2g_dm.csv", sep = "/"),
-  header = TRUE, stringsAsFactors = FALSE)
+  header = TRUE, stringsAsFactors = FALSE) %>% as_tibble()
 
 test_that("Correct data set name for biomart", {
   error_use <- "Please use the Latin binomial convention"
@@ -30,13 +31,13 @@ test_that("Correct data set name for biomart", {
 
 test_that("Sensible results from biomart query", {
   tr2g <- tr2g_ensembl(species = "Felis catus",
-    use_gene_version = FALSE, use_transcript_version = TRUE)
+    use_gene_version = FALSE, use_transcript_version = TRUE, chrs_only = FALSE)
   expect_equal(names(tr2g), c("transcript", "gene", "gene_name"))
   expect_gt(nrow(tr2g), 1)
   # Specify version of Ensembl
   tr2g <- tr2g_ensembl(species = "Felis catus",
     use_gene_version = FALSE, use_transcript_version = TRUE,
-    ensembl_version = 94)
+    ensembl_version = 94, chrs_only = FALSE)
   expect_equal(names(tr2g), c("transcript", "gene", "gene_name"))
   expect_gt(nrow(tr2g), 1)
   # version numbers

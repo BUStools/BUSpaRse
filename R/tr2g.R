@@ -399,9 +399,8 @@ tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
     gr <- sort(gr)
   }
   # Prepare output
-  out <- data.frame(transcript = mcols(gr)[[transcript_id]],
-                    gene = mcols(gr)[[gene_id]],
-                    stringsAsFactors = FALSE)
+  out <- tibble(transcript = mcols(gr)[[transcript_id]],
+                gene = mcols(gr)[[gene_id]])
   if (!is.null(gene_name) && gene_name %in% tags) {
     out$gene_name <- mcols(gr)[[gene_name]]
   }
@@ -665,9 +664,8 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
                                           gene_biotype_use, source)
   # Get transcript ID
   genes <- str_split(gr_tx$Parent, ":|-", simplify = TRUE)[, 2]
-  out <- data.frame(transcript = mcols(gr_tx)[[transcript_id]],
-                    gene = genes,
-                    stringsAsFactors = FALSE)
+  out <- tibble(transcript = mcols(gr_tx)[[transcript_id]],
+                gene = genes)
   if (!is.null(transcript_version) && transcript_version %in% tags) {
     tv <- mcols(gr_tx)[[transcript_version]]
     out$transcript_version <- paste(out$transcript, tv, sep = version_sep)
@@ -676,8 +674,7 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
   get_gene_name <- !is.null(gene_name) && gene_name %in% tags
   get_gene_version <- !is.null(gene_version) && gene_version %in% tags
   if (get_gene_name || get_gene_version) {
-    gs <- data.frame(gene = mcols(gr_g)[[gene_id]],
-                     stringsAsFactors = FALSE)
+    gs <- tibble(gene = mcols(gr_g)[[gene_id]])
     if (get_gene_name) {
       gs$gene_name <- mcols(gr_g)[[gene_name]]
     }
