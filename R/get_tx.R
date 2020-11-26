@@ -67,8 +67,12 @@ dl_transcriptome <- function(species, out_path = ".",
     ensembl_version <- NULL
   }
   # Get genome version
-  mart <- useEnsembl(biomart = mart_use, dataset = ds_name, host = host_use,
-                     version = ensembl_version)
+  if (is.null(ensembl_version)) {
+    mart <- useMart(biomart = mart_use, dataset = ds_name, host = host_use)
+  } else {
+    mart <- useMart(biomart = mart_use, dataset = ds_name, host = host_use,
+                    version = ensembl_version)
+  }
   ds2<- searchDatasets(mart = mart, ds_name)
   gv <- ds2$version
   if (str_detect(gv, "^GRC")) {

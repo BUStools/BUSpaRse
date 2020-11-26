@@ -56,10 +56,10 @@ check_out_path <- function(out_path) {
 #' Ensembl gene ID. Unlike transcript
 #' version number, it's up to you whether to include gene version number.
 #' @param verbose Whether to display progress.
-#' @param \dots Othe arguments to be passed to \code{\link{useEnsembl}},
+#' @param \dots Othe arguments to be passed to \code{\link{useMart}},
 #' such as mirror. Note that setting mirrors other than the default, e.g. uswest,
 #' does not work for archived versions.
-#' @importFrom biomaRt useEnsembl getBM
+#' @importFrom biomaRt useMart getBM
 #' @importFrom stats setNames
 #' @return A data frame with at least 2 columns: \code{gene} for gene ID,
 #' \code{transcript} for transcript ID, and optionally \code{gene_name}
@@ -125,8 +125,12 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
     message(paste("Querying biomart for transcript and gene IDs of",
       species))
   }
-  mart <- useEnsembl(biomart = mart_use, dataset = ds_name, host = host_use,
-                     version = ensembl_version, ...)
+  if (is.null(ensembl_version)) {
+    mart <- useMart(biomart = mart_use, dataset = ds_name, host = host_use, ...)
+  } else {
+    mart <- useMart(biomart = mart_use, dataset = ds_name, host = host_use,
+                    version = ensembl_version, ...)
+  }
   attrs_use <- c("ensembl_transcript_id", "ensembl_gene_id", other_attrs)
   if (use_gene_name) {
     attrs_use <- c(attrs_use, "external_gene_name")
@@ -1227,7 +1231,7 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv") {
 #' with Ensembl gene and transcript IDs (with version number), in the same order
 #' as in the transcriptome index used in \code{kallisto}.
 #' @param \dots Other arguments passed to `tr2g_ensembl` such as `other_attrs`,
-#' `ensembl_version`, and arguments passed to \code{\link{useEnsembl}}. If
+#' `ensembl_version`, and arguments passed to \code{\link{useMart}}. If
 #' `fasta_files` is supplied instead of `species`, then this will be extra
 #' argumennts to \code{\link{tr2g_fasta}}, such as `use_transcript_version` and
 #' `use_gene_version`.
