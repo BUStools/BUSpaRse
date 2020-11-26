@@ -20,7 +20,7 @@
 #' directly used for `bustools`.}
 #' }
 #' @export
-#' @importFrom biomaRt searchDatasets listMarts
+#' @importFrom biomaRt searchDatasets listMarts listEnsemblArchives
 #' @importFrom utils download.file
 #' @examples 
 #' dl_transcriptome("Drosophila melanogaster", gene_biotype_use = "cellranger")
@@ -66,13 +66,8 @@ dl_transcriptome <- function(species, out_path = ".",
             "Using genome of current version instead.")
     ensembl_version <- NULL
   }
+  mart <- my_useMart(ensembl_version, mart_use, ds_name, host_use)
   # Get genome version
-  if (is.null(ensembl_version)) {
-    mart <- useMart(biomart = mart_use, dataset = ds_name, host = host_use)
-  } else {
-    mart <- useMart(biomart = mart_use, dataset = ds_name, host = host_use,
-                    version = ensembl_version)
-  }
   ds2<- searchDatasets(mart = mart, ds_name)
   gv <- ds2$version
   if (str_detect(gv, "^GRC")) {

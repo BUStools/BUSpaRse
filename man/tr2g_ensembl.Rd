@@ -102,7 +102,7 @@ written to disk already exist.}
 
 \item{verbose}{Whether to display progress.}
 
-\item{\dots}{Othe arguments to be passed to \code{\link{useEnsembl}},
+\item{\dots}{Othe arguments to be passed to \code{\link{useMart}},
 such as mirror. Note that setting mirrors other than the default, e.g. uswest,
 does not work for archived versions.}
 }

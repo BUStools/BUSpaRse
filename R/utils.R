@@ -152,3 +152,14 @@ read_velocity_output <- function(spliced_dir, unspliced_dir, spliced_name,
   unspliced <- read_count_output(unspliced_dir, unspliced_name, FALSE)
   list(spliced = spliced, unspliced = unspliced)
 }
+
+my_useMart <- function(ensembl_version, mart_use, ds_name, host_use) {
+  if (is.null(ensembl_version)) {
+    mart <- useMart(biomart = mart_use, dataset = ds_name, host = host_use)
+  } else {
+    archives <- listEnsemblArchives()
+    host_use <- archives$url[as.character(ensembl_version) == archives$version]
+    mart <- useMart(biomart = mart_use, dataset = ds_name, host = host_use)
+  }
+  mart
+}

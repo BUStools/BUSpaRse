@@ -58,7 +58,7 @@ Imports:
     utils,
     zeallot
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress, BH
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,

@@ -125,12 +125,7 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
     message(paste("Querying biomart for transcript and gene IDs of",
       species))
   }
-  if (is.null(ensembl_version)) {
-    mart <- useMart(biomart = mart_use, dataset = ds_name, host = host_use, ...)
-  } else {
-    mart <- useMart(biomart = mart_use, dataset = ds_name, host = host_use,
-                    version = ensembl_version, ...)
-  }
+  mart <- my_useMart(ensembl_version, mart_use, ds_name, host_use)
   attrs_use <- c("ensembl_transcript_id", "ensembl_gene_id", other_attrs)
   if (use_gene_name) {
     attrs_use <- c(attrs_use, "external_gene_name")

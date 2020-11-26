@@ -28,7 +28,7 @@ element must be one of "vertebrate", "metazoa", "plant", "fungus", and
 here. Can be missing if \code{fasta_file} is specified.}
 
 \item{\dots}{Other arguments passed to \code{tr2g_ensembl} such as \code{other_attrs},
-\code{ensembl_version}, and arguments passed to \code{\link{useEnsembl}}. If
+\code{ensembl_version}, and arguments passed to \code{\link{useMart}}. If
 \code{fasta_files} is supplied instead of \code{species}, then this will be extra
 argumennts to \code{\link{tr2g_fasta}}, such as \code{use_transcript_version} and
 \code{use_gene_version}.}
