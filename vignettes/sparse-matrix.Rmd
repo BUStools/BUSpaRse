@@ -21,6 +21,8 @@ The [Barcode, UMI, Set (BUS) format](https://www.biorxiv.org/content/early/2018/
 
 In this vignette, we convert an 10x 1:1 mouse and human cell mixture dataset from the BUS format to a sparse matrix. To see how the BUS format can be generated from fastq file, as well as more in depth vignettes, see [the website of this package](https://bustools.github.io/BUS_notebooks_R/index.html).
 
+Note that this vignette is kept for historical reasons as it was implemented when `kallisto | bustools` was experimental. The functionality of `make_sparse_matrix` has been implemented more efficiently in the command line tool `bustools`. Please use the updated version of `bustools` and if you wish, the wrapper `kb` instead.
+
 ## Download the dataset
 ```{r, message=FALSE}
 # The dataset package
