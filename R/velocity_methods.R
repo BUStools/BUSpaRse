@@ -121,6 +121,9 @@
                             chrs_only = chrs_only, 
                             save_filtered_gtf = save_filtered_gtf) 
   tr2g_cdna <- tr2g_cdna[, c("transcript", "gene")]
+  if (chrs_only) {
+    gr <- gr[gr$transcript_id %in% tr2g_cdna$transcript]
+  }
   if (isoform_action == "collapse") {
     message("Collapsing gene isoforms")
     grl <- GenomicRanges::split(gr, gr$gene_id)
