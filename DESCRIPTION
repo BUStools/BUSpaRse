@@ -1,8 +1,8 @@
 Package: BUSpaRse
 Type: Package
 Title: kallisto | bustools R utilities
-Version: 1.5.1
-Date: 2020-11-25
+Version: 1.5.2
+Date: 2020-12-04
 Authors@R: 
     c(person("Lambda", "Moses", email = "dlu2@caltech.edu", 
     role = c("aut", "cre"),

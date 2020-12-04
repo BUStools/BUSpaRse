@@ -1,3 +1,8 @@
+# BUSpaRse 1.5.2 (2020-12-04)
+* Updated code that queries Ensembl for new version of biomaRt.
+* Make sure there're no NAs in tr2g_intron when chrs_only = TRUE.
+* Bypassed issue in BSgenome::getSeq in get_velocity_files when genome is DNAStringSet.
+
 # BUSpaRse 1.1.4 (2020-04-23)
 * Now `tr2g_*` functions can also extract transcriptomes.
 * By default, `tr2g_*` functions write the `tr2g.tsv` to disk.
