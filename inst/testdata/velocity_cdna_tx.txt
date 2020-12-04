@@ -1,7 +1,7 @@
 A1
 A1a
-B1
 C1
+B1
 D1
 E1
 F1
@@ -12,8 +12,8 @@ H1
 H2
 A1am
 A1m
-B1m
 C1m
+B1m
 D1m
 E1m
 F1m

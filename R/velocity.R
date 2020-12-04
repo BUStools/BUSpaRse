@@ -284,6 +284,7 @@ write_velocity_output <- function(out_path, introns, Genome, Transcriptome,
                                   isoform_action, exon_option, tr2g_cdna,
                                   compress_fa, width) {
   message("Extracting flanked intronic sequences")
+  introns <- sort(introns)
   intron_seqs <- getSeq(Genome, introns)
   ns <- str_remove(names(intron_seqs), "-I(\\d+)?")
   # Not to confuse with version number
