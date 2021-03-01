@@ -838,7 +838,7 @@ tr2g_fasta <- function(file, out_path = ".", write_tr2g = TRUE,
   do_filter <- transcript_biotype_use != "all" | gene_biotype_use != "all" |
     chrs_only
   if (chrs_only) {
-    sns <- str_extract(names(s), "(?<=((chromosome)|(scaffold)):).*?(?=\\s)") %>% 
+    sns <- str_extract(names(s), "(?<=((chromosome)|(scaffold)|(primary_assembly)):).*?(?=\\s)") %>% 
       str_split(pattern = ":", simplify = TRUE)
     sns <- sns[,2]
     inds <- !is.na(mapSeqlevels(sns, style = "Ensembl"))
