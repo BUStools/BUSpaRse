@@ -75,6 +75,8 @@ gene annotation stored in a \code{\link{TxDb}} object.
 library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 library(BSgenome.Hsapiens.UCSC.hg38)
 tr2g_TxDb(TxDb.Hsapiens.UCSC.hg38.knownGene, BSgenome.Hsapiens.UCSC.hg38)
+# Clean up
+file.remove("transcriptome.fa", "tr2g.tsv")
 }
 \seealso{
 Other functions to retrieve transcript and gene info: 

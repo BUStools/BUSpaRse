@@ -27,8 +27,6 @@
 #' annotation and the genome. Then this style will be used for both the
 #' annotation and the genome. Can take the following values:
 #' \describe{
-#' \item{annotation}{If style of the annnotation is different from that of the
-#' genome, then the style of the annotation will be used.}
 #' \item{genome}{If style of the annnotation is different from that of the
 #' genome, then the style of the genome will be used.}
 #' \item{other}{Custom style, need to manually ensure that the style in
@@ -60,7 +58,7 @@
 #' @importFrom GenomicFeatures extractTranscriptSeqs
 #' @importFrom S4Vectors split
 .get_velocity_files <- function(gr, L, Genome, Transcriptome = NULL,
-                                out_path = ".", style = c("annotation",
+                                out_path = ".", style = c(
                                   "genome", "Ensembl",
                                   "UCSC", "NCBI",
                                   "other"),
@@ -225,9 +223,12 @@
 #' transcriptome <- paste0(toy_path, "/velocity_tx.fa")
 #' get_velocity_files(file, 11, genome, transcriptome, ".",
 #'   gene_version = NULL, transcript_version = NULL)
+#' # Clean up output of the example
+#' file.remove("cDNA_introns.fa", "cDNA_tx_to_capture.txt",
+#'             "introns_tx_to_capture.txt", "tr2g.txt")
 setGeneric("get_velocity_files",
   function(X, L, Genome, Transcriptome = NULL, out_path = ".",
-             style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
+             style = c("genome", "Ensembl", "UCSC", "NCBI",
                "other"),
              isoform_action = c("separate", "collapse"),
              exon_option = c("full", "junction"),
@@ -239,7 +240,7 @@ setGeneric("get_velocity_files",
 #' @export
 setMethod("get_velocity_files", "GRanges",
   function(X, L, Genome, Transcriptome = NULL, out_path = ".",
-           style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
+           style = c("genome", "Ensembl", "UCSC", "NCBI",
                      "other"),
            isoform_action = c("separate", "collapse"),
            exon_option = c("full", "junction"),
@@ -279,7 +280,7 @@ setMethod("get_velocity_files", "GRanges",
 #' @export
 setMethod("get_velocity_files", "character",
   function(X, L, Genome, Transcriptome = NULL, out_path = ".",
-             style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
+             style = c("genome", "Ensembl", "UCSC", "NCBI",
                "other"),
            isoform_action = c("separate", "collapse"),
            exon_option = c("full", "junction"),
@@ -325,7 +326,7 @@ setMethod("get_velocity_files", "character",
 #' @export
 setMethod("get_velocity_files", "TxDb",
   function(X, L, Genome, Transcriptome, out_path,
-             style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
+             style = c("genome", "Ensembl", "UCSC", "NCBI",
                "other"),
              isoform_action = c("separate", "collapse"),
              exon_option = c("full", "junction"),
@@ -412,7 +413,7 @@ setMethod("get_velocity_files", "TxDb",
 #' @export
 setMethod("get_velocity_files", "EnsDb",
   function(X, L, Genome, Transcriptome, out_path,
-           style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI",
+           style = c("genome", "Ensembl", "UCSC", "NCBI",
                      "other"),
            isoform_action = c("separate", "collapse"),
            exon_option = c("full", "junction"),

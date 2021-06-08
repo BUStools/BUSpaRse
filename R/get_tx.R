@@ -23,7 +23,10 @@
 #' @importFrom biomaRt searchDatasets listMarts listEnsemblArchives
 #' @importFrom utils download.file
 #' @examples 
-#' dl_transcriptome("Drosophila melanogaster", gene_biotype_use = "cellranger")
+#' dl_transcriptome("Drosophila melanogaster", gene_biotype_use = "cellranger",
+#'                  chrs_only = FALSE)
+#' # Clean up
+#' file.remove("Drosophila_melanogaster.BDGP6.32.cdna.all.fa.gz")
 dl_transcriptome <- function(species, out_path = ".",
                              type = c("vertebrate", "metazoa", "plant",
                                       "fungus", "protist"),

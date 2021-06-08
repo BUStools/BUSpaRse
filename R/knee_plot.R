@@ -62,6 +62,8 @@ get_inflection <- function(df, lower = 100) {
 #' df <- get_knee_df(m)
 #' infl <- get_inflection(df)
 #' knee_plot(df, infl)
+#' # Clean up files from the example
+#' unlink("out_hgmm100")
 knee_plot <- function(df, inflection) {
   total <- rank_cutoff <- NULL
   annot <- tibble(inflection = inflection,

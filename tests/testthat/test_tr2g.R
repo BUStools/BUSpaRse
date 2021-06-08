@@ -30,12 +30,8 @@ test_that("Correct data set name for biomart", {
 })
 
 test_that("Sensible results from biomart query", {
-  tr2g <- tr2g_ensembl(species = "Felis catus",
-    use_gene_version = FALSE, use_transcript_version = TRUE, chrs_only = FALSE)
-  expect_equal(names(tr2g), c("transcript", "gene", "gene_name"))
-  expect_gt(nrow(tr2g), 1)
   # Specify version of Ensembl
-  tr2g <- tr2g_ensembl(species = "Felis catus",
+  tr2g <- tr2g_ensembl(species = "Danio rerio",
     use_gene_version = FALSE, use_transcript_version = TRUE,
     ensembl_version = 94, chrs_only = FALSE)
   expect_equal(names(tr2g), c("transcript", "gene", "gene_name"))

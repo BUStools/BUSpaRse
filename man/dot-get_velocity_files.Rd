@@ -10,7 +10,7 @@
   Genome,
   Transcriptome = NULL,
   out_path = ".",
-  style = c("annotation", "genome", "Ensembl", "UCSC", "NCBI", "other"),
+  style = c("genome", "Ensembl", "UCSC", "NCBI", "other"),
   isoform_action = c("separate", "collapse"),
   exon_option = c("full", "junction"),
   transcript_id = "transcript_id",
@@ -70,8 +70,6 @@ style supported for your organism different from the style used by the
 annotation and the genome. Then this style will be used for both the
 annotation and the genome. Can take the following values:
 \describe{
-\item{annotation}{If style of the annnotation is different from that of the
-genome, then the style of the annotation will be used.}
 \item{genome}{If style of the annnotation is different from that of the
 genome, then the style of the genome will be used.}
 \item{other}{Custom style, need to manually ensure that the style in

@@ -1,8 +1,8 @@
 Package: BUSpaRse
 Type: Package
 Title: kallisto | bustools R utilities
-Version: 1.5.3
-Date: 2021-03-01
+Version: 1.7.1
+Date: 2021-06-07
 Authors@R: 
     c(person("Lambda", "Moses", email = "dlu2@caltech.edu", 
     role = c("aut", "cre"),
@@ -70,6 +70,7 @@ Suggests:
     BSgenome.Hsapiens.UCSC.hg38,
     EnsDb.Hsapiens.v86
 VignetteBuilder: knitr
+LazyData: TRUE
 Collate: 
     'RcppExports.R'
     'annots_from_fa.R'

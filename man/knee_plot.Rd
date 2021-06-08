@@ -54,4 +54,6 @@ m <- make_sparse_matrix("./out_hgmm100/output.sorted.txt",
 df <- get_knee_df(m)
 infl <- get_inflection(df)
 knee_plot(df, infl)
+# Clean up files from the example
+unlink("out_hgmm100")
 }

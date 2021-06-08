@@ -30,15 +30,13 @@ msg2 <- function(n) {
 #' @importFrom GenomeInfoDb seqlevelsStyle<- genome<- isCircular<-
 match_style <- function(Genome, annot, style) {
   # Match styles
-  gr_style <- tryCatch(seqlevelsStyle(annot),
+  gr_style <- tryCatch(seqlevelsStyle(annot)[1],
     error = function(e) return("other"))
-  gn_style <- tryCatch(seqlevelsStyle(Genome),
+  gn_style <- tryCatch(seqlevelsStyle(Genome)[1],
     error = function(e) return("other"))
   if (all(c(gr_style, gn_style) != "other")) {
-    if (style == "annotation") {
-      seqlevelsStyle(Genome) <- gr_style[1]
-    } else if (style == "genome") {
-      seqlevelsStyle(annot) <- gn_style[1]
+    if (style == "genome") {
+      if (gn_style != gr_style) seqlevelsStyle(annot) <- gn_style[1]
     } else {
       seqlevelsStyle(Genome) <- style
       seqlevelsStyle(annot) <- style

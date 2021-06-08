@@ -86,5 +86,8 @@ It can also filter the fasta file by gene and transcript biotype and remove
 scaffolds and haplotypes.
 }
 \examples{
-dl_transcriptome("Drosophila melanogaster", gene_biotype_use = "cellranger")
+dl_transcriptome("Drosophila melanogaster", gene_biotype_use = "cellranger",
+                 chrs_only = FALSE)
+# Clean up
+file.remove("Drosophila_melanogaster.BDGP6.32.cdna.all.fa.gz")
 }

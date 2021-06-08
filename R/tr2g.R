@@ -71,8 +71,8 @@ check_out_path <- function(out_path) {
 #' @importFrom GenomeInfoDb genomeStyles
 #' @export
 #' @examples
-#' tr2g <- tr2g_ensembl(species = "Felis catus", other_attrs = "description",
-#'   write_tr2g = FALSE)
+#' tr2g <- tr2g_ensembl(species = "Danio rerio", 
+#' other_attrs = "description", write_tr2g = FALSE)
 #' # This will use plants.ensembl.org as host instead of www.ensembl.org
 #' tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant",
 #'   write_tr2g = FALSE)
@@ -430,7 +430,7 @@ tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
     if (file.exists(tx_save) && !overwrite) {
       message("File ", tx_save, " already exists.")
     } else {
-      c(Genome, gr) %<-% match_style(Genome, gr, style = "annotation")
+      c(Genome, gr) %<-% match_style(Genome, gr, style = "genome")
       gr <- subset_annot(Genome, gr)
       c(Genome, gr) %<-% annot_circular(Genome, gr)
       genome(gr) <- genome(Genome)[seqlevels(gr)]
@@ -721,7 +721,7 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
       message("File ", tx_save, " already exists.")
     } else {
     gre <- sort(gre)
-    c(Genome, gre) %<-% match_style(Genome, gre, style = "annotation")
+    c(Genome, gre) %<-% match_style(Genome, gre, style = "genome")
     gre <- subset_annot(Genome, gre)
     c(Genome, gre) %<-% annot_circular(Genome, gre)
     genome(gre) <- genome(Genome)[seqlevels(gre)]
@@ -913,6 +913,8 @@ tr2g_fasta <- function(file, out_path = ".", write_tr2g = TRUE,
 #' library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 #' library(BSgenome.Hsapiens.UCSC.hg38)
 #' tr2g_TxDb(TxDb.Hsapiens.UCSC.hg38.knownGene, BSgenome.Hsapiens.UCSC.hg38)
+#' # Clean up
+#' file.remove("transcriptome.fa", "tr2g.tsv")
 tr2g_TxDb <- function(txdb, Genome = NULL, get_transcriptome = TRUE, 
                       out_path = ".", write_tr2g = TRUE, chrs_only = TRUE, 
                       compress_fa = FALSE, overwrite = FALSE) {
@@ -947,7 +949,7 @@ tr2g_TxDb <- function(txdb, Genome = NULL, get_transcriptome = TRUE,
     if (file.exists(tx_save) && !overwrite) {
       message("File ", tx_save, " already exists.")
     } else {
-      c(Genome, txdb) %<-% match_style(Genome, txdb, "annotation")
+      c(Genome, txdb) %<-% match_style(Genome, txdb, "genome")
       txdb <- subset_annot(Genome, txdb)
       grl <- exonsBy(txdb, by = "tx") # Will be numbers
       # Remove transcripts that aren't mapped to genes
@@ -1068,7 +1070,7 @@ tr2g_EnsDb <- function(ensdb, Genome = NULL, get_transcriptome = TRUE,
     if (file.exists(tx_save) && !overwrite) {
       message("File ", tx_save, " already exists.")
     } else {
-      c(Genome, ensdb) %<-% match_style(Genome, ensdb, "annotation")
+      c(Genome, ensdb) %<-% match_style(Genome, ensdb, "genome")
       chrs_use <- intersect(unique(df$seqnames), seqlevels(Genome))
       if (use_transcript_version) {
         # tr2g_cdna has already been filtered if it needs to be filtered
@@ -1192,6 +1194,8 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path) {
 #' tr2g <- tr2g_gtf(file = file_use, get_transcriptome = FALSE, 
 #'   write_tr2g = FALSE, save_filtered_gtf = FALSE)
 #' save_tr2g_bustools(tr2g, file_save = "./tr2g.tsv")
+#' # Clean up files from the example
+#' file.remove("tr2g.tsv")
 save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv") {
   file_save <- normalizePath(file_save, mustWork = FALSE)
   write.table(tr2g[, c("transcript", "gene")], file = file_save, sep = "\t",
@@ -1243,8 +1247,10 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv") {
 #' library(TENxBUSData)
 #' TENxBUSData(".", dataset = "hgmm100")
 #' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), 
-#'   type = "vertebrate",
+#'   type = "vertebrate", save_filtered = FALSE,
 #'   ensembl_version = 99, kallisto_out_path = "./out_hgmm100")
+#' # Clean up files from the example
+#' unlink("out_hgmm100")
 transcript2gene <- function(species, fasta_file, kallisto_out_path,
                             type = "vertebrate", ...) {
   if (!xor(missing(species), missing(fasta_file))) {
