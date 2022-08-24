@@ -67,7 +67,7 @@ gr_minus$strand <- "-"
 gr_minus$gene_id <- paste0(gr_df$gene_id, "m")
 gr_minus$transcript_id <- paste0(gr_df$transcript_id, "m")
 gr_minus$exon_number <- c(rep(3:1, 4), 1, 4:1, 3:1, 2:1, rep(3:1, 2), 3:1, 2:1, 1)
-gr_minus <- gr_minus %>% 
+gr_minus <- gr_minus %>%
   arrange(seqnames, desc(start), desc(end))
 gr_minus <- gr_minus[c(1:6, 8:34, 7),]
 gr <- makeGRangesFromDataFrame(gr_df, keep.extra.columns = TRUE)
@@ -80,7 +80,7 @@ write_gff(gr_full, "./inst/testdata/velocity_annot.gtf")
 tr2g_tx <- mcols(gr_full) %>%
   as.data.frame() %>%
   dplyr::select(transcript = transcript_id, gene = gene_id) %>%
-  dplyr::filter(!str_detect(transcript, "K")) %>% 
+  dplyr::filter(!str_detect(transcript, "K")) %>%
   distinct()
 
 # Make toy genome--------------------------
@@ -118,7 +118,8 @@ geneE <- paste(c(flank5p, exon1, intron1, exon2e, intron2e, exon2e2, intron2, ex
 gn <- setNames(c(chr1, geneB, geneC, geneD, geneE, rep(chr1, 4)),
   paste0("chr", 1:9))
 gn <- DNAStringSet(gn, use.names = TRUE)
-seqinfo(gn) <- Seqinfo(paste("chr", 1:9), isCircular = rep(FALSE, 9))
+seqinfo(gn) <- Seqinfo(paste0("chr", 1:9), seqlengths = width(gn),
+                       isCircular = rep(FALSE, 9))
 writeXStringSet(gn, "./inst/testdata/velocity_genome.fa")
 
 # Make toy transcripts--------------------------
@@ -178,13 +179,6 @@ ins_minus <- setNames(reverseComplement(ins_plus),
     "H1m-I", "H1m-I1", "H2m-I"))
 ins <- c(ins_plus, ins_minus)
 ins <- ins[sort(names(ins))]
-writeXStringSet(c(tx, ins), "./inst/testdata/velocity_introns.fa")
-writeLines(names(ins), "./inst/testdata/velocity_introns_capture.txt")
-tr2g_intron <- tibble(transcript = names(ins),
-  gene = str_remove(transcript, "-I(\\d+)?") %>%
-    str_remove("\\d"))
-write_tsv(rbind(tr2g_tx, tr2g_intron), "./inst/testdata/velocity_tr2g.tsv",
-  col_names = FALSE)
 
 ## Collapse isoforms--------------------
 ins_coll_plus <- setNames(c(ins_plus[1:13],
@@ -254,14 +248,11 @@ junc_minus <- setNames(reverseComplement(junc_plus),
     "G1m-J", "G1m-J1", "G2m-J", "G2m-J1",
     "H1m-J", "H1m-J1", "H2m-J"))
 juncs <- c(junc_plus, junc_minus)
-writeXStringSet(c(juncs, tx[c("D1", "D1m")], ins), "./inst/testdata/junctions.fa")
 # Should capture all exon-exon junctions and transcripts without introns
 writeLines(c(names(juncs), "D1", "D1m"), "./inst/testdata/junction_capture.txt")
 tr2g_junc <- tibble(transcript = c(names(juncs), "D1", "D1m"),
   gene = str_remove_all(transcript, "-J(\\d+)?") %>%
     str_remove_all("\\d"))
-write_tsv(rbind(tr2g_junc, tr2g_intron), "./inst/testdata/junction_tr2g.tsv",
-  col_names = FALSE)
 
 ## Collapse isoforms------------
 writeXStringSet(c(juncs, tx[c("D1", "D1m")], ins_coll), "./inst/testdata/junction_coll.fa")

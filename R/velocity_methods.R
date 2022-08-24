@@ -34,15 +34,6 @@
 #' \item{Ensembl}{Or `UCSC` or `NCBI`, whichever is supported by your species
 #' of interest.}
 #' }
-#' @param isoform_action Character, indicating action to take with different
-#' transcripts of the same gene. Must be one of the following:
-#' \describe{
-#' \item{collapse}{First, the union of all exons of different transcripts of a
-#' gene will be taken. Then the introns will be inferred from this union. Only
-#' the flanked intronic sequences are affected; isoforms will always be taken
-#' into account for spliced sequences or exon-exon junctions.}
-#' \item{separate}{Introns from different transcripts will be kept separate.}
-#' }
 #' @param exon_option Character, indicating how exonic sequences should be
 #' included in the kallisto index. Must be one of the following:
 #' \describe{
@@ -62,7 +53,6 @@
                                   "genome", "Ensembl",
                                   "UCSC", "NCBI",
                                   "other"),
-                                isoform_action = c("separate", "collapse"),
                                 exon_option = c("full", "junction"),
                                 transcript_id = "transcript_id",
                                 gene_id = "gene_id",
@@ -70,15 +60,14 @@
                                 gene_version = "gene_version",
                                 version_sep = ".",
                                 transcript_biotype_col = "transcript_biotype",
-                                gene_biotype_col = "gene_biotype", 
+                                gene_biotype_col = "gene_biotype",
                                 transcript_biotype_use = "all",
-                                gene_biotype_use = "all", 
+                                gene_biotype_use = "all",
                                 chrs_only = TRUE, save_filtered_gtf = FALSE,
                                 compress_fa = FALSE, width = 80L) {
   tx_path <- NULL
   L <- as.integer(L)
   width <- as.integer(width)
-  isoform_action <- match.arg(isoform_action)
   exon_option <- match.arg(exon_option)
   c(out_path, tx_path) %<-% validate_velocity_input(L, Genome, Transcriptome,
     out_path, compress_fa, width, exon_option)
@@ -109,59 +98,44 @@
     Transcriptome <- tx_path
   }
   tr2g_cdna <- tr2g_GRanges(gr, out_path = out_path, get_transcriptome = FALSE,
-                            gene_name = NULL, 
-                            write_tr2g = FALSE, transcript_version = NULL, 
+                            gene_name = NULL,
+                            write_tr2g = FALSE, transcript_version = NULL,
                             gene_version = NULL, # version already added
                             transcript_biotype_col = transcript_biotype_col,
-                            gene_biotype_col = gene_biotype_col, 
+                            gene_biotype_col = gene_biotype_col,
                             transcript_biotype_use = transcript_biotype_use,
-                            gene_biotype_use = gene_biotype_use, 
-                            chrs_only = chrs_only, 
-                            save_filtered_gtf = save_filtered_gtf) 
+                            gene_biotype_use = gene_biotype_use,
+                            chrs_only = chrs_only,
+                            save_filtered_gtf = save_filtered_gtf)
   tr2g_cdna <- tr2g_cdna[, c("transcript", "gene")]
   if (chrs_only) {
     gr <- gr[gr$transcript_id %in% tr2g_cdna$transcript]
   }
-  if (isoform_action == "collapse") {
-    message("Collapsing gene isoforms")
-    grl <- GenomicRanges::split(gr, gr$gene_id)
-    grl <- GenomicRanges::reduce(grl)
-    # Get intronic ranges
-    introns <- get_intron_flanks(grl, L, FALSE)
-    if (exon_option == "junction") {
-      message("Extracting exon-exon junctions")
-      grt <- GenomicRanges::split(gr, gr$transcript_id)
-      exons <- get_intron_flanks(grt, L, TRUE)[[2]]
-      Transcriptome <- extractTranscriptSeqs(Genome, exons)
-      tr2g_cdna <- tr2g_junction(tr2g_cdna, names(Transcriptome))
-    }
-  } else {
-    grl <- GenomicRanges::split(gr, gr$transcript_id)
-    grl <- revElements(grl, any(strand(grl) == "-"))
-    if (exon_option == "junction") {
-      message("Extracting exon-exon junctions")
-      c(introns, exons) %<-% get_intron_flanks(grl, L, TRUE)
-      Transcriptome <- extractTranscriptSeqs(Genome, exons)
-      tr2g_cdna <- tr2g_junction(tr2g_cdna, names(Transcriptome))
-    } else {
-      introns <- get_intron_flanks(grl, L, FALSE)
-    }
+
+  # Split per gene
+  grl <- GenomicRanges::split(gr, gr$gene_id)
+  grl <- GenomicRanges::reduce(grl)
+  do_extract <- is.null(Transcriptome) && exon_option == "full"
+  if (do_extract || exon_option == "junction") {
+    # Split per transcript
+    grt <- GenomicRanges::split(gr, gr$transcript_id)
+    grt <- revElements(grt, any(strand(grt) == "-"))
   }
-  if (is.null(Transcriptome) && exon_option == "full") {
+  introns <- get_intron_flanks(grl, L, FALSE)
+  if (exon_option == "junction") {
+    message("Extracting exon-exon junctions")
+    exons <- get_intron_flanks(grt, L, TRUE)[[2]]
+    Transcriptome <- extractTranscriptSeqs(Genome, exons)
+    tr2g_cdna <- tr2g_junction(tr2g_cdna, names(Transcriptome))
+  }
+  if (do_extract) {
     message("Extracting transcriptome from genome")
-    if (isoform_action != "collapse") {
-      Transcriptome <- extractTranscriptSeqs(Genome, grl)
-    } else {
-      # To distinguish from grl, which is split at gene level
-      grt <- GenomicRanges::split(gr, gr$transcript_id)
-      grt <- revElements(grt, any(strand(grt) == "-"))
-      Transcriptome <- extractTranscriptSeqs(Genome, grt)
-    }
+    Transcriptome <- extractTranscriptSeqs(Genome, grt)
     # Again, make sure that all transcripts in tr2g are in the transcriptome
     tr2g_cdna <- tr2g_cdna[tr2g_cdna$transcript %in% names(Transcriptome), ]
   }
   write_velocity_output(out_path, introns, Genome, Transcriptome,
-    isoform_action, exon_option, tr2g_cdna, compress_fa, width)
+    exon_option, tr2g_cdna, compress_fa, width)
 }
 
 #' Get files required for RNA velocity with bustools
@@ -171,8 +145,8 @@
 #' function extracts intronic sequences flanked by L-1 bases of exonic sequences
 #' where L is the biological read length of the single cell technology of
 #' interest. The flanking exonic sequences are included for reads partially
-#' mapping to an intron and an exon. 
-#' 
+#' mapping to an intron and an exon.
+#'
 #' @inheritParams .get_velocity_files
 #' @inheritParams tr2g_EnsDb
 #' @param X Gene annotation with transcript and exon information. It can be a
@@ -230,7 +204,6 @@ setGeneric("get_velocity_files",
   function(X, L, Genome, Transcriptome = NULL, out_path = ".",
              style = c("genome", "Ensembl", "UCSC", "NCBI",
                "other"),
-             isoform_action = c("separate", "collapse"),
              exon_option = c("full", "junction"),
              compress_fa = FALSE, width = 80L, ...)
     standardGeneric("get_velocity_files"),
@@ -242,20 +215,18 @@ setMethod("get_velocity_files", "GRanges",
   function(X, L, Genome, Transcriptome = NULL, out_path = ".",
            style = c("genome", "Ensembl", "UCSC", "NCBI",
                      "other"),
-           isoform_action = c("separate", "collapse"),
            exon_option = c("full", "junction"),
            compress_fa = FALSE, width = 80L,
            transcript_id = "transcript_id", gene_id = "gene_id",
            transcript_version = "transcript_version",
            gene_version = "gene_version", version_sep = ".",
            transcript_biotype_col = "transcript_biotype",
-           gene_biotype_col = "gene_biotype", 
+           gene_biotype_col = "gene_biotype",
            transcript_biotype_use = "all",
-           gene_biotype_use = "all", 
+           gene_biotype_use = "all",
            chrs_only = TRUE, save_filtered_gtf = FALSE) {
     .get_velocity_files(X, L, Genome, Transcriptome = Transcriptome,
                         out_path = out_path, style = style,
-                        isoform_action = isoform_action,
                         exon_option = exon_option,
                         transcript_id = transcript_id,
                         gene_id = gene_id,
@@ -263,10 +234,10 @@ setMethod("get_velocity_files", "GRanges",
                         gene_version = gene_version,
                         version_sep = version_sep,
                         transcript_biotype_col = transcript_biotype_col,
-                        gene_biotype_col = gene_biotype_col, 
+                        gene_biotype_col = gene_biotype_col,
                         transcript_biotype_use = transcript_biotype_use,
-                        gene_biotype_use = gene_biotype_use, 
-                        chrs_only = chrs_only, 
+                        gene_biotype_use = gene_biotype_use,
+                        chrs_only = chrs_only,
                         save_filtered_gtf = save_filtered_gtf,
                         compress_fa = compress_fa, width = width)
   }
@@ -282,7 +253,6 @@ setMethod("get_velocity_files", "character",
   function(X, L, Genome, Transcriptome = NULL, out_path = ".",
              style = c("genome", "Ensembl", "UCSC", "NCBI",
                "other"),
-           isoform_action = c("separate", "collapse"),
            exon_option = c("full", "junction"),
            compress_fa = FALSE, width = 80L,
            is_circular = NULL,
@@ -290,9 +260,9 @@ setMethod("get_velocity_files", "character",
            transcript_version = "transcript_version",
            gene_version = "gene_version", version_sep = ".",
            transcript_biotype_col = "transcript_biotype",
-           gene_biotype_col = "gene_biotype", 
+           gene_biotype_col = "gene_biotype",
            transcript_biotype_use = "all",
-           gene_biotype_use = "all", 
+           gene_biotype_use = "all",
            chrs_only = TRUE, save_filtered_gtf = FALSE) {
     file <- normalizePath(X, mustWork = TRUE)
     check_gff("gtf", file, transcript_id, gene_id)
@@ -304,7 +274,6 @@ setMethod("get_velocity_files", "character",
     }
     .get_velocity_files(gr, L, Genome, Transcriptome = Transcriptome,
                         out_path = out_path, style = style,
-                        isoform_action = isoform_action,
                         exon_option = exon_option,
                         transcript_id = transcript_id,
                         gene_id = gene_id,
@@ -312,14 +281,22 @@ setMethod("get_velocity_files", "character",
                         gene_version = gene_version,
                         version_sep = version_sep,
                         transcript_biotype_col = transcript_biotype_col,
-                        gene_biotype_col = gene_biotype_col, 
+                        gene_biotype_col = gene_biotype_col,
                         transcript_biotype_use = transcript_biotype_use,
-                        gene_biotype_use = gene_biotype_use, 
-                        chrs_only = chrs_only, 
+                        gene_biotype_use = gene_biotype_use,
+                        chrs_only = chrs_only,
                         save_filtered_gtf = save_filtered_gtf,
                         compress_fa = compress_fa, width = width)
   }
 )
+
+exons_by_tx_txdb <- function(X, tx_id, tx) {
+  gr <- exonsBy(X, by = "tx") # Will be numbers
+  # Remove transcripts that aren't mapped to genes
+  gr <- gr[names(gr) %in% tx_id]
+  names(gr) <- tx[match(names(gr), tx_id)]
+  gr
+}
 
 #' @rdname get_velocity_files
 #' @importFrom GenomicFeatures exonsBy
@@ -328,20 +305,12 @@ setMethod("get_velocity_files", "TxDb",
   function(X, L, Genome, Transcriptome, out_path,
              style = c("genome", "Ensembl", "UCSC", "NCBI",
                "other"),
-             isoform_action = c("separate", "collapse"),
              exon_option = c("full", "junction"),
              compress_fa = FALSE, width = 80L, chrs_only = TRUE) {
-    exons_by_tx <- function(X, tx_id, tx) {
-      gr <- exonsBy(X, by = "tx") # Will be numbers
-      # Remove transcripts that aren't mapped to genes
-      gr <- gr[names(gr) %in% tx_id]
-      names(gr) <- tx[match(names(gr), tx_id)]
-      gr
-    }
+
     tx_path <- NULL
     L <- as.integer(L)
     width <- as.integer(width)
-    isoform_action <- match.arg(isoform_action)
     exon_option <- match.arg(exon_option)
     c(out_path, tx_path) %<-%
       validate_velocity_input(L, Genome, Transcriptome, out_path,
@@ -357,55 +326,59 @@ setMethod("get_velocity_files", "TxDb",
     } else if (is.character(Transcriptome)) {
       Transcriptome <- tx_path
     }
-    if (isoform_action == "collapse") {
-      message("Collapsing gene isoforms")
-      grl <- exonsBy(X, by = "gene")
-      grl <- GenomicRanges::reduce(grl)
-      c(Genome, grl) %<-% annot_circular(Genome, grl)
-      genome(grl) <- genome(Genome)[seqlevels(grl)]
-      # Get intronic ranges
-      introns <- get_intron_flanks(grl, L, FALSE)
-      if (exon_option == "junction") {
-        message("Extracting exon-exon junctions")
-        grt <- exons_by_tx(X, tr2g_cdna$tx_id, tr2g_cdna$transcript)
-        c(Genome, grt) %<-% annot_circular(Genome, grt)
-        genome(grt) <- genome(Genome)[seqlevels(grt)]
-        exons <- get_intron_flanks(grt, L, TRUE)[[2]]
-        Transcriptome <- extractTranscriptSeqs(Genome, exons)
-        tr2g_cdna <- tr2g_junction(tr2g_cdna, names(Transcriptome))
-      }
-    } else {
-      # tr2g_cdna has already been filtered if it needs to be filtered
-      grl <- exons_by_tx(X, tr2g_cdna$tx_id, tr2g_cdna$transcript)
-      c(Genome, grl) %<-% annot_circular(Genome, grl)
-      genome(grl) <- genome(Genome)[seqlevels(grl)]
-      if (exon_option == "junction") {
-        message("Extracting exon-exon junctions")
-        c(introns, exons) %<-% get_intron_flanks(grl, L, TRUE)
-        Transcriptome <- extractTranscriptSeqs(Genome, exons)
-        tr2g_cdna <- tr2g_junction(tr2g_cdna, names(Transcriptome))
-      } else {
-        introns <- get_intron_flanks(grl, L, FALSE)
-      }
+
+    # Split by genes
+    grl <- exonsBy(X, by = "gene")
+    grl <- GenomicRanges::reduce(grl)
+    c(Genome, grl) %<-% annot_circular(Genome, grl)
+    genome(grl) <- genome(Genome)[seqlevels(grl)]
+
+    do_extract <- is.null(Transcriptome) && exon_option == "full"
+    if (do_extract || exon_option == "junction") {
+      # Split by transcripts
+      grt <- exons_by_tx_txdb(X, tr2g_cdna$tx_id, tr2g_cdna$transcript)
+      c(Genome, grt) %<-% annot_circular(Genome, grt)
+      genome(grt) <- genome(Genome)[seqlevels(grt)]
     }
-    if (is.null(Transcriptome) && exon_option == "full") {
+    # Get intronic ranges
+    introns <- get_intron_flanks(grl, L, FALSE)
+    if (exon_option == "junction") {
+      message("Extracting exon-exon junctions")
+      exons <- get_intron_flanks(grt, L, TRUE)[[2]]
+      Transcriptome <- extractTranscriptSeqs(Genome, exons)
+      tr2g_cdna <- tr2g_junction(tr2g_cdna, names(Transcriptome))
+    }
+
+    if (do_extract) {
       message("Extracting transcriptome from genome")
-      if (isoform_action != "collapse") {
-        Transcriptome <- extractTranscriptSeqs(Genome, grl)
-      } else {
-        grt <- exons_by_tx(X, tr2g_cdna$tx_id, tr2g_cdna$transcript)
-        c(Genome, grt) %<-% annot_circular(Genome, grt)
-        genome(grt) <- genome(Genome)[seqlevels(grt)]
-        Transcriptome <- extractTranscriptSeqs(Genome, grt)
-      }
+      Transcriptome <- extractTranscriptSeqs(Genome, grt)
       # Again, make sure that all transcripts in tr2g are in the transcriptome
       tr2g_cdna <- tr2g_cdna[tr2g_cdna$transcript %in% names(Transcriptome), ]
     }
     tr2g_cdna <- tr2g_cdna[, c("transcript", "gene")]
     write_velocity_output(out_path, introns, Genome, Transcriptome,
-      isoform_action, exon_option, tr2g_cdna, compress_fa, width)
+      exon_option, tr2g_cdna, compress_fa, width)
   }
 )
+
+exons_by_tx_ensdb <- function(X, tx, chrs_use, use_transcript_version) {
+  if (use_transcript_version) {
+    # tr2g_cdna has already been filtered if it needs to be filtered
+    tx_nv <- str_remove(tx, "\\.\\d+$")
+    filter_use <- AnnotationFilterList(SeqNameFilter(chrs_use),
+                                       TxIdFilter(tx_nv))
+  } else {
+    filter_use <- AnnotationFilterList(SeqNameFilter(chrs_use),
+                                       TxIdFilter(tx))
+  }
+  gr <- exonsBy(X, by = "tx", filter = filter_use)
+  seqlevels(gr) <- seqlevelsInUse(gr)
+  if (use_transcript_version) {
+    # Add transcript version
+    names(gr) <- tx[match(names(gr), tx_nv)]
+  }
+  gr
+}
 
 #' @rdname get_velocity_files
 #' @importFrom AnnotationFilter AnnotationFilterList SeqNameFilter TxIdFilter
@@ -415,37 +388,17 @@ setMethod("get_velocity_files", "EnsDb",
   function(X, L, Genome, Transcriptome, out_path,
            style = c("genome", "Ensembl", "UCSC", "NCBI",
                      "other"),
-           isoform_action = c("separate", "collapse"),
            exon_option = c("full", "junction"),
            compress_fa = FALSE, width = 80L,
            use_transcript_version = TRUE, use_gene_version = TRUE,
            transcript_biotype_col = "TXBIOTYPE",
-           gene_biotype_col = "GENEBIOTYPE", 
+           gene_biotype_col = "GENEBIOTYPE",
            transcript_biotype_use = "all",
-           gene_biotype_use = "all", 
+           gene_biotype_use = "all",
            chrs_only = TRUE) {
-    exons_by_tx <- function(X, tx, chrs_use, use_transcript_version) {
-      if (use_transcript_version) {
-        # tr2g_cdna has already been filtered if it needs to be filtered
-        tx_nv <- str_remove(tx, "\\.\\d+$")
-        filter_use <- AnnotationFilterList(SeqNameFilter(chrs_use),
-          TxIdFilter(tx_nv))
-      } else {
-        filter_use <- AnnotationFilterList(SeqNameFilter(chrs_use),
-          TxIdFilter(tx))
-      }
-      gr <- exonsBy(X, by = "tx", filter = filter_use)
-      seqlevels(gr) <- seqlevelsInUse(gr)
-      if (use_transcript_version) {
-        # Add transcript version
-        names(gr) <- tx[match(names(gr), tx_nv)]
-      }
-      gr
-    }
     tx_path <- NULL
     L <- as.integer(L)
     width <- as.integer(width)
-    isoform_action <- match.arg(isoform_action)
     exon_option <- match.arg(exon_option)
     c(out_path, tx_path) %<-% validate_velocity_input(L, Genome,
       Transcriptome, out_path, compress_fa, width, exon_option)
@@ -458,9 +411,9 @@ setMethod("get_velocity_files", "EnsDb",
                             use_transcript_version = use_transcript_version,
                             use_gene_version = use_gene_version,
                             transcript_biotype_col = transcript_biotype_col,
-                            gene_biotype_col = gene_biotype_col, 
+                            gene_biotype_col = gene_biotype_col,
                             transcript_biotype_use = transcript_biotype_use,
-                            gene_biotype_use = gene_biotype_use, 
+                            gene_biotype_use = gene_biotype_use,
                             chrs_only = chrs_only)
     tr2g_cdna <- tr2g_cdna[, c("transcript", "gene")]
     if (is(Transcriptome, "DNAStringSet")) {
@@ -470,58 +423,41 @@ setMethod("get_velocity_files", "EnsDb",
       Transcriptome <- tx_path
     }
     # extractTranscriptSeqs does not use transcript version numbers
-    if (isoform_action == "collapse") {
-      message("Collapsing gene isoforms")
-      filter_use <- AnnotationFilterList(SeqNameFilter(chrs_use))
-      grl <- exonsBy(X, by = "gene", filter = filter_use)
-      # Add version number if used
-      if (use_gene_version) {
-        g_nv <- str_remove(tr2g_cdna$gene, "\\.\\d+$")
-        names(grl) <- tr2g_cdna$gene[match(names(grl), g_nv)]
-      }
-      grl <- GenomicRanges::reduce(grl)
-      seqlevels(grl) <- seqlevelsInUse(grl)
-      c(Genome, grl) %<-% annot_circular(Genome, grl)
-      genome(grl) <- genome(Genome)[seqlevels(grl)]
-      # Get intronic ranges
-      introns <- get_intron_flanks(grl, L, FALSE)
-      if (exon_option == "junction") {
-        message("Extracting exon-exon junctions")
-        grt <- exons_by_tx(X, tr2g_cdna$transcript, chrs_use,
-          use_transcript_version)
-        c(Genome, grt) %<-% annot_circular(Genome, grt)
-        genome(grt) <- genome(Genome)[seqlevels(grt)]
-        exons <- get_intron_flanks(grt, L, TRUE)[[2]]
-        Transcriptome <- extractTranscriptSeqs(Genome, exons)
-        tr2g_cdna <- tr2g_junction(tr2g_cdna, names(Transcriptome))
-      }
-    } else {
-      grl <- exons_by_tx(X, tr2g_cdna$transcript, chrs_use,
-        use_transcript_version)
-      c(Genome, grl) %<-% annot_circular(Genome, grl)
-      genome(grl) <- genome(Genome)[seqlevels(grl)]
-      if (exon_option == "junction") {
-        message("Extracting exon-exon junctions")
-        c(introns, exons) %<-% get_intron_flanks(grl, L, TRUE)
-        Transcriptome <- extractTranscriptSeqs(Genome, exons)
-        tr2g_cdna <- tr2g_junction(tr2g_cdna, names(Transcriptome))
-      } else {
-        introns <- get_intron_flanks(grl, L, FALSE)
-      }
+    # Split by genes
+    filter_use <- AnnotationFilterList(SeqNameFilter(chrs_use))
+    grl <- exonsBy(X, by = "gene", filter = filter_use)
+    # Add version number if used
+    if (use_gene_version) {
+      g_nv <- str_remove(tr2g_cdna$gene, "\\.\\d+$")
+      names(grl) <- tr2g_cdna$gene[match(names(grl), g_nv)]
     }
-    if (is.null(Transcriptome) && exon_option == "full") {
+    grl <- GenomicRanges::reduce(grl)
+    seqlevels(grl) <- seqlevelsInUse(grl)
+    c(Genome, grl) %<-% annot_circular(Genome, grl)
+    genome(grl) <- genome(Genome)[seqlevels(grl)]
+
+    do_extract <- is.null(Transcriptome) && exon_option == "full"
+    if (do_extract || exon_option == "junction") {
+      # Split by transcripts
+      grt <- exons_by_tx_ensdb(X, tr2g_cdna$transcript, chrs_use,
+                         use_transcript_version)
+      c(Genome, grt) %<-% annot_circular(Genome, grt)
+      genome(grt) <- genome(Genome)[seqlevels(grt)]
+    }
+
+    # Get intronic ranges
+    introns <- get_intron_flanks(grl, L, FALSE)
+    if (exon_option == "junction") {
+      message("Extracting exon-exon junctions")
+      exons <- get_intron_flanks(grt, L, TRUE)[[2]]
+      Transcriptome <- extractTranscriptSeqs(Genome, exons)
+      tr2g_cdna <- tr2g_junction(tr2g_cdna, names(Transcriptome))
+    }
+    if (do_extract) {
       message("Extracting transcriptome from genome")
-      if (isoform_action != "collapse") {
-        Transcriptome <- extractTranscriptSeqs(Genome, grl)
-      } else {
-        grt <- exons_by_tx(X, tr2g_cdna$transcript, chrs_use,
-          use_transcript_version)
-        c(Genome, grt) %<-% annot_circular(Genome, grt)
-        genome(grt) <- genome(Genome)[seqlevels(grt)]
-        Transcriptome <- extractTranscriptSeqs(Genome, grt)
-      }
+      Transcriptome <- extractTranscriptSeqs(Genome, grt)
       tr2g_cdna <- tr2g_cdna[tr2g_cdna$transcript %in% names(Transcriptome), ]
     }
     write_velocity_output(out_path, introns, Genome, Transcriptome,
-      isoform_action, exon_option, tr2g_cdna, compress_fa, width)
+      exon_option, tr2g_cdna, compress_fa, width)
   })

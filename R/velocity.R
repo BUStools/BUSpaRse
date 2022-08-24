@@ -98,14 +98,14 @@ check_genome <- function(chrs_use, Genome) {
 #' @return A subsetted genome annotation of the same type of the input genome
 #' annotation.
 #' @export
-#' @examples 
+#' @examples
 #' library(BSgenome.Hsapiens.UCSC.hg38)
-#' library(EnsDb.Hsapiens.v86) 
+#' library(EnsDb.Hsapiens.v86)
 #' library(GenomeInfoDb)
 #' gn <- BSgenome.Hsapiens.UCSC.hg38
 #' seqlevelsStyle(gn) <- "Ensembl"
 #' subset_annot(gn, EnsDb.Hsapiens.v86)
-#' 
+#'
 setGeneric("subset_annot",
   function(Genome, annot)
     standardGeneric("subset_annot"))
@@ -218,7 +218,7 @@ unlist_rename <- function(grl) {
 #' in addition to the flanked intronic ranges, a `CompressedGRangesList` with
 #' exon-exon junction ranges and ranges for transcripts without introns.
 #' @importFrom S4Vectors elementNROWS revElements
-#' @importFrom GenomicRanges setdiff intersect union flank punion 
+#' @importFrom GenomicRanges setdiff intersect union flank punion
 get_intron_flanks <- function(grl, L, get_junctions) {
   introns <- setdiff(range(grl), grl)
   inds <- elementNROWS(introns) > 0
@@ -279,28 +279,16 @@ tr2g_junction <- function(tr2g_cdna, junction_names) {
 #' @importFrom BSgenome getSeq
 #' @importFrom Biostrings writeXStringSet
 write_velocity_output <- function(out_path, introns, Genome, Transcriptome,
-                                  isoform_action, exon_option, tr2g_cdna,
+                                  exon_option, tr2g_cdna,
                                   compress_fa, width) {
   message("Extracting flanked intronic sequences")
   introns <- sort(introns)
   intron_seqs <- getSeq(Genome, introns)
   ns <- str_remove(names(intron_seqs), "-I(\\d+)?")
   # Not to confuse with version number
-  if (isoform_action == "collapse") {
-    tr2g_intron <- data.frame(transcript = names(intron_seqs),
-      gene = ns,
-      stringsAsFactors = FALSE)
-  } else {
-    # ns will be transcript ID in this case
-    if (exon_option == "junction") {
-      tx <- str_remove(tr2g_cdna$transcript, "-J(\\d+)?")
-    } else {
-      tx <- tr2g_cdna$transcript
-    }
-    tr2g_intron <- data.frame(transcript = names(intron_seqs),
-      gene = tr2g_cdna$gene[match(ns, tx)],
-      stringsAsFactors = FALSE)
-  }
+  tr2g_intron <- data.frame(transcript = names(intron_seqs),
+                            gene = ns,
+                            stringsAsFactors = FALSE)
   out_fa <- paste(out_path, "cDNA_introns.fa", sep = "/")
   if (compress_fa) {
     out_fa <- paste0(out_fa, ".gz")
