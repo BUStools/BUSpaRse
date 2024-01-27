@@ -20,7 +20,7 @@ check_out_path <- function(out_path) {
 #' Get transcript and gene info from Ensembl
 #'
 #' This function queries Ensembl biomart to convert transcript IDs to gene IDs.
-#' 
+#'
 #' @inheritParams tr2g_GRanges
 #' @param species Character vector of length 1, Latin name of the species of
 #' interest.
@@ -38,9 +38,9 @@ check_out_path <- function(out_path) {
 #' to the Ensembl release of a particular date. The version specified here must
 #' match the version of Ensembl where the transcriptome used to build the
 #' kallisto index was downloaded. This only works for vertebrates and the most
-#' common invertebrate model organisms like _Drosophila melanogaster_ and 
+#' common invertebrate model organisms like _Drosophila melanogaster_ and
 #' _C. elegans_ (i.e. www.ensembl.org and its mirrors), not the other Ensembl
-#' sites for plants, protists, fungi, and metazoa. 
+#' sites for plants, protists, fungi, and metazoa.
 #' @param other_attrs Character vector. Other attributes to get from Ensembl,
 #' such as gene symbol and position on the genome.
 #' Use \code{\link{listAttributes}} to see which attributes are available.
@@ -71,7 +71,7 @@ check_out_path <- function(out_path) {
 #' @importFrom GenomeInfoDb genomeStyles
 #' @export
 #' @examples
-#' tr2g <- tr2g_ensembl(species = "Danio rerio", 
+#' tr2g <- tr2g_ensembl(species = "Danio rerio",
 #' other_attrs = "description", write_tr2g = FALSE)
 #' # This will use plants.ensembl.org as host instead of www.ensembl.org
 #' tr2g <- tr2g_ensembl(species = "Arabidopsis thaliana", type = "plant",
@@ -84,9 +84,9 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
                          use_transcript_version = TRUE,
                          use_gene_version = TRUE,
                          transcript_biotype_col = "transcript_biotype",
-                         gene_biotype_col = "gene_biotype", 
+                         gene_biotype_col = "gene_biotype",
                          transcript_biotype_use = "all",
-                         gene_biotype_use = "all", 
+                         gene_biotype_use = "all",
                          chrs_only = TRUE,
                          ensembl_version = NULL, overwrite = FALSE,
                          verbose = TRUE, ...) {
@@ -119,6 +119,7 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
     fungus = "fungi",
     protist = "protists")
   mart_use <- paste(host_pre, "mart", sep = "_")
+  host_pre <- paste0("https://", host_pre)
   host_use <- paste0(host_pre, ".ensembl.org")
   if (type == "vertebrate") mart_use <- "ensembl"
   if (verbose) {
@@ -152,13 +153,13 @@ tr2g_ensembl <- function(species, type = c("vertebrate", "metazoa", "plant",
   }
   attrs_use <- unique(attrs_use)
   out <- getBM(attrs_use, mart = mart)
-  
+
   if (gene_biotype_use != "all") {
     gbt_use <- which_biotypes(gene_biotype_use, out[[gene_biotype_col]])
     out <- out[out[[gene_biotype_col]] %in% gbt_use,]
   }
   if (transcript_biotype_use != "all") {
-    tbt_use <- which_biotypes(transcript_biotype_use, 
+    tbt_use <- which_biotypes(transcript_biotype_use,
                               out[[transcript_biotype_col]])
     out <- out[out[[transcript_biotype_col]] %in% tbt_use,]
   }
@@ -180,10 +181,10 @@ which_biotypes <- function(bt, bt_col) {
     if (bt == "all") {
       return(u_bt_col)
     } else if (bt == "cellranger") {
-      bt <- c("protein_coding", "lincRNA", "antisense", "IG_LV_gene", 
+      bt <- c("protein_coding", "lincRNA", "antisense", "IG_LV_gene",
              "IG_V_gene", "IG_V_pseudogene", "IG_D_gene", "IG_J_gene",
-             "IG_J_pseudogene", "IG_C_gene", "IG_C_pseudogene", "TR_V_gene", 
-             "TR_V_pseudogene", "TR_D_gene", "TR_J_gene", "TR_J_pseudogene", 
+             "IG_J_pseudogene", "IG_C_gene", "IG_C_pseudogene", "TR_V_gene",
+             "TR_V_pseudogene", "TR_D_gene", "TR_J_gene", "TR_J_pseudogene",
              "TR_C_gene")
     }
   }
@@ -321,29 +322,29 @@ check_genome_present <- function(Genome, get_transcriptome) {
 #' version number, it's up to you whether to include gene version number.
 #' @param version_sep Character to separate bewteen the main ID and the version
 #' number. Defaults to ".", as in Ensembl.
-#' @param transcript_biotype_col Character vector of length 1. Tag in 
-#' \code{attribute} field corresponding to _transcript_ biotype. 
+#' @param transcript_biotype_col Character vector of length 1. Tag in
+#' \code{attribute} field corresponding to _transcript_ biotype.
 #' @param gene_biotype_col Character vector of length 1. Tag in \code{attribute}
-#' field corresponding to _gene_ biotype. 
+#' field corresponding to _gene_ biotype.
 #' @param transcript_biotype_use Character, can be "all" or
 #' a vector of _transcript_ biotypes to be used. Transcript biotypes aren't
 #' entirely the same as gene biotypes. For instance, in Ensembl annotation,
-#' `retained_intron` is a transcript biotype, but not a gene biotype. If 
+#' `retained_intron` is a transcript biotype, but not a gene biotype. If
 #' "cellranger", then a warning will be given. See `data("ensembl_tx_biotypes")`
 #' for all available transcript biotypes from Ensembl.
 #' @param gene_biotype_use Character, can be "all", "cellranger", or
-#' a vector of _gene_ biotypes to be used. If "cellranger", then the biotypes 
-#' used by Cell Ranger's reference are used. See `data("cellranger_biotypes")` 
-#' for gene biotypes the Cell Ranger reference uses. See 
+#' a vector of _gene_ biotypes to be used. If "cellranger", then the biotypes
+#' used by Cell Ranger's reference are used. See `data("cellranger_biotypes")`
+#' for gene biotypes the Cell Ranger reference uses. See
 #' `data("ensembl_gene_biotypes")` for all available gene biotypes from Ensembl.
 #' Note that gene biotypes and transcript biotypes are not always the same.
 #' @param chrs_only Logical, whether to include chromosomes only, for GTF and
 #' GFF files can contain annotations for scaffolds, which are not incorporated
-#' into chromosomes. This will also exclude haplotypes. Defaults to `TRUE`. 
+#' into chromosomes. This will also exclude haplotypes. Defaults to `TRUE`.
 #' Only applicable to species found in `genomeStyles()`.
-#' @param compress_fa Logical, whether to compress the output fasta file. If 
+#' @param compress_fa Logical, whether to compress the output fasta file. If
 #' `TRUE`, then the fasta file will be gzipped.
-#' @param save_filtered_gtf Logical. If filtering type, biotypes, and/or 
+#' @param save_filtered_gtf Logical. If filtering type, biotypes, and/or
 #' chromosomes, whether to save the filtered `GRanges` as a GTF file.
 #' @param overwrite Logical, whether to overwrite if files with names of outputs
 #' written to disk already exist.
@@ -357,16 +358,16 @@ check_genome_present <- function(Genome, get_transcriptome) {
 #' @importFrom GenomeInfoDb mapSeqlevels
 #' @importFrom plyranges write_gff
 #' @importFrom GenomeInfoDb keepStandardChromosomes
-tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE, 
-                         out_path = ".", write_tr2g = TRUE, 
+tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
+                         out_path = ".", write_tr2g = TRUE,
                          transcript_id = "transcript_id",
                          gene_id = "gene_id", gene_name = "gene_name",
                          transcript_version = "transcript_version",
                          gene_version = "gene_version", version_sep = ".",
                          transcript_biotype_col = "transcript_biotype",
-                         gene_biotype_col = "gene_biotype", 
+                         gene_biotype_col = "gene_biotype",
                          transcript_biotype_use = "all",
-                         gene_biotype_use = "all", 
+                         gene_biotype_use = "all",
                          chrs_only = TRUE, compress_fa = FALSE,
                          save_filtered_gtf = TRUE, overwrite = FALSE) {
   tags <- names(mcols(gr))
@@ -392,7 +393,7 @@ tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
   # Filter chromosomes
   gr <- filter_chr(gr, chrs_only)
   # Filter by biotypes
-  gr <- filter_biotype(gr, transcript_biotype_col, gene_biotype_col, 
+  gr <- filter_biotype(gr, transcript_biotype_col, gene_biotype_col,
                        transcript_biotype_use, gene_biotype_use)
   if (get_transcriptome) {
     gr <- sort(gr)
@@ -405,13 +406,13 @@ tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
   }
   if (!is.null(transcript_version) && transcript_version %in% tags) {
     tv <- mcols(gr)[[transcript_version]]
-    mcols(gr)[[transcript_id]] <- out$transcript <- 
+    mcols(gr)[[transcript_id]] <- out$transcript <-
       paste(out$transcript, tv, sep = version_sep)
     mcols(gr)[[transcript_version]] <- NULL
   }
   if (!is.null(gene_version) && gene_version %in% tags) {
     gv <- mcols(gr)[[gene_version]]
-    mcols(gr)[[gene_id]] <- out$gene <- 
+    mcols(gr)[[gene_id]] <- out$gene <-
       paste(out$gene, gv, sep = version_sep)
     mcols(gr)[[gene_version]] <- NULL
   }
@@ -498,16 +499,16 @@ tr2g_GRanges <- function(gr, Genome = NULL, get_transcriptome = TRUE,
 #' tr2g <- tr2g_gtf(file = file_use, transcript_version = NULL,
 #'   gene_version = NULL, get_transcriptome = FALSE,
 #'   write_tr2g = FALSE, save_filtered_gtf = FALSE)
-tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE, 
-                     out_path = ".", write_tr2g = TRUE, 
+tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
+                     out_path = ".", write_tr2g = TRUE,
                      transcript_id = "transcript_id",
                      gene_id = "gene_id", gene_name = "gene_name",
                      transcript_version = "transcript_version",
                      gene_version = "gene_version", version_sep = ".",
                      transcript_biotype_col = "transcript_biotype",
-                     gene_biotype_col = "gene_biotype", 
+                     gene_biotype_col = "gene_biotype",
                      transcript_biotype_use = "all",
-                     gene_biotype_use = "all", 
+                     gene_biotype_use = "all",
                      chrs_only = TRUE, compress_fa = FALSE,
                      save_filtered_gtf = TRUE, overwrite = FALSE) {
   # Validate arguments
@@ -515,16 +516,16 @@ tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
   file <- normalizePath(file, mustWork = TRUE)
   check_gff("gtf", file, transcript_id, gene_id)
   gr <- read_gff(file)
-  tr2g_GRanges(gr = gr, Genome = Genome, get_transcriptome = get_transcriptome, 
-               out_path = out_path, write_tr2g = write_tr2g, 
+  tr2g_GRanges(gr = gr, Genome = Genome, get_transcriptome = get_transcriptome,
+               out_path = out_path, write_tr2g = write_tr2g,
                transcript_id = transcript_id,
                gene_id = gene_id, gene_name = gene_name,
                transcript_version = transcript_version,
                gene_version = gene_version, version_sep = version_sep,
                transcript_biotype_col = transcript_biotype_col,
-               gene_biotype_col = gene_biotype_col, 
+               gene_biotype_col = gene_biotype_col,
                transcript_biotype_use = transcript_biotype_use,
-               gene_biotype_use = gene_biotype_use, 
+               gene_biotype_use = gene_biotype_use,
                chrs_only = chrs_only, compress_fa = compress_fa,
                save_filtered_gtf = save_filtered_gtf,
                overwrite = overwrite)
@@ -563,7 +564,7 @@ tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
 #' @inheritParams tr2g_gtf
 #' @param source Name of the database where this GFF3 file was downloaded. Must
 #' be either "ensembl" or "refseq".
-#' @param save_filtered_gff Logical. If filtering type, biotypes, and/or 
+#' @param save_filtered_gff Logical. If filtering type, biotypes, and/or
 #' chromosomes, whether to save the filtered `GRanges` as a GFF3 file.
 #' @return A data frame at least 2 columns: \code{gene} for gene ID,
 #' \code{transcript} for transcript ID, and optionally, \code{gene_name} for
@@ -584,22 +585,22 @@ tr2g_gtf <- function(file, Genome = NULL, get_transcriptome = TRUE,
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' file_use <- paste(toy_path, "gff3_test.gff3", sep = "/")
 #' # Default
-#' tr2g <- tr2g_gff3(file = file_use, write_tr2g = FALSE, 
+#' tr2g <- tr2g_gff3(file = file_use, write_tr2g = FALSE,
 #' get_transcriptome = FALSE, save_filtered_gff = FALSE)
 #' # Excluding version numbers
 #' tr2g <- tr2g_gff3(file = file_use, transcript_version = NULL,
 #'   gene_version = NULL, write_tr2g = FALSE, get_transcriptome = FALSE,
 #'   save_filtered_gff = FALSE)
 tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
-                      out_path = ".", write_tr2g = TRUE, 
+                      out_path = ".", write_tr2g = TRUE,
                       transcript_id = "transcript_id",
                       gene_id = "gene_id", gene_name = "Name",
                       transcript_version = "version",
                       gene_version = "version", version_sep = ".",
                       transcript_biotype_col = "biotype",
-                      gene_biotype_col = "biotype", 
+                      gene_biotype_col = "biotype",
                       transcript_biotype_use = "all",
-                      gene_biotype_use = "all", 
+                      gene_biotype_use = "all",
                       chrs_only = TRUE, compress_fa = FALSE,
                       save_filtered_gff = TRUE, overwrite = FALSE,
                       source = c("ensembl", "refseq")) {
@@ -613,9 +614,9 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
   if (source == "refseq") {
     # refseq has its own seqnames; use chromosome column instead
     chr <- sn <- NULL
-    sn2chr <- tibble(sn = as.vector(seqnames(gr)), chr = gr$chromosome) %>% 
-      dplyr::filter(!is.na(chr)) %>% 
-      distinct() %>% 
+    sn2chr <- tibble(sn = as.vector(seqnames(gr)), chr = gr$chromosome) %>%
+      dplyr::filter(!is.na(chr)) %>%
+      distinct() %>%
       dplyr::filter(str_detect(sn, "^NC"))
     gr <- gr[seqnames(gr) %in% sn2chr$sn]
     seqlevels(gr, pruning.mode = "coarse") <- seqlevelsInUse(gr)
@@ -644,12 +645,12 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
     } else {
       if (get_transcriptome) {
         ind2 <- gr$type == "exon"
-        gr$Parent[ind2] <- 
-          lapply(gr$Parent[ind2], 
+        gr$Parent[ind2] <-
+          lapply(gr$Parent[ind2],
                  function(x) x[str_detect(x, "^(transcript)|(rna)")])
       }
       ind1 <- !is.na(mcols(gr)[[transcript_id]])
-      gr$Parent[ind1] <- lapply(gr$Parent[ind1], 
+      gr$Parent[ind1] <- lapply(gr$Parent[ind1],
                           function(x) x[str_detect(x, "^gene")])
       ind3 <- lengths(gr$Parent) < 1
       gr$Parent[ind3] <- NA
@@ -657,9 +658,9 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
     }
   }
   gr_tx <- gr_g <- NULL
-  c(gr_tx, gr_g) %<-% filter_biotype_gff3(gr, transcript_id, gene_id, 
-                                          transcript_biotype_col, 
-                                          gene_biotype_col, transcript_biotype_use, 
+  c(gr_tx, gr_g) %<-% filter_biotype_gff3(gr, transcript_id, gene_id,
+                                          transcript_biotype_col,
+                                          gene_biotype_col, transcript_biotype_use,
                                           gene_biotype_use, source)
   # Get transcript ID
   genes <- str_split(gr_tx$Parent, ":|-", simplify = TRUE)[, 2]
@@ -748,9 +749,9 @@ tr2g_gff3 <- function(file, Genome = NULL, get_transcriptome = TRUE,
     out$gene <- NULL
     names(out)[names(out) == "gene_version"] <- "gene"
   }
-  out <- out[, c("transcript", "gene", setdiff(names(out), 
+  out <- out[, c("transcript", "gene", setdiff(names(out),
                                                c("transcript", "gene")))]
-  if (write_tr2g) { 
+  if (write_tr2g) {
     write_tr2g_fun(out, out_path, overwrite)
   }
   out
@@ -809,8 +810,8 @@ tr2g_fasta <- function(file, out_path = ".", write_tr2g = TRUE,
                        use_gene_name = TRUE, use_transcript_version = TRUE,
                        use_gene_version = TRUE,
                        transcript_biotype_use = "all",
-                       gene_biotype_use = "all", 
-                       chrs_only = TRUE, save_filtered = TRUE, 
+                       gene_biotype_use = "all",
+                       chrs_only = TRUE, save_filtered = TRUE,
                        compress_fa = FALSE, overwrite = FALSE) {
   check_char1(setNames(file, "file"))
   file <- normalizePath(file, mustWork = TRUE)
@@ -833,12 +834,12 @@ tr2g_fasta <- function(file, out_path = ".", write_tr2g = TRUE,
   if (use_gene_name) {
     out$gene_name <- str_extract(names(s), "(?<=gene_symbol:).*?(?=(\\s|$))")
   }
-  
+
   inds <- TRUE
   do_filter <- transcript_biotype_use != "all" | gene_biotype_use != "all" |
     chrs_only
   if (chrs_only) {
-    sns <- str_extract(names(s), "(?<=((chromosome)|(scaffold)|(primary_assembly)):).*?(?=\\s)") %>% 
+    sns <- str_extract(names(s), "(?<=((chromosome)|(scaffold)|(primary_assembly)):).*?(?=\\s)") %>%
       str_split(pattern = ":", simplify = TRUE)
     sns <- sns[,2]
     inds <- !is.na(mapSeqlevels(sns, style = "Ensembl"))
@@ -915,8 +916,8 @@ tr2g_fasta <- function(file, out_path = ".", write_tr2g = TRUE,
 #' tr2g_TxDb(TxDb.Hsapiens.UCSC.hg38.knownGene, BSgenome.Hsapiens.UCSC.hg38)
 #' # Clean up
 #' file.remove("transcriptome.fa", "tr2g.tsv")
-tr2g_TxDb <- function(txdb, Genome = NULL, get_transcriptome = TRUE, 
-                      out_path = ".", write_tr2g = TRUE, chrs_only = TRUE, 
+tr2g_TxDb <- function(txdb, Genome = NULL, get_transcriptome = TRUE,
+                      out_path = ".", write_tr2g = TRUE, chrs_only = TRUE,
                       compress_fa = FALSE, overwrite = FALSE) {
   check_genome_present(Genome = Genome, get_transcriptome = get_transcriptome)
   if (get_transcriptome || write_tr2g) {
@@ -998,15 +999,15 @@ tr2g_TxDb <- function(txdb, Genome = NULL, get_transcriptome = TRUE,
 #' tr2g_EnsDb(EnsDb.Hsapiens.v86, get_transcriptome = FALSE, write_tr2g = FALSE,
 #'  use_transcript_version = FALSE,
 #'  use_gene_version = FALSE)
-tr2g_EnsDb <- function(ensdb, Genome = NULL, get_transcriptome = TRUE, 
+tr2g_EnsDb <- function(ensdb, Genome = NULL, get_transcriptome = TRUE,
                        out_path = ".", write_tr2g = TRUE,
                        other_attrs = NULL, use_gene_name = TRUE,
                        use_transcript_version = TRUE,
                        use_gene_version = TRUE,
                        transcript_biotype_col = "TXBIOTYPE",
-                       gene_biotype_col = "GENEBIOTYPE", 
+                       gene_biotype_col = "GENEBIOTYPE",
                        transcript_biotype_use = "all",
-                       gene_biotype_use = "all", chrs_only = TRUE, 
+                       gene_biotype_use = "all", chrs_only = TRUE,
                        compress_fa = FALSE, overwrite = FALSE) {
   check_genome_present(Genome, get_transcriptome)
   if (get_transcriptome || write_tr2g) {
@@ -1051,7 +1052,7 @@ tr2g_EnsDb <- function(ensdb, Genome = NULL, get_transcriptome = TRUE,
     df <- df[df[[gene_biotype_col]] %in% gbt_use,]
   }
   if (transcript_biotype_use != "all") {
-    tbt_use <- which_biotypes(transcript_biotype_use, 
+    tbt_use <- which_biotypes(transcript_biotype_use,
                               df[[transcript_biotype_col]])
     df <- df[df[[transcript_biotype_col]] %in% tbt_use,]
   }
@@ -1127,7 +1128,7 @@ tr2g_EnsDb <- function(ensdb, Genome = NULL, get_transcriptome = TRUE,
 #' @export
 #' @importFrom utils read.table
 #' @family functions to retrieve transcript and gene info
-#' @note This function has been superseded by the new version of tr2g_* 
+#' @note This function has been superseded by the new version of tr2g_*
 #' functions that can extract transcriptome for only the biotypes specified and
 #' with only the standard chromosomes. The new version of tr2g_* functions also
 #' sorts the transcriptome so the tr2g and the transcriptome have transcripts in
@@ -1183,7 +1184,7 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path) {
 #' to disk.
 #' @export
 #' @importFrom utils write.table
-#' @note This function has been superseded by the new version of tr2g_* 
+#' @note This function has been superseded by the new version of tr2g_*
 #' functions that can extract transcriptome for only the biotypes specified and
 #' with only the standard chromosomes. The new version of tr2g_* functions also
 #' sorts the transcriptome so the tr2g and the transcriptome have transcripts in
@@ -1191,7 +1192,7 @@ sort_tr2g <- function(tr2g, file, kallisto_out_path) {
 #' @examples
 #' toy_path <- system.file("testdata", package = "BUSpaRse")
 #' file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
-#' tr2g <- tr2g_gtf(file = file_use, get_transcriptome = FALSE, 
+#' tr2g <- tr2g_gtf(file = file_use, get_transcriptome = FALSE,
 #'   write_tr2g = FALSE, save_filtered_gtf = FALSE)
 #' save_tr2g_bustools(tr2g, file_save = "./tr2g.tsv")
 #' # Clean up files from the example
@@ -1237,7 +1238,7 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv") {
 #' @importFrom dplyr bind_rows
 #' @export
 #' @family functions to retrieve transcript and gene info
-#' @note This function has been superseded by the new version of tr2g_* 
+#' @note This function has been superseded by the new version of tr2g_*
 #' functions that can extract transcriptome for only the biotypes specified and
 #' with only the standard chromosomes. The new version of tr2g_* functions also
 #' sorts the transcriptome so the tr2g and the transcriptome have transcripts in
@@ -1246,7 +1247,7 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv") {
 #' # Download dataset already in BUS format
 #' library(TENxBUSData)
 #' TENxBUSData(".", dataset = "hgmm100")
-#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), 
+#' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
 #'   type = "vertebrate", save_filtered = FALSE,
 #'   ensembl_version = 99, kallisto_out_path = "./out_hgmm100")
 #' # Clean up files from the example

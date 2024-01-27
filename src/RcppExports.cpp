@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // EC2gene_export
 Rcpp::List EC2gene_export(Rcpp::DataFrame tr2g, std::string kallisto_out_path, bool verbose);
 RcppExport SEXP _BUSpaRse_EC2gene_export(SEXP tr2gSEXP, SEXP kallisto_out_pathSEXP, SEXP verboseSEXP) {

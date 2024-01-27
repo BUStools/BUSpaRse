@@ -1,9 +1,9 @@
 #' Download transcriptome from Ensembl
-#' 
+#'
 #' This function downloads the cDNA fasta file from specific version of Ensembl.
 #' It can also filter the fasta file by gene and transcript biotype and remove
 #' scaffolds and haplotypes.
-#' 
+#'
 #' @inheritParams tr2g_ensembl
 #' @inheritParams .get_velocity_files
 #' @param ... Other arguments passed to `tr2g_fasta`.
@@ -12,8 +12,8 @@
 #' \describe{
 #' \item{species.genome.cdna.all.fa.gz}{The cDNA fasta file from Ensembl, from
 #' the specified version.}
-#' \item{cdna_filtered.fa}{The filtered cDNA fasta file, only keeping the 
-#' desired biotypes and without scaffolds and haplotypes (if 
+#' \item{cdna_filtered.fa}{The filtered cDNA fasta file, only keeping the
+#' desired biotypes and without scaffolds and haplotypes (if
 #' `chrs_only = TRUE`). This file will not be written if all gene and transcript
 #' biotypes are used and scaffolds and haplotypes are not removed.}
 #' \item{tr2g.tsv}{The transcript to gene file, without headers so can be
@@ -22,7 +22,7 @@
 #' @export
 #' @importFrom biomaRt searchDatasets listMarts listEnsemblArchives
 #' @importFrom utils download.file
-#' @examples 
+#' @examples
 #' dl_transcriptome("Drosophila melanogaster", gene_biotype_use = "cellranger",
 #'                  chrs_only = FALSE)
 #' # Clean up
@@ -31,7 +31,7 @@ dl_transcriptome <- function(species, out_path = ".",
                              type = c("vertebrate", "metazoa", "plant",
                                       "fungus", "protist"),
                              transcript_biotype_use = "all",
-                             gene_biotype_use = "all", 
+                             gene_biotype_use = "all",
                              chrs_only = TRUE,
                              ensembl_version = NULL,
                              verbose = TRUE, ...) {
@@ -58,6 +58,7 @@ dl_transcriptome <- function(species, out_path = ".",
                      fungus = "fungi",
                      protist = "protists")
   mart_use <- paste(host_pre, "mart", sep = "_")
+  host_pre <- paste0("https://", host_pre)
   host_use <- paste0(host_pre, ".ensembl.org")
   if (type == "vertebrate") mart_use <- "ensembl"
   if (is.null(ensembl_version)) {
@@ -76,7 +77,7 @@ dl_transcriptome <- function(species, out_path = ".",
   if (str_detect(gv, "^GRC")) {
     gv <- str_extract(gv, "^GRC[a-z\\d]+")
   }
-  
+
   # Build URL for download
   species_url <- str_replace(species, " ", "_") %>% tolower()
   if (type == "vertebrate") {
@@ -94,7 +95,7 @@ dl_transcriptome <- function(species, out_path = ".",
   } else {
     download.file(url, destfile = destfile, quiet = !verbose)
   }
-  
+
   # Filter biotype
   do_filter <- transcript_biotype_use != "all" | gene_biotype_use != "all" |
     chrs_only

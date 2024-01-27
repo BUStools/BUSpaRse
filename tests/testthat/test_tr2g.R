@@ -33,7 +33,7 @@ test_that("Sensible results from biomart query", {
   # Specify version of Ensembl
   tr2g <- tr2g_ensembl(species = "Danio rerio",
     use_gene_version = FALSE, use_transcript_version = TRUE,
-    ensembl_version = 94, chrs_only = FALSE)
+    ensembl_version = 95, chrs_only = FALSE)
   expect_equal(names(tr2g), c("transcript", "gene", "gene_name"))
   expect_gt(nrow(tr2g), 1)
   # version numbers
@@ -67,23 +67,23 @@ test_that("Extract transcript and gene ID from GTF file", {
   expect_equal(tr2g_no_gn, tr2g_expected[, -3])
   # With version number
   expect_equal(tr2g_gtf(fn, get_transcriptome = FALSE, write_tr2g = FALSE,
-                        save_filtered_gtf = FALSE) %>% 
+                        save_filtered_gtf = FALSE) %>%
                  arrange(gene), tr2g_expected_version)
 
   # Test error messages
   # transcript_id or gene_id is wrong
-  expect_error(tr2g_gtf(fn, transcript_id = "foo", 
-                        get_transcriptome = FALSE, write_tr2g = FALSE), 
+  expect_error(tr2g_gtf(fn, transcript_id = "foo",
+                        get_transcriptome = FALSE, write_tr2g = FALSE),
                "Tags foo are absent")
-  expect_error(tr2g_gtf(fn, gene_id = "bar", write_tr2g = FALSE, 
-                        get_transcriptome = FALSE), 
+  expect_error(tr2g_gtf(fn, gene_id = "bar", write_tr2g = FALSE,
+                        get_transcriptome = FALSE),
                "Tags bar are absent")
   # transcript_id or gene_id is NULL
-  expect_error(tr2g_gtf(fn, transcript_id = NULL, write_tr2g = FALSE, 
-                        get_transcriptome = FALSE), 
+  expect_error(tr2g_gtf(fn, transcript_id = NULL, write_tr2g = FALSE,
+                        get_transcriptome = FALSE),
                "transcript_id cannot be NULL.")
-  expect_error(tr2g_gtf(fn, gene_id = NULL, write_tr2g = FALSE, 
-                        get_transcriptome = FALSE), 
+  expect_error(tr2g_gtf(fn, gene_id = NULL, write_tr2g = FALSE,
+                        get_transcriptome = FALSE),
                "gene_id cannot be NULL.")
   # gene_name, gene_version, or transcript_version is wrong
   expect_warning(tr2g_gtf(fn, gene_name = "foo", gene_version = "bar",
@@ -118,14 +118,14 @@ test_that("Extract transcript and gene ID from GFF3 file", {
 
   # Test error messages
   # transcript_id or gene_id is wrong
-  expect_error(tr2g_gff3(fn, transcript_id = "foo", get_transcriptome = FALSE), 
+  expect_error(tr2g_gff3(fn, transcript_id = "foo", get_transcriptome = FALSE),
                "Tags foo are absent")
-  expect_error(tr2g_gff3(fn, gene_id = "bar", get_transcriptome = FALSE), 
+  expect_error(tr2g_gff3(fn, gene_id = "bar", get_transcriptome = FALSE),
                "Tags bar are absent")
   # transcript_id or gene_id is NULL
-  expect_error(tr2g_gff3(fn, transcript_id = NULL, get_transcriptome = FALSE), 
+  expect_error(tr2g_gff3(fn, transcript_id = NULL, get_transcriptome = FALSE),
                "transcript_id cannot be NULL.")
-  expect_error(tr2g_gff3(fn, gene_id = NULL, get_transcriptome = FALSE), 
+  expect_error(tr2g_gff3(fn, gene_id = NULL, get_transcriptome = FALSE),
                "gene_id cannot be NULL.")
   # gene_name, gene_version, or transcript_version is wrong
   expect_warning(tr2g_gff3(fn, get_transcriptome = FALSE, save_filtered_gff = FALSE,
@@ -141,7 +141,7 @@ test_that("Extract transcript and gene ID from GFF3 file", {
 
 test_that("Extract transcript and gene ID from FASTA file", {
   fn <- paste(toy_path, "fasta_test.fasta", sep = "/")
-  expect_equal(tr2g_fasta(fn, write_tr2g = FALSE, save_filtered = FALSE), 
+  expect_equal(tr2g_fasta(fn, write_tr2g = FALSE, save_filtered = FALSE),
                fa_tr2g_expected)
   expect_error(tr2g_fasta(file = 3),
     "file must be a character vector with length 1")
@@ -153,15 +153,15 @@ test_that("Extract transcript and gene ID from FASTA file", {
   fa_tr2g_no_version)
   # Non-ENS IDs
   fn_dm <- paste(toy_path, "fasta_dm_test.fasta", sep = "/")
-  m <- capture_messages(tr2g_fasta(fn_dm, use_transcript_version = TRUE, 
+  m <- capture_messages(tr2g_fasta(fn_dm, use_transcript_version = TRUE,
                                    write_tr2g = FALSE,
                                    save_filtered = FALSE))
   expect_match(m, "Version is not applicable.*", all = FALSE)
   tr2g_dm <- read.csv(paste(toy_path, "fa_tr2g_dm.csv", sep = "/"),
     header = TRUE, stringsAsFactors = FALSE) %>% as_tibble()
-  expect_equal(tr2g_fasta(fn_dm, use_transcript_version = TRUE, 
+  expect_equal(tr2g_fasta(fn_dm, use_transcript_version = TRUE,
                           write_tr2g = FALSE, save_filtered = FALSE), tr2g_dm)
-  expect_equal(tr2g_fasta(fn_dm, use_transcript_version = FALSE, 
+  expect_equal(tr2g_fasta(fn_dm, use_transcript_version = FALSE,
                           write_tr2g = FALSE, save_filtered = FALSE), tr2g_dm)
   rm(list = c("fn", "fn_dm", "tr2g_dm"))
 })
@@ -186,7 +186,7 @@ test_that("Correct bustools tr2g tsv file", {
 
 test_that("Correct sorting of transcripts", {
   file_use <- paste(toy_path, "gtf_test.gtf", sep = "/")
-  tr2g <- tr2g_gtf(file = file_use, save_filtered_gtf = FALSE, 
+  tr2g <- tr2g_gtf(file = file_use, save_filtered_gtf = FALSE,
                    get_transcriptome = FALSE, write_tr2g = FALSE,
                    transcript_version = NULL, gene_version = NULL)
   s <- sort_tr2g(tr2g, kallisto_out_path = toy_path)
