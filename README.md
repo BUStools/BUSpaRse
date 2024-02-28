@@ -1,6 +1,6 @@
 <!-- badges: start -->
 [![BioC status](http://www.bioconductor.org/shields/build/devel/bioc/BUSpaRse.svg)](https://bioconductor.org/checkResults/devel/bioc-LATEST/BUSpaRse)
-[![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![Lifecycle: superseded](https://img.shields.io/badge/lifecycle-superseded-blue.svg)](https://lifecycle.r-lib.org/articles/stages.html#superseded)
 <!-- badges: end -->
 
 # BUSpaRse

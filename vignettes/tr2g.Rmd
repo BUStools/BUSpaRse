@@ -124,6 +124,7 @@ tr2g_hs86 <- tr2g_EnsDb(EnsDb.Hsapiens.v86, get_transcriptome = FALSE,
                         use_gene_version = FALSE, use_transcript_version = FALSE)
 head(tr2g_hs86)
 ```
+
 ## Deprecation
 There used to be sections about `sort_tr2g` and `save_tr2g_bustools`, but these functions have been superseded by the new version of `tr2g` functions and `dl_transcriptome`, which sort the transcriptome after extracting it so the `tr2g` and the transcriptome are in the same order. The new version of `tr2g` functions and `dl_transcriptome` also by default writes the `tr2g.tsv` without column names with the first column as transcript and the second as gene to disk.
 
