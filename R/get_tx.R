@@ -51,14 +51,14 @@ dl_transcriptome <- function(species, out_path = ".",
   }
   # Get current ensembl version
   ds_name <- species2dataset(species, type)
-  host_pre <- switch(type,
+  host_pre0 <- switch(type,
                      vertebrate = "www",
                      metazoa = "metazoa",
                      plant = "plants",
                      fungus = "fungi",
                      protist = "protists")
-  mart_use <- paste(host_pre, "mart", sep = "_")
-  host_pre <- paste0("https://", host_pre)
+  mart_use <- paste(host_pre0, "mart", sep = "_")
+  host_pre <- paste0("https://", host_pre0)
   host_use <- paste0(host_pre, ".ensembl.org")
   if (type == "vertebrate") mart_use <- "ensembl"
   if (is.null(ensembl_version)) {
@@ -84,7 +84,7 @@ dl_transcriptome <- function(species, out_path = ".",
     part1 <- "ftp://ftp.ensembl.org/pub/release-"
   }
   else {
-    part1 <- paste0("ftp://ftp.ensemblgenomes.org/pub/", host_pre, "/release-")
+    part1 <- paste0("ftp://ftp.ensemblgenomes.org/pub/", host_pre0, "/release-")
   }
   fn <- paste0(str_replace(species, " ", "_"), ".", gv, ".cdna.all.fa.gz")
   url <- paste0(part1, ev, "/fasta/", species_url, "/cdna/", fn)
