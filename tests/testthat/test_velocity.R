@@ -7,20 +7,19 @@ library(plyranges)
 
 # Load toy examples
 toy_path <- system.file("testdata", package = "BUSpaRse")
-toy_genome <- readDNAStringSet(paste(toy_path, "velocity_genome.fa",
-  sep = "/"))
+toy_genome <- readDNAStringSet(file.path(toy_path, "velocity_genome.fa"))
 L <- 16
-txdb <- makeTxDbFromGFF(paste(toy_path, "velocity_annot.gtf", sep = "/"))
+txdb <- txdbmaker::makeTxDbFromGFF(file.path(toy_path, "velocity_annot.gtf"))
 
 # Some functions just for these tests
 test_fasta <- function(toy_path, out_path, option = "normal") {
   fa_fn <- switch(option,
-    normal = "/velocity_introns.fa",
-    coll = "/velocity_introns_coll.fa",
-    junc = "/junctions.fa",
-    junc_coll = "/junction_coll.fa")
-  expected_fa <- readDNAStringSet(paste0(toy_path, fa_fn))
-  actual_fa <- readDNAStringSet(paste(out_path, "cDNA_introns.fa", sep = "/"))
+    normal = "velocity_introns.fa",
+    coll = "velocity_introns_coll.fa",
+    junc = "junctions.fa",
+    junc_coll = "junction_coll.fa")
+  expected_fa <- readDNAStringSet(file.path(toy_path, fa_fn))
+  actual_fa <- readDNAStringSet(file.path(out_path, "cDNA_introns.fa"))
   # sort
   actual_fa <- actual_fa[names(expected_fa)]
   expect_true(all(abs(pcompare(actual_fa, expected_fa)) < 1e-8))
@@ -36,7 +35,7 @@ test_tr2g <- function(toy_path, out_path, option = "normal") {
     header = FALSE, sep = "\t",
     col.names = c("transcript", "gene"),
     stringsAsFactors = FALSE)
-  actual_tr2g <- read.table(paste(out_path, "tr2g.tsv", sep = "/"),
+  actual_tr2g <- read.table(file.path(out_path, "tr2g.tsv"),
     header = FALSE, sep = "\t",
     col.names = c("transcript", "gene"),
     stringsAsFactors = FALSE)
@@ -48,9 +47,8 @@ test_tx_capture <- function(toy_path, out_path, option = "normal") {
   cap_fn <- switch(option,
     normal = "velocity_cdna_tx.txt",
     junc = "junction_capture.txt")
-  expected_tx_capture <- readLines(paste(toy_path, cap_fn, sep = "/"))
-  actual_tx_capture <- readLines(paste(out_path, "cDNA_tx_to_capture.txt",
-    sep = "/"))
+  expected_tx_capture <- readLines(file.path(toy_path, cap_fn))
+  actual_tx_capture <- readLines(file.path(out_path, "cDNA_tx_to_capture.txt"))
   actual_tx_capture <- actual_tx_capture[match(expected_tx_capture, actual_tx_capture)]
   expect_equal(actual_tx_capture, expected_tx_capture)
 }
@@ -60,18 +58,17 @@ test_intron_capture <- function(toy_path, out_path, option = "normal") {
     normal = "/velocity_introns_capture.txt",
     coll = "/velocity_introns_coll_capture.txt")
   expected_intron_capture <- readLines(paste0(toy_path, ins_fn))
-  actual_intron_capture <- readLines(paste(out_path,
-    "introns_tx_to_capture.txt",
-    sep = "/"))
+  actual_intron_capture <- readLines(file.path(out_path,
+                                               "introns_tx_to_capture.txt"))
   actual_intron_capture <- actual_intron_capture[match(expected_intron_capture, actual_intron_capture)]
   expect_equal(actual_intron_capture, expected_intron_capture)
 }
 
 test_that("GRanges, keep isoforms separate", {
   out_path <- "./trunc_sep"
-  get_velocity_files(paste(toy_path, "velocity_annot.gtf", sep = "/"), L = L,
+  get_velocity_files(file.path(toy_path, "velocity_annot.gtf"), L = L,
     Genome = toy_genome,
-    Transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
+    Transcriptome = file.path(toy_path, "velocity_tx.fa"),
     out_path = out_path,
     isoform_action = "separate",
     exon_option = "full",
@@ -90,9 +87,9 @@ test_that("GRanges, keep isoforms separate", {
 
 test_that("GRanges, collapse isoforms", {
   out_path <- "./trunc_coll"
-  get_velocity_files(paste(toy_path, "velocity_annot.gtf", sep = "/"), L = L,
+  get_velocity_files(file.path(toy_path, "velocity_annot.gtf"), L = L,
     Genome = toy_genome,
-    Transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
+    Transcriptome = file.path(toy_path, "velocity_tx.fa"),
     out_path = out_path,
     isoform_action = "collapse",
     transcript_version = NULL,
@@ -112,7 +109,7 @@ test_that("TxDb, keep isoforms separate", {
   out_path <- "./trunc_sep"
   expect_warning(get_velocity_files(txdb, L = L,
     Genome = toy_genome,
-    Transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
+    Transcriptome = file.path(toy_path, "velocity_tx.fa"),
     out_path = out_path, isoform_action = "separate", chrs_only = FALSE), 
     regexp = "isCircular information")
   # fasta file
@@ -130,7 +127,7 @@ test_that("TxDb, collapse isoforms", {
   out_path <- "./trunc_coll"
   expect_warning(get_velocity_files(txdb, L = L,
     Genome = toy_genome,
-    Transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
+    Transcriptome = file.path(toy_path, "velocity_tx.fa"),
     out_path = out_path, isoform_action = "collapse", chrs_only = FALSE), 
     regexp = "isCircular information")
   # fasta file
@@ -146,7 +143,7 @@ test_that("TxDb, collapse isoforms", {
 
 test_that("When transcriptome is missing, GRanges", {
   out_path <- "./trunc_sep"
-  get_velocity_files(paste(toy_path, "velocity_annot.gtf", sep = "/"), L = L,
+  get_velocity_files(file.path(toy_path, "velocity_annot.gtf"), L = L,
     Genome = toy_genome,
     out_path = out_path,
     isoform_action = "separate",
@@ -183,7 +180,7 @@ test_that("When transcriptome is missing, TxDb", {
 
 test_that("Get exon-exon junctions, GRanges", {
   out_path <- "./trunc_sep"
-  get_velocity_files(paste(toy_path, "velocity_annot.gtf", sep = "/"), L = L,
+  get_velocity_files(file.path(toy_path, "velocity_annot.gtf"), L = L,
     Genome = toy_genome,
     out_path = out_path,
     isoform_action = "separate",
@@ -203,7 +200,7 @@ test_that("Get exon-exon junctions, GRanges", {
 
 test_that("Get exon-exon junctions, GRanges, collapse isoform", {
   out_path <- "./trunc_coll"
-  get_velocity_files(paste(toy_path, "velocity_annot.gtf", sep = "/"), L = L,
+  get_velocity_files(file.path(toy_path, "velocity_annot.gtf"), L = L,
     Genome = toy_genome,
     out_path = out_path,
     isoform_action = "collapse",

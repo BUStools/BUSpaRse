@@ -1,7 +1,7 @@
 Package: BUSpaRse
 Type: Package
 Title: kallisto | bustools R utilities
-Version: 1.17.1
+Version: 1.17.2
 Date: 2024-02-27
 Authors@R: 
     c(person("Lambda", "Moses", email = "dlu2@caltech.edu", 
@@ -65,6 +65,7 @@ Suggests:
     rmarkdown,
     testthat,
     BiocStyle,
+    txdbmaker,
     TENxBUSData,
     TxDb.Hsapiens.UCSC.hg38.knownGene,
     BSgenome.Hsapiens.UCSC.hg38,
