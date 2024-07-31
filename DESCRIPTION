@@ -65,6 +65,7 @@ Suggests:
     rmarkdown,
     testthat,
     BiocStyle,
+    txdbmaker,
     TENxBUSData,
     TxDb.Hsapiens.UCSC.hg38.knownGene,
     txdbmaker,
