@@ -67,6 +67,7 @@ Suggests:
     BiocStyle,
     TENxBUSData,
     TxDb.Hsapiens.UCSC.hg38.knownGene,
+    txdbmaker,
     BSgenome.Hsapiens.UCSC.hg38,
     EnsDb.Hsapiens.v86
 VignetteBuilder: knitr

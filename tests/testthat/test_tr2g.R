@@ -33,7 +33,7 @@ test_that("Sensible results from biomart query", {
   # Specify version of Ensembl
   tr2g <- tr2g_ensembl(species = "Danio rerio",
     use_gene_version = FALSE, use_transcript_version = TRUE,
-    ensembl_version = 95, chrs_only = FALSE)
+    ensembl_version = 98, chrs_only = FALSE)
   expect_equal(names(tr2g), c("transcript", "gene", "gene_name"))
   expect_gt(nrow(tr2g), 1)
   # version numbers

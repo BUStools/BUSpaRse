@@ -43,10 +43,10 @@ list.files("fly")
 
 The first file is the original fasta file. The second is the `tr2g` file without column names. The third is the filtered fasta file.
 
-For _C. elegans_, from an archived version of Ensembl
+For _C. elegans_, from an archived version of Ensembl. Note that archives older than version 98 might not work.
 ```{r}
 dl_transcriptome("Caenorhabditis elegans", out_path = "worm", verbose = FALSE,
-                 gene_biotype_use = "cellranger", ensembl_version = 97)
+                 gene_biotype_use = "cellranger", ensembl_version = 98)
 list.files("worm")
 ```
 

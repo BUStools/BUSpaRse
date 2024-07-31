@@ -10,7 +10,7 @@ toy_path <- system.file("testdata", package = "BUSpaRse")
 toy_genome <- readDNAStringSet(paste(toy_path, "velocity_genome.fa",
   sep = "/"))
 L <- 16
-txdb <- makeTxDbFromGFF(paste(toy_path, "velocity_annot.gtf", sep = "/"))
+txdb <- txdbmaker::makeTxDbFromGFF(paste(toy_path, "velocity_annot.gtf", sep = "/"))
 
 # Some functions just for these tests
 test_fasta <- function(toy_path, out_path, option = "normal") {
@@ -113,7 +113,7 @@ test_that("TxDb, keep isoforms separate", {
   expect_warning(get_velocity_files(txdb, L = L,
     Genome = toy_genome,
     Transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
-    out_path = out_path, isoform_action = "separate", chrs_only = FALSE), 
+    out_path = out_path, isoform_action = "separate", chrs_only = FALSE),
     regexp = "isCircular information")
   # fasta file
   test_fasta(toy_path, out_path)
@@ -131,7 +131,7 @@ test_that("TxDb, collapse isoforms", {
   expect_warning(get_velocity_files(txdb, L = L,
     Genome = toy_genome,
     Transcriptome = paste(toy_path, "velocity_tx.fa", sep = "/"),
-    out_path = out_path, isoform_action = "collapse", chrs_only = FALSE), 
+    out_path = out_path, isoform_action = "collapse", chrs_only = FALSE),
     regexp = "isCircular information")
   # fasta file
   test_fasta(toy_path, out_path, "coll")
