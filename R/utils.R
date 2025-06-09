@@ -159,6 +159,7 @@ my_useMart <- function(ensembl_version, mart_use, ds_name, host_use) {
   } else {
     archives <- listEnsemblArchives()
     host_use <- archives$url[as.character(ensembl_version) == archives$version]
+    if (!length(host_use)) stop("Version ", ensembl_version, " is unavailable in the archive.")
     mart <- useMart(biomart = mart_use, dataset = ds_name, host = host_use)
   }
   mart
