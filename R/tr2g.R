@@ -1249,7 +1249,7 @@ save_tr2g_bustools <- function(tr2g, file_save = "./tr2g.tsv") {
 #' TENxBUSData(".", dataset = "hgmm100")
 #' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
 #'   type = "vertebrate", save_filtered = FALSE,
-#'   ensembl_version = 99, kallisto_out_path = "./out_hgmm100")
+#'   ensembl_version = 100, kallisto_out_path = "./out_hgmm100")
 #' # Clean up files from the example
 #' unlink("out_hgmm100")
 transcript2gene <- function(species, fasta_file, kallisto_out_path,

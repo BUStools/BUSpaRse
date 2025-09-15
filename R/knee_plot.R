@@ -55,7 +55,7 @@ get_inflection <- function(df, lower = 100) {
 #' TENxBUSData(".", dataset = "hgmm100")
 #' tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), 
 #'   type = "vertebrate",
-#'   ensembl_version = 99, kallisto_out_path = "./out_hgmm100")
+#'   ensembl_version = 100, kallisto_out_path = "./out_hgmm100")
 #' m <- make_sparse_matrix("./out_hgmm100/output.sorted.txt",
 #'   tr2g = tr2g, est_ncells = 1e5,
 #'   est_ngenes = nrow(tr2g), TCC = FALSE)
