@@ -11,12 +11,10 @@ species2dataset(
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
-scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.}
+scRNA-seq dataset. This is used to retrieve Ensembl information from
+biomart.}
 
-\item{type}{A character vector indicating the type of each species. Each
-element must be one of "vertebrate", "metazoa", "plant", "fungus", and
-"protist". If length is 1, then this type will be used for all species specified
-here. Can be missing if \code{fasta_file} is specified.}
+\item{type}{Deprecated.}
 }
 \value{
 The appropriate dataset name for biomart.

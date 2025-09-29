@@ -46,7 +46,6 @@ Code in part adapted from \code{barcodeRanks} from \code{DropetUtils}.
 library(TENxBUSData)
 TENxBUSData(".", dataset = "hgmm100")
 tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"), 
-  type = "vertebrate",
   ensembl_version = 99, kallisto_out_path = "./out_hgmm100")
 m <- make_sparse_matrix("./out_hgmm100/output.sorted.txt",
   tr2g = tr2g, est_ncells = 1e5,

@@ -8,13 +8,15 @@ transcript2gene(
   species,
   fasta_file,
   kallisto_out_path,
-  type = "vertebrate",
+  type = deprecated(),
+  ensembl_version = NULL,
   ...
 )
 }
 \arguments{
 \item{species}{A character vector of Latin names of species present in this
-scRNA-seq dataset. This is used to retrieve Ensembl information from biomart.}
+scRNA-seq dataset. This is used to retrieve Ensembl information from
+biomart.}
 
 \item{fasta_file}{Character vector of paths to the transcriptome FASTA files
 used to build the kallisto index. Exactly one of \code{species} and
@@ -22,49 +24,53 @@ used to build the kallisto index. Exactly one of \code{species} and
 
 \item{kallisto_out_path}{Path to the \code{kallisto bus} output directory.}
 
-\item{type}{A character vector indicating the type of each species. Each
-element must be one of "vertebrate", "metazoa", "plant", "fungus", and
-"protist". If length is 1, then this type will be used for all species specified
-here. Can be missing if \code{fasta_file} is specified.}
+\item{type}{Deprecated.}
+
+\item{ensembl_version}{Version of Ensembl to use if \code{fasta_file} is not
+supplied. If \code{NULL}, then using the newest version available on
+\code{AnnotationHub}.}
 
 \item{\dots}{Other arguments passed to \code{tr2g_ensembl} such as \code{other_attrs},
-\code{ensembl_version}, and arguments passed to \code{\link{useMart}}. If
+arguments passed to \code{\link{tr2g_EnsDb}}, except
+\code{get_transcriptome} which is always set to \code{FALSE}. If
 \code{fasta_files} is supplied instead of \code{species}, then this will be extra
-argumennts to \code{\link{tr2g_fasta}}, such as \code{use_transcript_version} and
-\code{use_gene_version}.}
+argumennts to \code{\link{tr2g_fasta}}, such as \code{use_transcript_version}
+and \code{use_gene_version}.}
 }
 \value{
 A data frame with two columns: \code{gene} and \code{transcript},
-with Ensembl gene and transcript IDs (with version number), in the same order
-as in the transcriptome index used in \code{kallisto}.
+with Ensembl gene and transcript IDs (with version number), in the same
+order as in the transcriptome index used in \code{kallisto}.
 }
 \description{
 This function is a shortcut to get the correctly sorted data frame with
 transcript IDs and the corresponding gene IDs from Ensembl biomart or Ensembl
 transcriptome FASTA files. For biomart query, it calls
-\code{\link{tr2g_ensembl}} and then \code{\link{sort_tr2g}}. For FASTA files,
+\code{\link{tr2g_EnsDb}} and then \code{\link{sort_tr2g}}. For FASTA files,
 it calls \code{\link{tr2g_fasta}} and then \code{\link{sort_tr2g}}. Unlike in
-\code{\link{tr2g_ensembl}} and \code{\link{tr2g_fasta}}, multiple species can
+\code{\link{tr2g_EnsDb}} and \code{\link{tr2g_fasta}}, multiple species can
 be supplied if cells from different species were sequenced together. This
 function should only be used if the kallisto inidex was built with
-transcriptomes from Ensembl. Also, if querying biomart, please make sure to set
-\code{ensembl_version} to match the version where the transcriptomes were
-downloaded.
+transcriptomes from Ensembl. Also, if querying biomart, please make sure to
+set \code{ensembl_version} to match the version where the transcriptomes were
+downloaded. \code{tr2g_EnsDb} is used now instead of \code{tr2g_ensembl}
+because Bioconductor's \code{AnnotationHub} keep more archive Ensembl
+versions than the official Ensembl website.
 }
 \note{
 This function has been superseded by the new version of tr2g_*
-functions that can extract transcriptome for only the biotypes specified and
-with only the standard chromosomes. The new version of tr2g_* functions also
-sorts the transcriptome so the tr2g and the transcriptome have transcripts in
-the same order.
+functions that can extract transcriptome for only the biotypes specified
+and with only the standard chromosomes. The new version of tr2g_* functions
+also sorts the transcriptome so the tr2g and the transcriptome have
+transcripts in the same order.
 }
 \examples{
 # Download dataset already in BUS format
 library(TENxBUSData)
 TENxBUSData(".", dataset = "hgmm100")
 tr2g <- transcript2gene(c("Homo sapiens", "Mus musculus"),
-  type = "vertebrate", save_filtered = FALSE,
-  ensembl_version = 99, kallisto_out_path = "./out_hgmm100")
+  write_tr2g = FALSE, ensembl_version = 99, 
+  kallisto_out_path = "./out_hgmm100")
 # Clean up files from the example
 unlink("out_hgmm100")
 }
